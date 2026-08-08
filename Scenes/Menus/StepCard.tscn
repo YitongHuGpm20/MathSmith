@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://b83iw0kho1jn"]
+
+[node name="StepCard" type="PanelContainer" unique_id=540115962]
+custom_minimum_size = Vector2(0, 70)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1770633040]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1927977688]
+layout_mode = 2
+
+[node name="OrderLabel" type="Label" parent="MarginContainer/HBoxContainer" unique_id=1241490098]
+layout_mode = 2
+text = "1."
+
+[node name="StepLabel" type="Label" parent="MarginContainer/HBoxContainer" unique_id=369448198]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "= 99 + 99"
