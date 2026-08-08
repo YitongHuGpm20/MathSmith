@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b8tycbj4qxcqq"]
 
-[ext_resource type="PackedScene" uid="uid://b83iw0kho1jn" path="res://Scenes/Menus/StepCard.tscn" id="1_2wl7v"]
+[ext_resource type="Script" uid="uid://lqhj8dbynjxm" path="res://Scripts/Gameplay/GameScene.gd" id="1_4bvgx"]
 
 [node name="GameScene" type="Control" unique_id=403715330]
 layout_mode = 3
@@ -9,6 +9,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_4bvgx")
 
 [node name="MainMargin" type="MarginContainer" parent="." unique_id=63823460]
 layout_mode = 1
@@ -32,6 +33,10 @@ text = "Level Title"
 layout_mode = 2
 text = "0/99"
 
+[node name="RuleLabel" type="Label" parent="MainMargin/MainLayout" unique_id=1211477185]
+layout_mode = 2
+text = "Arrange the solution steps in the correct order."
+
 [node name="QuestionPanel" type="PanelContainer" parent="MainMargin/MainLayout" unique_id=978704544]
 layout_mode = 2
 
@@ -45,42 +50,6 @@ text = "21 + 29"
 [node name="StepArea" type="VBoxContainer" parent="MainMargin/MainLayout" unique_id=198650403]
 layout_mode = 2
 
-[node name="StepCard" parent="MainMargin/MainLayout/StepArea" unique_id=540115962 instance=ExtResource("1_2wl7v")]
-layout_mode = 2
-
-[node name="OrderLabel" parent="MainMargin/MainLayout/StepArea/StepCard/MarginContainer/HBoxContainer" parent_id_path=PackedInt32Array(540115962, 1927977688) index="0" unique_id=1241490098]
-text = "1."
-
-[node name="StepLabel" parent="MainMargin/MainLayout/StepArea/StepCard/MarginContainer/HBoxContainer" parent_id_path=PackedInt32Array(540115962, 1927977688) index="1" unique_id=369448198]
-text = "= (20 + 1) + (20 + 9)"
-
-[node name="StepCard2" parent="MainMargin/MainLayout/StepArea" unique_id=1862819012 instance=ExtResource("1_2wl7v")]
-layout_mode = 2
-
-[node name="OrderLabel" parent="MainMargin/MainLayout/StepArea/StepCard2/MarginContainer/HBoxContainer" parent_id_path=PackedInt32Array(1862819012, 1927977688) index="0" unique_id=1241490098]
-text = "2."
-
-[node name="StepLabel" parent="MainMargin/MainLayout/StepArea/StepCard2/MarginContainer/HBoxContainer" parent_id_path=PackedInt32Array(1862819012, 1927977688) index="1" unique_id=369448198]
-text = "= (20 + 20) + (1 + 9)"
-
-[node name="StepCard3" parent="MainMargin/MainLayout/StepArea" unique_id=1300199734 instance=ExtResource("1_2wl7v")]
-layout_mode = 2
-
-[node name="OrderLabel" parent="MainMargin/MainLayout/StepArea/StepCard3/MarginContainer/HBoxContainer" parent_id_path=PackedInt32Array(1300199734, 1927977688) index="0" unique_id=1241490098]
-text = "3."
-
-[node name="StepLabel" parent="MainMargin/MainLayout/StepArea/StepCard3/MarginContainer/HBoxContainer" parent_id_path=PackedInt32Array(1300199734, 1927977688) index="1" unique_id=369448198]
-text = "= 40 + 10"
-
-[node name="StepCard4" parent="MainMargin/MainLayout/StepArea" unique_id=2105644826 instance=ExtResource("1_2wl7v")]
-layout_mode = 2
-
-[node name="OrderLabel" parent="MainMargin/MainLayout/StepArea/StepCard4/MarginContainer/HBoxContainer" parent_id_path=PackedInt32Array(2105644826, 1927977688) index="0" unique_id=1241490098]
-text = "4."
-
-[node name="StepLabel" parent="MainMargin/MainLayout/StepArea/StepCard4/MarginContainer/HBoxContainer" parent_id_path=PackedInt32Array(2105644826, 1927977688) index="1" unique_id=369448198]
-text = "= 50"
-
 [node name="FeedbackLabel" type="Label" parent="MainMargin/MainLayout" unique_id=342324537]
 layout_mode = 2
 text = "Feedback Text"
@@ -93,8 +62,3 @@ layout_mode = 2
 
 [node name="CheckButton" type="Button" parent="MainMargin/MainLayout/BottomBar" unique_id=538704096]
 layout_mode = 2
-
-[editable path="MainMargin/MainLayout/StepArea/StepCard"]
-[editable path="MainMargin/MainLayout/StepArea/StepCard2"]
-[editable path="MainMargin/MainLayout/StepArea/StepCard3"]
-[editable path="MainMargin/MainLayout/StepArea/StepCard4"]
