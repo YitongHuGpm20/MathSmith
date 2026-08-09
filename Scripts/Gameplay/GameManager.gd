@@ -1,7 +1,8 @@
 ## Controls the complete M1 gameplay loop for the active level.
 ##
-## This script owns level loading, question state, step generation, validation,
-## hints, progression, and level completion. UIManager only presents this state.
+## This script owns level loading, question state, gameplay validation, hints,
+## progression, and level completion. StepGenerator produces teaching steps,
+## while UIManager only presents gameplay state.
 extends Control
 
 #region ========== Constants ==========
@@ -21,6 +22,7 @@ const REQUIRED_LEVEL_TYPE_IDS: Array[String] = [
 #region ========== References ==========
 
 @onready var uiManager = $UIManager
+var stepGenerator := preload("res://Scripts/Gameplay/StepGenerator.gd").new()
 
 #endregion
 
@@ -309,7 +311,7 @@ func LoadQuestion(questionIndex: int) -> void:
 
 	var currentQuestion: Dictionary = questions[currentQuestionIndex]
 	var expression: String = currentQuestion.get("expression", "")
-	correctSteps = GenerateAdditionSteps(expression)
+	correctSteps = stepGenerator.GenerateSteps(expression)
 
 	# Stop if the expression cannot produce a valid solution process.
 	if correctSteps.is_empty():
@@ -327,33 +329,6 @@ func LoadQuestion(questionIndex: int) -> void:
 		questions.size(),
 		shuffledSteps
 	)
-
-# Generates the ordered solution process for a two-number addition expression.
-func GenerateAdditionSteps(expression: String) -> Array[String]:
-	var parts := expression.split("+")
-
-	# M1 only supports addition expressions containing exactly two numbers.
-	if parts.size() != 2:
-		push_error("Invalid addition expression: " + expression)
-		return []
-
-	var firstNumber := int(parts[0].strip_edges())
-	var secondNumber := int(parts[1].strip_edges())
-	var firstTens := firstNumber - firstNumber % 10
-	var firstOnes := firstNumber % 10
-	var secondTens := secondNumber - secondNumber % 10
-	var secondOnes := secondNumber % 10
-	var tensTotal := firstTens + secondTens
-	var onesTotal := firstOnes + secondOnes
-	var finalAnswer := firstNumber + secondNumber
-
-	# Build the learning sequence from decomposition through final answer.
-	return [
-		"= (%d + %d) + (%d + %d)" % [firstTens, firstOnes, secondTens, secondOnes],
-		"= (%d + %d) + (%d + %d)" % [firstTens, secondTens, firstOnes, secondOnes],
-		"= %d + %d" % [tensTotal, onesTotal],
-		"= %d" % finalAnswer
-	]
 
 # Returns a shuffled step list that differs from the correct order when possible.
 func ShuffleSteps(orderedSteps: Array[String]) -> Array[String]:
