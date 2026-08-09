@@ -11,7 +11,8 @@ var correctSteps: Array[String] = []
 var shuffledSteps: Array[String] = []
 var questionCompleted: bool = false
 
-# References
+# ========== References ==========
+# Main Game
 @onready var stepArea: VBoxContainer = $MainMargin/MainLayout/StepArea
 @onready var levelTitleLabel: Label = $MainMargin/MainLayout/TopBar/LevelTitleLabel
 @onready var progressLabel: Label = $MainMargin/MainLayout/TopBar/ProgressLabel
@@ -19,6 +20,12 @@ var questionCompleted: bool = false
 @onready var equationLabel: Label = $MainMargin/MainLayout/QuestionPanel/CenterContainer/EquationLabel
 @onready var feedbackLabel: Label = $MainMargin/MainLayout/FeedbackLabel
 @onready var checkButton: Button = $MainMargin/MainLayout/BottomBar/CheckButton
+
+# End Menu
+@onready var endMenu: PanelContainer = $EndMenu
+@onready var resultLabel: Label = $EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ResultLabel
+@onready var retryButton: Button = $EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RetryButton
+@onready var lobbyButton: Button = $EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/LobbyButton
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -29,7 +36,10 @@ func _ready() -> void:
 	currentLevel = levels[0]
 	LoadQuestion(currentQuestionIndex)
 	
+	# Bind button events
 	checkButton.pressed.connect(CheckAnswer)
+	retryButton.pressed.connect(RestartLevel)
+	lobbyButton.pressed.connect(BackToLobby)
 
 func LoadQuestion(questionIndex: int) -> void:
 	var questions = currentLevel["questions"]
@@ -116,5 +126,17 @@ func GoToNextQuestion() -> void:
 	LoadQuestion(currentQuestionIndex)
 
 func ShowEndMenu() -> void:
-	feedbackLabel.text = "Level Complete!"
-	checkButton.disabled = true
+	endMenu.visible = true
+	var questionCount = currentLevel["questions"].size()
+	resultLabel.text = "%d / %d Questions Completed" % [questionCount, questionCount]
+
+func RestartLevel() -> void:
+	currentQuestionIndex = 0
+	questionCompleted = false
+	endMenu.visible = false
+	checkButton.disabled = false
+	checkButton.text = "Check"
+	LoadQuestion(currentQuestionIndex)
+
+func BackToLobby() -> void:
+	print("Back to Lobby")
