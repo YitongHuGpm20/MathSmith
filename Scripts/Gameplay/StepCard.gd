@@ -1,47 +1,53 @@
-# Attached Object
+## Presents one draggable solution step inside the gameplay step area.
+##
+## This UI component stores display text and supports visual drag-and-drop. It
+## does not know whether its current position is correct.
 extends PanelContainer
 
-# References
+#region ========== References ==========
+
 @onready var orderLabel: Label = $MarginContainer/HBoxContainer/OrderLabel
 @onready var stepLabel: Label = $MarginContainer/HBoxContainer/StepLabel
 
-# Variables
+#endregion
+
+#region ========== Variables ==========
+
 var stepText: String = ""
 
-# ========== Functions ==========
+#endregion
 
-# Set up step card texts
-func Setup(order: int, text: String) -> void:
-	stepText = text
-	orderLabel.text = str(order) + "."
-	stepLabel.text = text
+#region ========== Godot Functions ==========
 
-
-func _get_drag_data(atPosition: Vector2):
-	var preview := duplicate()
-	preview.modulate.a = 0.7
-	set_drag_preview(preview)
+# Creates a translucent visual copy while this card is being dragged.
+func _get_drag_data(at_position: Vector2) -> Variant:
+	var dragPreview := duplicate()
+	dragPreview.modulate.a = 0.7
+	set_drag_preview(dragPreview)
 	return self
 
-func _can_drop_data(atPosition: Vector2, data) -> bool:
+# Accepts another StepCard from the same visual step area.
+func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
 	return data is PanelContainer and data != self
 
-
-func _drop_data(atPosition: Vector2, data) -> void:
+# Moves the dragged card to this card's current list position.
+func _drop_data(at_position: Vector2, data: Variant) -> void:
 	if data.get_parent() != get_parent():
 		return
 
-	var stepArea = get_parent()
-	var targetIndex := get_index()
-	stepArea.move_child(data, targetIndex)
-	UpdateOrderLabels()
+	# Delegate list positioning and label refresh to the shared StepArea.
+	var stepArea := get_parent()
+	stepArea.move_child(data, get_index())
+	stepArea.UpdateOrderLabels()
 
+#endregion
 
-func UpdateOrderLabels() -> void:
-	var stepArea = get_parent()
+#region ========== Functions ==========
 
-	for i in range(stepArea.get_child_count()):
-		var card = stepArea.get_child(i)
+# Applies the displayed order number and generated solution text.
+func Setup(orderNumber: int, displayText: String) -> void:
+	stepText = displayText
+	orderLabel.text = str(orderNumber) + "."
+	stepLabel.text = displayText
 
-		if card.has_method("Setup"):
-			card.Setup(i + 1, card.stepText)
+#endregion
