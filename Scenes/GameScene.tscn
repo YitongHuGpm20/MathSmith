@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b8tycbj4qxcqq"]
 
-[ext_resource type="Script" uid="uid://b2i5no6a6clfi" path="res://Scripts/Gameplay/StepArea.gd" id="2_4bvgx"]
-[ext_resource type="Script" path="res://Scripts/Gameplay/UIManager.gd" id="3_ui_manager"]
+[ext_resource type="Script" path="res://Scripts/UI/StepArea.gd" id="2_4bvgx"]
+[ext_resource type="Script" path="res://Scripts/UI/GameUI.gd" id="3_game_ui"]
 
 [node name="GameScene" type="Control" unique_id=403715330]
 layout_mode = 3
@@ -11,8 +11,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="UIManager" type="Node" parent="."]
-script = ExtResource("3_ui_manager")
+[node name="GameUI" type="Node" parent="."]
+script = ExtResource("3_game_ui")
 
 [node name="MainMargin" type="MarginContainer" parent="." unique_id=63823460]
 layout_mode = 1

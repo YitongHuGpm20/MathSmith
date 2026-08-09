@@ -1,4 +1,4 @@
-## Manages drag-and-drop placement inside the visual step list.
+## Manages drag-and-drop placement inside the Game Scene Step list.
 ##
 ## This UI component changes card positions and refreshes order labels. It does
 ## not validate the resulting order or make gameplay progression decisions.

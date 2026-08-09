@@ -1,15 +1,13 @@
-## Parses arithmetic expressions and generates human-readable teaching steps.
+## Generates human-readable teaching Steps from parsed arithmetic expressions.
 ##
 ## This gameplay service applies grade-appropriate strategies such as making
 ## ten, place-value decomposition, distributive multiplication, fact-family
 ## division, and operation precedence. GameManager owns the gameplay flow.
 extends RefCounted
 
-#region ========== Variables ==========
+#region ========== References ==========
 
-var tokens: Array[String] = []
-var tokenIndex: int = 0
-var nextNodeId: int = 0
+var expressionParser := preload("res://Scripts/Math/ExpressionParser.gd").new()
 
 #endregion
 
@@ -17,16 +15,22 @@ var nextNodeId: int = 0
 
 # Generates ordered teaching steps for one parser-compatible expression.
 func GenerateSteps(expression: String) -> Array[String]:
-	var expressionTree := ParseExpression(expression)
+	var expressionTree := expressionParser.ParseExpression(expression)
 
 	if expressionTree.is_empty():
 		push_error("Failed to parse expression: " + expression)
 		return []
 
-	var operationCount := CountOperations(expressionTree)
+	var operationCount: int = expressionParser.CountOperations(expressionTree)
 
 	if operationCount == 0:
 		return []
+
+	# Prefer paired make-ten grouping for compatible three-addend expressions.
+	var threeAddendSteps := GenerateThreeAddendMakeTenSteps(expressionTree)
+
+	if not threeAddendSteps.is_empty():
+		return FormatLocalSteps(threeAddendSteps)
 
 	# A single operation receives a full strategy demonstration.
 	if operationCount == 1:
@@ -35,139 +39,60 @@ func GenerateSteps(expression: String) -> Array[String]:
 	# Multi-operation expressions emphasize order and reduce one operation at a time.
 	return GenerateExpressionReductionSteps(expressionTree, operationCount)
 
-# Parses a complete expression into an operator tree.
-func ParseExpression(expression: String) -> Dictionary:
-	tokens = TokenizeExpression(expression)
-	tokenIndex = 0
-	nextNodeId = 0
+# Generates two paired tens by splitting the middle of three addends.
+func GenerateThreeAddendMakeTenSteps(expressionTree: Dictionary) -> Array[String]:
+	var addends: Array[int] = []
 
-	if tokens.is_empty():
-		return {}
+	if not CollectAdditionOperands(expressionTree, addends) or addends.size() != 3:
+		return []
 
-	var expressionTree := ParseAdditionAndSubtraction()
+	var firstNumber := addends[0]
+	var middleNumber := addends[1]
+	var lastNumber := addends[2]
 
-	# Reject expressions containing unused or malformed tokens.
-	if expressionTree.is_empty() or tokenIndex != tokens.size():
-		return {}
+	# This strategy applies when the middle addend completes both outer tens.
+	if firstNumber >= 10 or lastNumber >= 10:
+		return []
 
-	return expressionTree
+	var firstAmountToTen := 10 - firstNumber
+	var lastAmountToTen := 10 - lastNumber
 
-# Converts ASCII arithmetic text into number and operator tokens.
-func TokenizeExpression(expression: String) -> Array[String]:
-	var parsedTokens: Array[String] = []
-	var currentNumber: String = ""
+	if firstAmountToTen <= 0 or lastAmountToTen <= 0:
+		return []
 
-	for character in expression:
-		if character.is_valid_int():
-			currentNumber += character
-			continue
+	if firstAmountToTen + lastAmountToTen != middleNumber:
+		return []
 
-		# Commit a completed number before processing the next symbol.
-		if not currentNumber.is_empty():
-			parsedTokens.append(currentNumber)
-			currentNumber = ""
+	return [
+		"%d + (%d + %d) + %d" % [
+			firstNumber,
+			firstAmountToTen,
+			lastAmountToTen,
+			lastNumber
+		],
+		"(%d + %d) + (%d + %d)" % [
+			firstNumber,
+			firstAmountToTen,
+			lastAmountToTen,
+			lastNumber
+		],
+		"10 + 10",
+		"20"
+	]
 
-		if character in ["+", "-", "*", "/", "(", ")"]:
-			parsedTokens.append(character)
-		elif character != " ":
-			return []
-
-	if not currentNumber.is_empty():
-		parsedTokens.append(currentNumber)
-
-	return parsedTokens
-
-# Parses left-associative addition and subtraction operations.
-func ParseAdditionAndSubtraction() -> Dictionary:
-	var leftNode := ParseMultiplicationAndDivision()
-
-	while not leftNode.is_empty() and HasCurrentToken(["+", "-"]):
-		var operation: String = AdvanceToken()
-		var rightNode := ParseMultiplicationAndDivision()
-
-		if rightNode.is_empty():
-			return {}
-
-		leftNode = CreateOperationNode(operation, leftNode, rightNode)
-
-	return leftNode
-
-# Parses left-associative multiplication and division operations.
-func ParseMultiplicationAndDivision() -> Dictionary:
-	var leftNode := ParseFactor()
-
-	while not leftNode.is_empty() and HasCurrentToken(["*", "/"]):
-		var operation: String = AdvanceToken()
-		var rightNode := ParseFactor()
-
-		if rightNode.is_empty():
-			return {}
-
-		leftNode = CreateOperationNode(operation, leftNode, rightNode)
-
-	return leftNode
-
-# Parses a whole number or a parenthesized subexpression.
-func ParseFactor() -> Dictionary:
-	if tokenIndex >= tokens.size():
-		return {}
-
-	var currentToken: String = tokens[tokenIndex]
-
-	if currentToken == "(":
-		tokenIndex += 1
-		var groupedNode := ParseAdditionAndSubtraction()
-
-		if tokenIndex >= tokens.size() or tokens[tokenIndex] != ")":
-			return {}
-
-		tokenIndex += 1
-		return groupedNode
-
-	if not currentToken.is_valid_int():
-		return {}
-
-	tokenIndex += 1
-	return CreateNumberNode(int(currentToken))
-
-# Creates one uniquely identifiable number node.
-func CreateNumberNode(value: int) -> Dictionary:
-	var numberNode := {
-		"id": nextNodeId,
-		"type": "number",
-		"value": value
-	}
-	nextNodeId += 1
-	return numberNode
-
-# Creates one uniquely identifiable binary operation node.
-func CreateOperationNode(operation: String, leftNode: Dictionary, rightNode: Dictionary) -> Dictionary:
-	var operationNode := {
-		"id": nextNodeId,
-		"type": "operation",
-		"operation": operation,
-		"left": leftNode,
-		"right": rightNode
-	}
-	nextNodeId += 1
-	return operationNode
-
-# Returns whether the current parser token matches an allowed value.
-func HasCurrentToken(allowedTokens: Array) -> bool:
-	return tokenIndex < tokens.size() and tokens[tokenIndex] in allowedTokens
-
-# Returns the current token and advances the parser position.
-func AdvanceToken() -> String:
-	var currentToken := tokens[tokenIndex]
-	tokenIndex += 1
-	return currentToken
-
-# Counts binary operations contained in an expression tree.
-func CountOperations(expressionNode: Dictionary) -> int:
+# Flattens an addition-only expression tree into its ordered numeric addends.
+func CollectAdditionOperands(expressionNode: Dictionary, addends: Array[int]) -> bool:
 	if expressionNode["type"] == "number":
-		return 0
+		addends.append(expressionNode["value"])
+		return true
 
-	return 1 + CountOperations(expressionNode["left"]) + CountOperations(expressionNode["right"])
+	if expressionNode["operation"] != "+":
+		return false
+
+	return (
+		CollectAdditionOperands(expressionNode["left"], addends)
+		and CollectAdditionOperands(expressionNode["right"], addends)
+	)
 
 # Produces a complete teaching strategy for a single binary operation.
 func GenerateDetailedOperationSteps(operationNode: Dictionary) -> Array[String]:
@@ -239,6 +164,17 @@ func GenerateAdditionSteps(firstNumber: int, secondNumber: int) -> Array[String]
 				str(finalAnswer)
 			]
 
+		# Bridge through the next ten when the combined ones exceed ten.
+		if onesTotal > 10:
+			var amountToNextTen := 10 - largerOnes
+			var remainingAmount := smallerNumber - amountToNextTen
+			return [
+				"%d + (%d + %d)" % [largerNumber, amountToNextTen, remainingAmount],
+				"(%d + %d) + %d" % [largerNumber, amountToNextTen, remainingAmount],
+				"%d + %d" % [largerNumber + amountToNextTen, remainingAmount],
+				str(finalAnswer)
+			]
+
 		return [
 			"%d + (%d + %d)" % [higherPlaces, largerOnes, smallerNumber],
 			"%d + %d" % [higherPlaces, onesTotal],
@@ -251,7 +187,7 @@ func GenerateAdditionSteps(firstNumber: int, secondNumber: int) -> Array[String]
 	var groupedParts := GroupPlaceValueParts(firstParts, secondParts)
 	var groupedTotals := SumPlaceValueGroups(firstParts, secondParts)
 	return [
-		"(%s) + (%s)" % [JoinNumbers(firstParts), JoinNumbers(secondParts)],
+		"%s + %s" % [FormatPlaceValueDecomposition(firstParts), FormatPlaceValueDecomposition(secondParts)],
 		groupedParts,
 		groupedTotals,
 		str(finalAnswer)
@@ -326,13 +262,13 @@ func GenerateMultiplicationSteps(firstNumber: int, secondNumber: int) -> Array[S
 			productParts.append(placePart * smallerNumber)
 
 		return [
-			"(%s) * %d" % [JoinNumbers(placeParts), smallerNumber],
+			"%s * %d" % [FormatPlaceValueDecomposition(placeParts), smallerNumber],
 			JoinProducts(placeParts, smallerNumber),
 			JoinNumbers(productParts),
 			str(finalAnswer)
 		]
 
-	# Use equal groups and regroup them into two easier partial sums.
+	# Use the distributive property to turn equal groups into partial products.
 	if secondNumber == 1:
 		return [
 			"1 group of %d" % firstNumber,
@@ -340,15 +276,16 @@ func GenerateMultiplicationSteps(firstNumber: int, secondNumber: int) -> Array[S
 			str(finalAnswer)
 		]
 
-	var repeatedAddends: Array[int] = []
-
-	for _addendIndex in range(secondNumber):
-		repeatedAddends.append(firstNumber)
-
 	var firstGroupCount := maxi(floori(secondNumber / 2.0), 1)
 	var secondGroupCount := secondNumber - firstGroupCount
 	return [
-		JoinNumbers(repeatedAddends),
+		"%d * (%d + %d)" % [firstNumber, firstGroupCount, secondGroupCount],
+		"(%d * %d) + (%d * %d)" % [
+			firstNumber,
+			firstGroupCount,
+			firstNumber,
+			secondGroupCount
+		],
 		"%d + %d" % [firstNumber * firstGroupCount, firstNumber * secondGroupCount],
 		str(finalAnswer)
 	]
@@ -406,21 +343,38 @@ func GenerateCompactOperationSteps(operationNode: Dictionary) -> Array[String]:
 
 	match operation:
 		"+":
-			if leftValue < 10 and rightValue < 10 and leftValue + rightValue > 10:
+			var additionResult := leftValue + rightValue
+
+			# Use one concise bridge-through-ten strategy inside a larger expression.
+			if leftValue < 10 and rightValue < 10 and additionResult > 10:
 				var largerNumber := maxi(leftValue, rightValue)
+				var smallerNumber := mini(leftValue, rightValue)
 				var amountToTen := 10 - largerNumber
 				return [
-					"%d + %d + %d" % [largerNumber, amountToTen, mini(leftValue, rightValue) - amountToTen],
-					str(result)
+					"%d + %d + %d" % [largerNumber, amountToTen, smallerNumber - amountToTen],
+					"10 + %d" % [smallerNumber - amountToTen],
+					str(additionResult)
 				]
-			return ["(%s) + (%s)" % [JoinNumbers(GetPlaceValueParts(leftValue)), JoinNumbers(GetPlaceValueParts(rightValue))], str(result)]
+
+			if leftValue >= 10 and rightValue < 10 and leftValue % 10 + rightValue > 10:
+				var amountToNextTen := 10 - leftValue % 10
+				var remainingAmount := rightValue - amountToNextTen
+				return [
+					"%d + %d + %d" % [leftValue, amountToNextTen, remainingAmount],
+					"%d + %d" % [leftValue + amountToNextTen, remainingAmount],
+					str(additionResult)
+				]
+
+			return ["%d + %d" % [leftValue, rightValue], str(additionResult)]
 		"-":
-			var firstChunk := maxi(floori(rightValue / 2.0), 1)
-			return ["%d - %d - %d" % [leftValue, firstChunk, rightValue - firstChunk], str(result)]
+			return GenerateSubtractionSteps(leftValue, rightValue)
 		"*":
-			if rightValue == 1:
-				return ["1 group of %d" % leftValue, str(result)]
-			return ["%d * (%d + 1)" % [leftValue, rightValue - 1], str(result)]
+			var repeatedAddends: Array[int] = []
+
+			for _addendIndex in range(rightValue):
+				repeatedAddends.append(leftValue)
+
+			return [JoinNumbers(repeatedAddends), str(leftValue * rightValue)]
 		"/":
 			var quotient := floori(float(leftValue) / float(rightValue))
 
@@ -428,8 +382,14 @@ func GenerateCompactOperationSteps(operationNode: Dictionary) -> Array[String]:
 				return ["%d fits into %d once" % [rightValue, leftValue], str(result)]
 
 			var firstQuotientPart := maxi(quotient - 1, 1)
+			var secondQuotientPart := quotient - firstQuotientPart
 			var firstDividendPart := firstQuotientPart * rightValue
-			return ["(%d + %d) / %d" % [firstDividendPart, leftValue - firstDividendPart, rightValue], str(result)]
+			var secondDividendPart := leftValue - firstDividendPart
+			return [
+				"(%d + %d) / %d" % [firstDividendPart, secondDividendPart, rightValue],
+				"%d + %d" % [firstQuotientPart, secondQuotientPart],
+				str(result)
+			]
 
 	return [str(result)]
 
@@ -487,7 +447,15 @@ func FormatNode(
 	replacement: String
 ) -> String:
 	if expressionNode["id"] == targetNodeId and not replacement.is_empty():
-		return replacement if parentOperation.is_empty() else "(" + replacement + ")"
+		# A completed numeric result never needs parentheses around itself.
+		if replacement.is_valid_int() or parentOperation.is_empty():
+			return replacement
+
+		# Addition chains remain readable without redundant associative grouping.
+		if parentOperation == "+" and IsAdditionOnlyExpression(replacement):
+			return replacement
+
+		return "(" + replacement + ")"
 
 	if expressionNode["type"] == "number":
 		return str(expressionNode["value"])
@@ -518,6 +486,14 @@ func NeedsParentheses(operation: String, parentOperation: String, isRightChild: 
 # Returns standard arithmetic precedence for one binary operator.
 func GetOperationPrecedence(operation: String) -> int:
 	return 2 if operation in ["*", "/"] else 1
+
+# Returns whether text contains only whole numbers, spaces, and addition signs.
+func IsAdditionOnlyExpression(expression: String) -> bool:
+	var additionPattern := RegEx.new()
+	return (
+		additionPattern.compile("^[0-9+ ]+$") == OK
+		and additionPattern.search(expression) != null
+	)
 
 # Converts local expressions into Step Card display strings.
 func FormatLocalSteps(localSteps: Array[String]) -> Array[String]:
@@ -605,6 +581,17 @@ func JoinNumbers(numbers: Array[int]) -> String:
 			numberTexts.append(str(number))
 
 	return " + ".join(numberTexts)
+
+# Wraps a place-value sum only when it contains multiple visible terms.
+func FormatPlaceValueDecomposition(placeParts: Array[int]) -> String:
+	var visiblePartCount: int = 0
+
+	for placePart in placeParts:
+		if placePart != 0:
+			visiblePartCount += 1
+
+	var decomposition := JoinNumbers(placeParts)
+	return "(" + decomposition + ")" if visiblePartCount > 1 else decomposition
 
 # Joins number parts into a readable sequential subtraction expression.
 func JoinSubtractions(numbers: Array[int]) -> String:

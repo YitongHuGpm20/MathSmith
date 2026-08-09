@@ -1,4 +1,4 @@
-## Presents one draggable solution step inside the gameplay step area.
+## Presents one draggable solution Step inside the Game Scene Step area.
 ##
 ## This UI component stores display text and supports visual drag-and-drop. It
 ## does not know whether its current position is correct.

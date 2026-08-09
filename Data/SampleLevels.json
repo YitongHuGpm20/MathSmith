@@ -19,8 +19,8 @@
 	  "title": "Addition Basics",
 	  "skills": ["addition", "basic_arithmetic"],
 	  "questions": [
-		{"id": "L01_Q01", "expression": "7 + 5"},
-		{"id": "L01_Q02", "expression": "9 + 6"},
+		{"id": "L01_Q01", "expression": "14 + 8"},
+		{"id": "L01_Q02", "expression": "17 + 6"},
 		{"id": "L01_Q03", "expression": "12 + 7"},
 		{"id": "L01_Q04", "expression": "24 + 15"},
 		{"id": "L01_Q05", "expression": "38 + 27"}
@@ -31,7 +31,7 @@
 	  "title": "Subtraction Basics",
 	  "skills": ["subtraction", "basic_arithmetic"],
 	  "questions": [
-		{"id": "L02_Q01", "expression": "9 - 4"},
+		{"id": "L02_Q01", "expression": "14 - 6"},
 		{"id": "L02_Q02", "expression": "15 - 7"},
 		{"id": "L02_Q03", "expression": "23 - 8"},
 		{"id": "L02_Q04", "expression": "42 - 19"},
@@ -43,12 +43,12 @@
 	  "title": "Multiplication Basics",
 	  "skills": ["multiplication", "decomposition"],
 	  "questions": [
-		{"id": "L03_Q01", "expression": "3 * 4"},
-		{"id": "L03_Q02", "expression": "6 * 7"},
-		{"id": "L03_Q03", "expression": "8 * 9"},
-		{"id": "L03_Q04", "expression": "12 * 3"},
-		{"id": "L03_Q05", "expression": "16 * 4"},
-		{"id": "L03_Q06", "expression": "24 * 3"}
+		{"id": "L03_Q01", "expression": "12 * 3"},
+		{"id": "L03_Q02", "expression": "14 * 4"},
+		{"id": "L03_Q03", "expression": "16 * 5"},
+		{"id": "L03_Q04", "expression": "18 * 6"},
+		{"id": "L03_Q05", "expression": "24 * 3"},
+		{"id": "L03_Q06", "expression": "32 * 4"}
 	  ]
 	},
 	{

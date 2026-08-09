@@ -1,4 +1,4 @@
-## Presents gameplay state and forwards player UI requests to GameManager.
+## Presents Game Scene state and forwards player requests to GameManager.
 ##
 ## This script owns node references, button bindings, card presentation, and
 ## visual feedback. It does not make gameplay or answer-validation decisions.
@@ -46,11 +46,11 @@ func _ready() -> void:
 	lobbyButton.pressed.connect(_on_lobby_button_pressed)
 
 	# Wait until every sibling UI branch has completed its ready lifecycle.
-	GameManager.call_deferred("RegisterUIManager", self)
+	GameManager.call_deferred("RegisterGameUI", self)
 
 # Releases this scene's UI reference before its nodes leave the tree.
 func _exit_tree() -> void:
-	GameManager.UnregisterUIManager(self)
+	GameManager.UnregisterGameUI(self)
 
 #endregion
 
