@@ -1,0 +1,64 @@
+{
+  "levels": [
+	{
+	  "id": "level_01",
+	  "title": "Two-Digit Addition",
+	  "grade": 2,
+	  "description": "Practice solving two-digit addition by breaking numbers into tens and ones.",
+	  "mode": "step_ordering",
+	  "rule": "Arrange the solution steps in the correct order.",
+
+	  "questions": [
+		{
+		  "id": "L01_Q01",
+		  "expression": "21 + 29",
+		  "skills": [
+			"addition",
+			"two_digit",
+            "place_value"
+		  ]
+		},
+		{
+		  "id": "L01_Q02",
+		  "expression": "32 + 46",
+		  "skills": [
+			"addition",
+			"two_digit",
+			"place_value",
+            "no_regrouping"
+		  ]
+		},
+		{
+		  "id": "L01_Q03",
+		  "expression": "47 + 38",
+		  "skills": [
+			"addition",
+			"two_digit",
+			"place_value",
+            "regrouping"
+		  ]
+		},
+		{
+		  "id": "L01_Q04",
+		  "expression": "56 + 27",
+		  "skills": [
+			"addition",
+			"two_digit",
+			"place_value",
+            "regrouping"
+		  ]
+		},
+		{
+		  "id": "L01_Q05",
+		  "expression": "68 + 24",
+		  "skills": [
+			"addition",
+			"two_digit",
+			"place_value",
+            "regrouping"
+		  ]
+		}
+	  ]
+	}
+  ]
+}

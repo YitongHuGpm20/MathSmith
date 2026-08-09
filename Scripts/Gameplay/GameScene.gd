@@ -3,26 +3,77 @@ extends Control
 
 # Variables
 const STEP_CARD_SCENE = preload("res://Scenes/Menus/StepCard.tscn")
+var levelLoader := preload("res://Scripts/Gameplay/LevelLoader.gd").new()
+var stepGenerator := preload("res://Scripts/Gameplay/StepGenerator.gd").new()
+var currentLevel: Dictionary
+var currentQuestionIndex: int = 0
+var correctSteps: Array[String] = []
+var shuffledSteps: Array[String] = []
 
 # References
 @onready var stepArea: VBoxContainer = $MainMargin/MainLayout/StepArea
+@onready var levelTitleLabel: Label = $MainMargin/MainLayout/TopBar/LevelTitleLabel
+@onready var progressLabel: Label = $MainMargin/MainLayout/TopBar/ProgressLabel
+@onready var ruleLabel: Label = $MainMargin/MainLayout/RuleLabel
+@onready var equationLabel: Label = $MainMargin/MainLayout/QuestionPanel/CenterContainer/EquationLabel
+@onready var feedbackLabel: Label = $MainMargin/MainLayout/FeedbackLabel
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	CreateTestCards()
+	var levels = levelLoader.LoadLevels()
+	if levels.size() == 0:
+		return
 
+	currentLevel = levels[0]
+	LoadQuestion(currentQuestionIndex)
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func CreateTestCards() -> void:
-	var testSteps: Array[String] = [
-		"21 + 29",
-		"= (20 + 1) + (20 + 9)",
-		"= (20 + 20) + (1 + 9)",
-		"= 40 + 10",
-		"= 50"
+func LoadQuestion(questionIndex: int) -> void:
+	var questions = currentLevel["questions"]
+
+	if questionIndex < 0 or questionIndex >= questions.size():
+		push_error("Question index out of range: " + str(questionIndex))
+		return
+
+	currentQuestionIndex = questionIndex
+	var currentQuestion = questions[currentQuestionIndex]
+	var expression = currentQuestion["expression"]
+
+	levelTitleLabel.text = currentLevel["title"]
+	ruleLabel.text = currentLevel["rule"]
+	equationLabel.text = expression
+	progressLabel.text = "%d/%d" % [
+		currentQuestionIndex + 1,
+		questions.size()
 	]
+
+	correctSteps = stepGenerator.GenerateAdditionSteps(expression)
+
+	if correctSteps.size() == 0:
+		push_error("Failed to generate steps for expression: " + expression)
+		return
+
+	ShuffleSteps()
+	CreateStepCards(shuffledSteps)
+
+	feedbackLabel.text = "Arrange the solution steps in the correct order."
+
+func CreateStepCards(steps: Array[String]) -> void:
+	ClearStepCards()
 	
-	for i in range(testSteps.size()):
+	for i in range(steps.size()):
 		var card = STEP_CARD_SCENE.instantiate()
 		stepArea.add_child(card)
-		card.Setup(i + 1, testSteps[i])
+		card.Setup(i + 1, steps[i])
+
+func ClearStepCards() -> void:
+	for child in stepArea.get_children():
+		child.queue_free()
+
+func ShuffleSteps() -> void:
+	shuffledSteps = correctSteps.duplicate()
+
+	if shuffledSteps.size() <= 1:
+		return
+
+	while shuffledSteps == correctSteps:
+		shuffledSteps.shuffle()
