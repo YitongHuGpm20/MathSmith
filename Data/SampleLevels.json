@@ -1,63 +1,191 @@
 {
+  "level_types": {
+	"step_ordering": {
+	  "title": "Step Ordering",
+	  "rule": "Arrange the solution steps in the correct order."
+	},
+	"multiple_choice_ordering": {
+	  "title": "Multiple-Choice Ordering",
+	  "rule": "Choose the correct solution steps and arrange them in the correct order."
+	},
+	"fill_in_process": {
+	  "title": "Fill in the Process",
+	  "rule": "Complete the missing values in the solution process."
+	}
+  },
   "levels": [
 	{
 	  "id": "level_01",
-	  "title": "Two-Digit Addition",
-	  "grade": 2,
-	  "description": "Practice solving two-digit addition by breaking numbers into tens and ones.",
-	  "mode": "step_ordering",
-	  "rule": "Arrange the solution steps in the correct order.",
-
+	  "title": "Addition Basics",
+	  "skills": ["addition", "basic_arithmetic"],
 	  "questions": [
-		{
-		  "id": "L01_Q01",
-		  "expression": "21 + 29",
-		  "skills": [
-			"addition",
-			"two_digit",
-            "place_value"
-		  ]
-		},
-		{
-		  "id": "L01_Q02",
-		  "expression": "32 + 46",
-		  "skills": [
-			"addition",
-			"two_digit",
-			"place_value",
-            "no_regrouping"
-		  ]
-		},
-		{
-		  "id": "L01_Q03",
-		  "expression": "47 + 38",
-		  "skills": [
-			"addition",
-			"two_digit",
-			"place_value",
-            "regrouping"
-		  ]
-		},
-		{
-		  "id": "L01_Q04",
-		  "expression": "56 + 27",
-		  "skills": [
-			"addition",
-			"two_digit",
-			"place_value",
-            "regrouping"
-		  ]
-		},
-		{
-		  "id": "L01_Q05",
-		  "expression": "68 + 24",
-		  "skills": [
-			"addition",
-			"two_digit",
-			"place_value",
-            "regrouping"
-		  ]
-		}
+		{"id": "L01_Q01", "expression": "7 + 5"},
+		{"id": "L01_Q02", "expression": "9 + 6"},
+		{"id": "L01_Q03", "expression": "12 + 7"},
+		{"id": "L01_Q04", "expression": "24 + 15"},
+		{"id": "L01_Q05", "expression": "38 + 27"}
+	  ]
+	},
+	{
+	  "id": "level_02",
+	  "title": "Subtraction Basics",
+	  "skills": ["subtraction", "basic_arithmetic"],
+	  "questions": [
+		{"id": "L02_Q01", "expression": "9 - 4"},
+		{"id": "L02_Q02", "expression": "15 - 7"},
+		{"id": "L02_Q03", "expression": "23 - 8"},
+		{"id": "L02_Q04", "expression": "42 - 19"},
+		{"id": "L02_Q05", "expression": "70 - 36"}
+	  ]
+	},
+	{
+	  "id": "level_03",
+	  "title": "Multiplication Basics",
+	  "skills": ["multiplication", "decomposition"],
+	  "questions": [
+		{"id": "L03_Q01", "expression": "3 * 4"},
+		{"id": "L03_Q02", "expression": "6 * 7"},
+		{"id": "L03_Q03", "expression": "8 * 9"},
+		{"id": "L03_Q04", "expression": "12 * 3"},
+		{"id": "L03_Q05", "expression": "16 * 4"},
+		{"id": "L03_Q06", "expression": "24 * 3"}
+	  ]
+	},
+	{
+	  "id": "level_04",
+	  "title": "Division Basics",
+	  "skills": ["division", "decomposition"],
+	  "questions": [
+		{"id": "L04_Q01", "expression": "12 / 3"},
+		{"id": "L04_Q02", "expression": "18 / 6"},
+		{"id": "L04_Q03", "expression": "24 / 4"},
+		{"id": "L04_Q04", "expression": "35 / 5"},
+		{"id": "L04_Q05", "expression": "48 / 6"},
+		{"id": "L04_Q06", "expression": "72 / 8"}
+	  ]
+	},
+	{
+	  "id": "level_05",
+	  "title": "Larger Numbers",
+	  "skills": ["multi_digit", "regrouping"],
+	  "questions": [
+		{"id": "L05_Q01", "expression": "248 + 376"},
+		{"id": "L05_Q02", "expression": "700 - 284"},
+		{"id": "L05_Q03", "expression": "36 * 7"},
+		{"id": "L05_Q04", "expression": "144 / 12"},
+		{"id": "L05_Q05", "expression": "125 + 489"},
+		{"id": "L05_Q06", "expression": "903 - 457"},
+		{"id": "L05_Q07", "expression": "84 / 7"}
+	  ]
+	},
+	{
+	  "id": "level_06",
+	  "title": "Three-Number Expressions",
+	  "skills": ["multi_operand", "multi_step"],
+	  "questions": [
+		{"id": "L06_Q01", "expression": "8 + 5 + 7"},
+		{"id": "L06_Q02", "expression": "24 - 9 + 6"},
+		{"id": "L06_Q03", "expression": "4 * 3 + 8"},
+		{"id": "L06_Q04", "expression": "36 / 6 + 9"},
+		{"id": "L06_Q05", "expression": "18 + 7 - 5"},
+		{"id": "L06_Q06", "expression": "6 * 5 - 12"},
+		{"id": "L06_Q07", "expression": "48 / 8 + 11"}
+	  ]
+	},
+	{
+	  "id": "level_07",
+	  "title": "Four-Number Expressions",
+	  "skills": ["multi_operand", "multi_step"],
+	  "questions": [
+		{"id": "L07_Q01", "expression": "5 + 8 + 4 + 7"},
+		{"id": "L07_Q02", "expression": "30 - 6 - 9 + 4"},
+		{"id": "L07_Q03", "expression": "3 * 4 + 6 - 2"},
+		{"id": "L07_Q04", "expression": "48 / 6 + 5 * 2"},
+		{"id": "L07_Q05", "expression": "18 + 12 / 3 - 4"},
+		{"id": "L07_Q06", "expression": "7 * 5 - 8 + 3"},
+		{"id": "L07_Q07", "expression": "64 / 8 + 9 + 6"},
+		{"id": "L07_Q08", "expression": "20 - 3 * 4 + 7"}
+	  ]
+	},
+	{
+	  "id": "level_08",
+	  "title": "Mixed Operations",
+	  "skills": ["mixed_operations", "precedence"],
+	  "questions": [
+		{"id": "L08_Q01", "expression": "8 + 4 * 3"},
+		{"id": "L08_Q02", "expression": "24 - 12 / 3"},
+		{"id": "L08_Q03", "expression": "6 * 5 + 14"},
+		{"id": "L08_Q04", "expression": "36 / 6 + 5 * 2"},
+		{"id": "L08_Q05", "expression": "42 - 4 * 7 + 3"},
+		{"id": "L08_Q06", "expression": "18 + 24 / 6 - 5"},
+		{"id": "L08_Q07", "expression": "7 * 8 - 30 / 5"},
+		{"id": "L08_Q08", "expression": "64 / 8 * 3 + 2"}
+	  ]
+	},
+	{
+	  "id": "level_09",
+	  "title": "Parentheses",
+	  "skills": ["parentheses", "precedence"],
+	  "questions": [
+		{"id": "L09_Q01", "expression": "(8 + 4) * 3"},
+		{"id": "L09_Q02", "expression": "24 / (2 + 4)"},
+		{"id": "L09_Q03", "expression": "5 * (9 - 3)"},
+		{"id": "L09_Q04", "expression": "40 - (6 + 8)"},
+		{"id": "L09_Q05", "expression": "(18 / 3) + 7"},
+		{"id": "L09_Q06", "expression": "6 + (4 * 5)"},
+		{"id": "L09_Q07", "expression": "(15 - 7) * 4"},
+		{"id": "L09_Q08", "expression": "72 / (10 - 4)"},
+		{"id": "L09_Q09", "expression": "3 * (12 + 6) - 8"}
+	  ]
+	},
+	{
+	  "id": "level_10",
+	  "title": "Complex Parentheses",
+	  "skills": ["parentheses", "mixed_operations", "multi_step"],
+	  "questions": [
+		{"id": "L10_Q01", "expression": "(8 + 4) * (7 - 3)"},
+		{"id": "L10_Q02", "expression": "(18 - 6) / (2 + 1)"},
+		{"id": "L10_Q03", "expression": "5 * (9 - 3) + (8 / 2)"},
+		{"id": "L10_Q04", "expression": "(24 / 6) + (7 * 3)"},
+		{"id": "L10_Q05", "expression": "(16 + 8) / (5 - 2)"},
+		{"id": "L10_Q06", "expression": "(14 - 5) * (3 + 2)"},
+		{"id": "L10_Q07", "expression": "60 / (4 + 6) + (3 * 5)"},
+		{"id": "L10_Q08", "expression": "(7 * 6) - (18 / 3)"},
+		{"id": "L10_Q09", "expression": "(30 - 12) + (4 * 5)"}
+	  ]
+	},
+	{
+	  "id": "level_11",
+	  "title": "Advanced Expressions",
+	  "skills": ["mixed_operations", "parentheses", "precedence", "multi_step"],
+	  "questions": [
+		{"id": "L11_Q01", "expression": "7 * (12 - 4) + 18 / 3"},
+		{"id": "L11_Q02", "expression": "(24 / 6 + 5) * 3"},
+		{"id": "L11_Q03", "expression": "48 / (2 * 3) + 5"},
+		{"id": "L11_Q04", "expression": "6 * (8 + 2) - 15 / 3"},
+		{"id": "L11_Q05", "expression": "(35 - 11) / 4 + 9"},
+		{"id": "L11_Q06", "expression": "72 / 8 + (5 * 6) - 4"},
+		{"id": "L11_Q07", "expression": "(9 + 7) * 3 - 20 / 5"},
+		{"id": "L11_Q08", "expression": "84 / (9 - 2) + 6 * 2"},
+		{"id": "L11_Q09", "expression": "4 * (15 - 6) + 32 / 8"},
+		{"id": "L11_Q10", "expression": "(42 / 7 + 8) * 2 - 5"}
+	  ]
+	},
+	{
+	  "id": "level_12",
+	  "title": "MathSmith Challenge",
+	  "skills": ["challenge", "mixed_operations", "parentheses", "multi_step"],
+	  "questions": [
+		{"id": "L12_Q01", "expression": "(18 + 6) / 3 + 7 * 4"},
+		{"id": "L12_Q02", "expression": "8 * (14 - 9) + 36 / 6"},
+		{"id": "L12_Q03", "expression": "(16 - 4) * (9 + 3) / 6"},
+		{"id": "L12_Q04", "expression": "90 / (8 + 2) + (7 * 5)"},
+		{"id": "L12_Q05", "expression": "(24 / 6 + 5) * (7 - 4)"},
+		{"id": "L12_Q06", "expression": "6 * (13 - 5) - (18 / 3 + 4)"},
+		{"id": "L12_Q07", "expression": "(48 / 8) * (11 - 5) + 9"},
+		{"id": "L12_Q08", "expression": "7 * (12 - 4) + 18 / (6 - 3)"},
+		{"id": "L12_Q09", "expression": "(36 / 6 + 8) * 3 - 10"},
+		{"id": "L12_Q10", "expression": "(20 - 8) * (15 / 5) + 7 * 2"}
 	  ]
 	}
   ]
