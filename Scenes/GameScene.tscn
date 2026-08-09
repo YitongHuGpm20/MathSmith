@@ -1,7 +1,35 @@
-[gd_scene format=3 uid="uid://b8tycbj4qxcqq"]
+[gd_scene load_steps=7 format=3 uid="uid://b8tycbj4qxcqq"]
 
-[ext_resource type="Script" path="res://Scripts/UI/StepArea.gd" id="2_4bvgx"]
+[ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://Scripts/UI/StepArea.gd" id="2_step_area"]
 [ext_resource type="Script" path="res://Scripts/UI/GameUI.gd" id="3_game_ui"]
+
+[sub_resource type="StyleBoxFlat" id="QuestionPanelStyle"]
+bg_color = Color(0.105, 0.19, 0.27, 1)
+border_width_left = 2
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.62, 0.86, 0.72)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="OverlayStyle"]
+bg_color = Color(0.025, 0.035, 0.055, 0.88)
+
+[sub_resource type="StyleBoxFlat" id="ModalStyle"]
+bg_color = Color(0.11, 0.135, 0.185, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.34, 0.7, 0.94, 0.75)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [node name="GameScene" type="Control" unique_id=403715330]
 layout_mode = 3
@@ -10,6 +38,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_theme")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.055, 0.07, 0.1, 1)
+mouse_filter = 2
 
 [node name="GameUI" type="Node" parent="."]
 script = ExtResource("3_game_ui")
@@ -19,54 +58,90 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 56.0
+offset_top = 32.0
+offset_right = -56.0
+offset_bottom = -32.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="MainLayout" type="VBoxContainer" parent="MainMargin" unique_id=587207434]
 layout_mode = 2
+theme_override_constants/separation = 14
 
 [node name="TopBar" type="HBoxContainer" parent="MainMargin/MainLayout" unique_id=218570779]
 layout_mode = 2
+theme_override_constants/separation = 16
 
 [node name="LevelTitleLabel" type="Label" parent="MainMargin/MainLayout/TopBar" unique_id=605139686]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
 text = "Level Title"
 
 [node name="ProgressLabel" type="Label" parent="MainMargin/MainLayout/TopBar" unique_id=2146601884]
+custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
-text = "0/99"
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 17
+text = "0 / 99"
+horizontal_alignment = 2
 
 [node name="RuleLabel" type="Label" parent="MainMargin/MainLayout" unique_id=1211477185]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.73, 0.82, 1)
+theme_override_font_sizes/font_size = 16
 text = "Arrange the solution steps in the correct order."
+autowrap_mode = 2
 
 [node name="QuestionPanel" type="PanelContainer" parent="MainMargin/MainLayout" unique_id=978704544]
+custom_minimum_size = Vector2(0, 92)
 layout_mode = 2
+theme_override_styles/panel = SubResource("QuestionPanelStyle")
 
 [node name="CenterContainer" type="CenterContainer" parent="MainMargin/MainLayout/QuestionPanel" unique_id=687235555]
 layout_mode = 2
 
 [node name="EquationLabel" type="Label" parent="MainMargin/MainLayout/QuestionPanel/CenterContainer" unique_id=363756235]
 layout_mode = 2
+theme_override_font_sizes/font_size = 30
 text = "21 + 29"
 
-[node name="StepArea" type="VBoxContainer" parent="MainMargin/MainLayout" unique_id=198650403]
+[node name="StepScroll" type="ScrollContainer" parent="MainMargin/MainLayout"]
 layout_mode = 2
-script = ExtResource("2_4bvgx")
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="StepArea" type="VBoxContainer" parent="MainMargin/MainLayout/StepScroll" unique_id=198650403]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+script = ExtResource("2_step_area")
 
 [node name="FeedbackLabel" type="Label" parent="MainMargin/MainLayout" unique_id=342324537]
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-text = "Feedback Text"
+theme_override_colors/font_color = Color(0.68, 0.79, 0.9, 1)
+theme_override_font_sizes/font_size = 15
+text = "Arrange the solution steps in the correct order."
+vertical_alignment = 1
+autowrap_mode = 2
 
 [node name="BottomBar" type="HBoxContainer" parent="MainMargin/MainLayout" unique_id=255627969]
 layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 2
 
 [node name="HintButton" type="Button" parent="MainMargin/MainLayout/BottomBar" unique_id=796304631]
+custom_minimum_size = Vector2(120, 44)
 layout_mode = 2
+mouse_default_cursor_shape = 2
 text = "Hint"
 
 [node name="CheckButton" type="Button" parent="MainMargin/MainLayout/BottomBar" unique_id=538704096]
+custom_minimum_size = Vector2(140, 44)
 layout_mode = 2
+mouse_default_cursor_shape = 2
 text = "Check"
 
 [node name="EndMenu" type="PanelContainer" parent="." unique_id=46617929]
@@ -77,31 +152,48 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("OverlayStyle")
 
 [node name="CenterContainer" type="CenterContainer" parent="EndMenu" unique_id=936448058]
 layout_mode = 2
 
 [node name="PanelContainer" type="PanelContainer" parent="EndMenu/CenterContainer" unique_id=522565460]
+custom_minimum_size = Vector2(440, 300)
 layout_mode = 2
+theme_override_styles/panel = SubResource("ModalStyle")
 
-[node name="MarginContainer" type="MarginContainer" parent="EndMenu/CenterContainer/PanelContainer" unique_id=106216433]
+[node name="MarginContainer" type="MarginContainer" parent="EndMenu/CenterContainer/PanelContainer" unique_id=1062164337]
 layout_mode = 2
+theme_override_constants/margin_left = 44
+theme_override_constants/margin_top = 38
+theme_override_constants/margin_right = 44
+theme_override_constants/margin_bottom = 38
 
 [node name="VBoxContainer" type="VBoxContainer" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer" unique_id=1331536127]
 layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
 
 [node name="CompleteLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1384109079]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 30
 text = "Level Complete!"
+horizontal_alignment = 1
 
 [node name="ResultLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=466808595]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.77, 0.85, 1)
+theme_override_font_sizes/font_size = 17
 text = "99 / 99 Questions Completed"
+horizontal_alignment = 1
 
 [node name="RetryButton" type="Button" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1508312665]
+custom_minimum_size = Vector2(250, 46)
 layout_mode = 2
 text = "Play Again"
 
 [node name="LobbyButton" type="Button" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=837141509]
+custom_minimum_size = Vector2(250, 46)
 layout_mode = 2
 text = "Back to Lobby"

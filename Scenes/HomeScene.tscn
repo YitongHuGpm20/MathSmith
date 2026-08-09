@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/HomeUI.gd" id="1_home_ui"]
+[ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_hero"]
 bg_color = Color(0.12, 0.14, 0.19, 0.96)
@@ -15,7 +16,36 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_play"]
-bg_color = Color(0.16, 0.55, 0.82, 1)
+bg_color = Color(0.11, 0.48, 0.76, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.76, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_play_hover"]
+bg_color = Color(0.14, 0.58, 0.9, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.56, 0.86, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_play_pressed"]
+bg_color = Color(0.08, 0.38, 0.64, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.7, 0.94, 1)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
@@ -28,6 +58,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_home_ui")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -69,7 +100,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="HeroPanel" type="PanelContainer" parent="MainCenter"]
-custom_minimum_size = Vector2(560, 400)
+custom_minimum_size = Vector2(520, 410)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBox_hero")
 
@@ -94,7 +125,7 @@ horizontal_alignment = 1
 
 [node name="TitleLabel" type="Label" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 52
+theme_override_font_sizes/font_size = 56
 text = "MathSmith"
 horizontal_alignment = 1
 
@@ -118,8 +149,8 @@ size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBox_play")
-theme_override_styles/hover = SubResource("StyleBox_play")
-theme_override_styles/pressed = SubResource("StyleBox_play")
+theme_override_styles/hover = SubResource("StyleBox_play_hover")
+theme_override_styles/pressed = SubResource("StyleBox_play_pressed")
 text = "Play"
 
 [node name="PrototypeLabel" type="Label" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]

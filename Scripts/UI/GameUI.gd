@@ -21,7 +21,7 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 
 #region ========== References ==========
 
-@onready var stepArea = $"../MainMargin/MainLayout/StepArea"
+@onready var stepArea = $"../MainMargin/MainLayout/StepScroll/StepArea"
 @onready var levelTitleLabel: Label = $"../MainMargin/MainLayout/TopBar/LevelTitleLabel"
 @onready var progressLabel: Label = $"../MainMargin/MainLayout/TopBar/ProgressLabel"
 @onready var ruleLabel: Label = $"../MainMargin/MainLayout/RuleLabel"

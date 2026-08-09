@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/LevelCard.gd" id="1_level_card"]
 
@@ -26,13 +26,26 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBox_hover"]
+bg_color = Color(0.175, 0.205, 0.27, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.36, 0.62, 0.82, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [node name="LevelCard" type="Button"]
-custom_minimum_size = Vector2(280, 150)
+custom_minimum_size = Vector2(290, 170)
 layout_mode = 2
+size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
 toggle_mode = true
 theme_override_styles/normal = SubResource("StyleBox_normal")
-theme_override_styles/hover = SubResource("StyleBox_pressed")
+theme_override_styles/hover = SubResource("StyleBox_hover")
 theme_override_styles/pressed = SubResource("StyleBox_pressed")
 script = ExtResource("1_level_card")
 

@@ -25,10 +25,12 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 # Displays the selected playable Level Type when the Lobby enters the tree.
 func _ready() -> void:
 	homeButton.pressed.connect(_on_home_button_pressed)
+	get_viewport().size_changed.connect(UpdateResponsiveLayout)
 	var selectedLevelType := GameManager.GetLevelTypeById(GameManager.selectedLevelTypeId)
 	ShowSelectedLevelType(selectedLevelType)
 	levelCountLabel.text = "%d Levels" % GameManager.GetLevels().size()
 	CreateLevelCards(GameManager.GetLevels())
+	UpdateResponsiveLayout()
 
 #endregion
 
@@ -39,7 +41,18 @@ func ShowSelectedLevelType(levelTypeData: Dictionary) -> void:
 	var levelTypeTitle: String = levelTypeData.get("title", "Step Ordering")
 	currentLevelTypeLabel.text = "Current Mode: " + levelTypeTitle
 	stepOrderingButton.text = levelTypeTitle
-	stepOrderingButton.disabled = true
+	stepOrderingButton.set_pressed_no_signal(true)
+
+# Adapts the Level grid to wide, medium, and narrow windows.
+func UpdateResponsiveLayout() -> void:
+	var viewportWidth := get_viewport_rect().size.x
+
+	if viewportWidth >= 1100:
+		levelCardContainer.columns = 3
+	elif viewportWidth >= 720:
+		levelCardContainer.columns = 2
+	else:
+		levelCardContainer.columns = 1
 
 # Rebuilds the Lobby grid from validated Level content.
 func CreateLevelCards(levels: Array) -> void:

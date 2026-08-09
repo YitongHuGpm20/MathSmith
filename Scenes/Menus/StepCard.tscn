@@ -1,24 +1,54 @@
-[gd_scene format=3 uid="uid://b83iw0kho1jn"]
+[gd_scene load_steps=3 format=3 uid="uid://b83iw0kho1jn"]
 
-[ext_resource type="Script" path="res://Scripts/UI/StepCard.gd" id="1_qq64i"]
+[ext_resource type="Script" path="res://Scripts/UI/StepCard.gd" id="1_step_card"]
+
+[sub_resource type="StyleBoxFlat" id="CardStyle"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.105, 0.125, 0.17, 1)
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.24, 0.3, 0.39, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="StepCard" type="PanelContainer" unique_id=540115962]
-custom_minimum_size = Vector2(0, 70)
-offset_right = 86.0
-offset_bottom = 70.0
-script = ExtResource("1_qq64i")
+custom_minimum_size = Vector2(0, 64)
+offset_right = 300.0
+offset_bottom = 64.0
+mouse_default_cursor_shape = 6
+theme_override_styles/panel = SubResource("CardStyle")
+script = ExtResource("1_step_card")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1770633040]
 layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 12
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1927977688]
 layout_mode = 2
+theme_override_constants/separation = 16
 
 [node name="OrderLabel" type="Label" parent="MarginContainer/HBoxContainer" unique_id=1241490098]
+custom_minimum_size = Vector2(34, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 16
 text = "1."
+vertical_alignment = 1
 
 [node name="StepLabel" type="Label" parent="MarginContainer/HBoxContainer" unique_id=369448198]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "= 99 + 99"
+vertical_alignment = 1
+autowrap_mode = 2
