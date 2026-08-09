@@ -216,7 +216,7 @@ func GenerateAdditionSteps(firstNumber: int, secondNumber: int) -> Array[String]
 				str(finalAnswer)
 			]
 
-		var firstChunk := maxi(int(smallerNumber / 2), 1)
+		var firstChunk := maxi(floori(smallerNumber / 2.0), 1)
 		var secondChunk := smallerNumber - firstChunk
 		return [
 			"%d + %d + %d" % [largerNumber, firstChunk, secondChunk],
@@ -303,7 +303,7 @@ func GenerateSubtractionSteps(firstNumber: int, secondNumber: int) -> Array[Stri
 			str(finalAnswer)
 		]
 
-	var firstChunk := maxi(int(secondNumber / 2), 1)
+	var firstChunk := maxi(floori(secondNumber / 2.0), 1)
 	var secondChunk := secondNumber - firstChunk
 	return [
 		"%d - %d - %d" % [firstNumber, firstChunk, secondChunk],
@@ -342,10 +342,10 @@ func GenerateMultiplicationSteps(firstNumber: int, secondNumber: int) -> Array[S
 
 	var repeatedAddends: Array[int] = []
 
-	for addendIndex in range(secondNumber):
+	for _addendIndex in range(secondNumber):
 		repeatedAddends.append(firstNumber)
 
-	var firstGroupCount := maxi(secondNumber / 2, 1)
+	var firstGroupCount := maxi(floori(secondNumber / 2.0), 1)
 	var secondGroupCount := secondNumber - firstGroupCount
 	return [
 		JoinNumbers(repeatedAddends),
@@ -359,7 +359,7 @@ func GenerateDivisionSteps(dividend: int, divisor: int) -> Array[String]:
 		push_error("Step Ordering currently requires exact whole-number division.")
 		return []
 
-	var quotient := int(dividend / divisor)
+	var quotient := floori(float(dividend) / float(divisor))
 	return [
 		"%d * ? = %d" % [divisor, dividend],
 		"%d * %d = %d" % [divisor, quotient, dividend],
@@ -415,14 +415,14 @@ func GenerateCompactOperationSteps(operationNode: Dictionary) -> Array[String]:
 				]
 			return ["(%s) + (%s)" % [JoinNumbers(GetPlaceValueParts(leftValue)), JoinNumbers(GetPlaceValueParts(rightValue))], str(result)]
 		"-":
-			var firstChunk := maxi(int(rightValue / 2), 1)
+			var firstChunk := maxi(floori(rightValue / 2.0), 1)
 			return ["%d - %d - %d" % [leftValue, firstChunk, rightValue - firstChunk], str(result)]
 		"*":
 			if rightValue == 1:
 				return ["1 group of %d" % leftValue, str(result)]
 			return ["%d * (%d + 1)" % [leftValue, rightValue - 1], str(result)]
 		"/":
-			var quotient := int(leftValue / rightValue)
+			var quotient := floori(float(leftValue) / float(rightValue))
 
 			if quotient == 1:
 				return ["%d fits into %d once" % [rightValue, leftValue], str(result)]
@@ -462,7 +462,7 @@ func EvaluateOperation(operationNode: Dictionary) -> int:
 			if rightValue == 0 or leftValue % rightValue != 0:
 				push_error("Step Ordering currently requires exact whole-number division.")
 				return 0
-			return int(leftValue / rightValue)
+			return floori(float(leftValue) / float(rightValue))
 
 	return 0
 
@@ -544,7 +544,7 @@ func GetPlaceValueParts(number: int) -> Array[int]:
 
 		placeParts.push_front(digitValue * placeValue)
 
-		remainingNumber = int(remainingNumber / 10)
+		remainingNumber = floori(remainingNumber / 10.0)
 		placeValue *= 10
 
 	if placeParts.is_empty():

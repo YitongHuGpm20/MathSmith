@@ -3,7 +3,7 @@
 ## This script owns level loading, question state, gameplay validation, hints,
 ## progression, and level completion. StepGenerator produces teaching steps,
 ## while UIManager only presents gameplay state.
-extends Control
+extends Node
 
 #region ========== Constants ==========
 
@@ -21,7 +21,7 @@ const REQUIRED_LEVEL_TYPE_IDS: Array[String] = [
 
 #region ========== References ==========
 
-@onready var uiManager = $UIManager
+var uiManager: Node = null
 var stepGenerator := preload("res://Scripts/Gameplay/StepGenerator.gd").new()
 
 #endregion
@@ -41,25 +41,63 @@ var revealedHintCount: int = 0
 
 #region ========== Godot Functions ==========
 
-# Initializes level data, connects UI requests, and starts the first question.
+# Loads shared content before any gameplay or menu scene requests it.
 func _ready() -> void:
+	if not LoadContentData():
+		return
+
+	# Preserve the M1 default until Lobby selection is connected to gameplay.
+	currentLevel = levels[0]
+
+#endregion
+
+#region ========== Functions ==========
+
+# Registers the active Game Scene UI and starts its current Level.
+func RegisterUIManager(newUIManager: Node) -> void:
+	if is_instance_valid(uiManager):
+		DisconnectUIManagerSignals()
+
+	uiManager = newUIManager
 	uiManager.checkRequested.connect(CheckAnswer)
 	uiManager.hintRequested.connect(UseHint)
 	uiManager.retryRequested.connect(RestartLevel)
 	uiManager.lobbyRequested.connect(BackToLobby)
 
-	# Stop initialization when no valid level data is available.
-	if not LoadContentData():
+	# Surface content errors only after a visual UI is available.
+	if levels.is_empty():
 		uiManager.ShowDataError("No valid level data could be loaded.")
 		return
 
-	# M1 starts with the first level until M2 introduces level selection.
-	currentLevel = levels[0]
+	if currentLevel.is_empty():
+		currentLevel = levels[0]
+
 	LoadQuestion(0)
 
-#endregion
+# Releases a departing Game Scene UI without changing persistent gameplay data.
+func UnregisterUIManager(departingUIManager: Node) -> void:
+	if uiManager != departingUIManager:
+		return
 
-#region ========== Functions ==========
+	DisconnectUIManagerSignals()
+	uiManager = null
+
+# Disconnects all request signals owned by the active Game Scene UI.
+func DisconnectUIManagerSignals() -> void:
+	if not is_instance_valid(uiManager):
+		return
+
+	if uiManager.checkRequested.is_connected(CheckAnswer):
+		uiManager.checkRequested.disconnect(CheckAnswer)
+
+	if uiManager.hintRequested.is_connected(UseHint):
+		uiManager.hintRequested.disconnect(UseHint)
+
+	if uiManager.retryRequested.is_connected(RestartLevel):
+		uiManager.retryRequested.disconnect(RestartLevel)
+
+	if uiManager.lobbyRequested.is_connected(BackToLobby):
+		uiManager.lobbyRequested.disconnect(BackToLobby)
 
 # Loads and validates Level Types and Levels from the project JSON file.
 func LoadContentData() -> bool:

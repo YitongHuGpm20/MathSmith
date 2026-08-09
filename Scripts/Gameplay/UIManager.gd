@@ -45,6 +45,13 @@ func _ready() -> void:
 	retryButton.pressed.connect(_on_retry_button_pressed)
 	lobbyButton.pressed.connect(_on_lobby_button_pressed)
 
+	# Wait until every sibling UI branch has completed its ready lifecycle.
+	GameManager.call_deferred("RegisterUIManager", self)
+
+# Releases this scene's UI reference before its nodes leave the tree.
+func _exit_tree() -> void:
+	GameManager.UnregisterUIManager(self)
+
 #endregion
 
 #region ========== Functions ==========

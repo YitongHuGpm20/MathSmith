@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://b8tycbj4qxcqq"]
 
-[ext_resource type="Script" path="res://Scripts/Gameplay/GameManager.gd" id="1_4bvgx"]
 [ext_resource type="Script" uid="uid://b2i5no6a6clfi" path="res://Scripts/Gameplay/StepArea.gd" id="2_4bvgx"]
 [ext_resource type="Script" path="res://Scripts/Gameplay/UIManager.gd" id="3_ui_manager"]
 
@@ -11,7 +10,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_4bvgx")
 
 [node name="UIManager" type="Node" parent="."]
 script = ExtResource("3_ui_manager")

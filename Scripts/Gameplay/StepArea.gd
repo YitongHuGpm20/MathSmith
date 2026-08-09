@@ -7,7 +7,7 @@ extends VBoxContainer
 #region ========== Godot Functions ==========
 
 # Accepts StepCard controls dragged within this step area.
-func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
+func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	return data is PanelContainer
 
 # Moves a dropped StepCard to the position nearest the pointer.
