@@ -9,6 +9,7 @@ var currentLevel: Dictionary
 var currentQuestionIndex: int = 0
 var correctSteps: Array[String] = []
 var shuffledSteps: Array[String] = []
+var questionCompleted: bool = false
 
 # References
 @onready var stepArea: VBoxContainer = $MainMargin/MainLayout/StepArea
@@ -17,6 +18,7 @@ var shuffledSteps: Array[String] = []
 @onready var ruleLabel: Label = $MainMargin/MainLayout/RuleLabel
 @onready var equationLabel: Label = $MainMargin/MainLayout/QuestionPanel/CenterContainer/EquationLabel
 @onready var feedbackLabel: Label = $MainMargin/MainLayout/FeedbackLabel
+@onready var checkButton: Button = $MainMargin/MainLayout/BottomBar/CheckButton
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -26,6 +28,8 @@ func _ready() -> void:
 
 	currentLevel = levels[0]
 	LoadQuestion(currentQuestionIndex)
+	
+	checkButton.pressed.connect(CheckAnswer)
 
 func LoadQuestion(questionIndex: int) -> void:
 	var questions = currentLevel["questions"]
@@ -77,3 +81,40 @@ func ShuffleSteps() -> void:
 
 	while shuffledSteps == correctSteps:
 		shuffledSteps.shuffle()
+
+func CheckAnswer() -> void:
+	if questionCompleted:
+		GoToNextQuestion()
+		return
+
+	var currentSteps: Array[String] = []
+
+	for child in stepArea.get_children():
+		if "stepText" in child:
+			currentSteps.append(child.stepText)
+
+	if currentSteps == correctSteps:
+		questionCompleted = true
+
+		feedbackLabel.text = "Correct!"
+		checkButton.text = "Next"
+	else:
+		feedbackLabel.text = "Not quite. Try again."
+
+func GoToNextQuestion() -> void:
+	currentQuestionIndex += 1
+
+	var questions = currentLevel["questions"]
+
+	if currentQuestionIndex >= questions.size():
+		ShowEndMenu()
+		return
+
+	questionCompleted = false
+	checkButton.text = "Check"
+
+	LoadQuestion(currentQuestionIndex)
+
+func ShowEndMenu() -> void:
+	feedbackLabel.text = "Level Complete!"
+	checkButton.disabled = true

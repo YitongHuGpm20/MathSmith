@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b8tycbj4qxcqq"]
 
 [ext_resource type="Script" uid="uid://lqhj8dbynjxm" path="res://Scripts/Gameplay/GameScene.gd" id="1_4bvgx"]
+[ext_resource type="Script" uid="uid://b2i5no6a6clfi" path="res://Scripts/Gameplay/StepArea.gd" id="2_4bvgx"]
 
 [node name="GameScene" type="Control" unique_id=403715330]
 layout_mode = 3
@@ -49,6 +50,7 @@ text = "21 + 29"
 
 [node name="StepArea" type="VBoxContainer" parent="MainMargin/MainLayout" unique_id=198650403]
 layout_mode = 2
+script = ExtResource("2_4bvgx")
 
 [node name="FeedbackLabel" type="Label" parent="MainMargin/MainLayout" unique_id=342324537]
 layout_mode = 2
@@ -62,3 +64,8 @@ layout_mode = 2
 
 [node name="CheckButton" type="Button" parent="MainMargin/MainLayout/BottomBar" unique_id=538704096]
 layout_mode = 2
+
+[node name="EndMenu" type="PanelContainer" parent="." unique_id=46617929]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
