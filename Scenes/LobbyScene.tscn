@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://Scripts/UI/LobbyUI.gd" id="1_lobby_ui"]
 
-[node name="Lobby" type="Control"]
+[node name="LobbyScene" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

@@ -1,0 +1,91 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/LevelCard.gd" id="1_level_card"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_normal"]
+bg_color = Color(0.145, 0.165, 0.215, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.285, 0.36, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_pressed"]
+bg_color = Color(0.16, 0.25, 0.34, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.75, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="LevelCard" type="Button"]
+custom_minimum_size = Vector2(280, 150)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+toggle_mode = true
+theme_override_styles/normal = SubResource("StyleBox_normal")
+theme_override_styles/hover = SubResource("StyleBox_pressed")
+theme_override_styles/pressed = SubResource("StyleBox_pressed")
+script = ExtResource("1_level_card")
+
+[node name="CardMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 16.0
+offset_right = -18.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CardLayout" type="VBoxContainer" parent="CardMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+mouse_filter = 2
+
+[node name="TopRow" type="HBoxContainer" parent="CardMargin/CardLayout"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="LevelNumberLabel" type="Label" parent="CardMargin/CardLayout/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "LEVEL 01"
+mouse_filter = 2
+
+[node name="QuestionCountLabel" type="Label" parent="CardMargin/CardLayout/TopRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.66, 0.74, 1)
+theme_override_font_sizes/font_size = 12
+text = "5 QUESTIONS"
+mouse_filter = 2
+
+[node name="TitleLabel" type="Label" parent="CardMargin/CardLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 21
+text = "Addition Basics"
+vertical_alignment = 1
+autowrap_mode = 2
+mouse_filter = 2
+
+[node name="SkillsLabel" type="Label" parent="CardMargin/CardLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.74, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "Addition  |  Basic Arithmetic"
+autowrap_mode = 2
+mouse_filter = 2

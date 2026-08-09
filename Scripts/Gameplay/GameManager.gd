@@ -193,6 +193,26 @@ func GetLevelById(levelId: String) -> Dictionary:
 
 	return {}
 
+# Selects mathematical Level content without changing the active Level Type.
+func SelectLevel(levelId: String) -> bool:
+	var selectedLevel := GetLevelById(levelId)
+
+	if selectedLevel.is_empty():
+		push_error("Cannot select unknown Level ID: " + levelId)
+		return false
+
+	# Reset transient gameplay state for the newly selected Level.
+	currentLevel = selectedLevel
+	currentQuestionIndex = 0
+	correctSteps.clear()
+	questionCompleted = false
+	revealedHintCount = 0
+	return true
+
+# Returns the selected Level ID or an empty String before content is available.
+func GetSelectedLevelId() -> String:
+	return currentLevel.get("id", "")
+
 # Validates the three interaction definitions shared by all mathematical Levels.
 func ValidateLevelTypes(levelTypeData: Dictionary) -> bool:
 	if levelTypeData.size() != REQUIRED_LEVEL_TYPE_IDS.size():
