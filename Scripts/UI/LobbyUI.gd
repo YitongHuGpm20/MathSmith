@@ -13,6 +13,7 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 #region ========== References ==========
 
 @onready var currentLevelTypeLabel: Label = $MainMargin/MainLayout/Header/CurrentLevelTypeLabel
+@onready var homeButton: Button = $MainMargin/MainLayout/Header/HomeButton
 @onready var stepOrderingButton: Button = $MainMargin/MainLayout/LevelTypeRow/StepOrderingButton
 @onready var levelCountLabel: Label = $MainMargin/MainLayout/SectionHeader/LevelCountLabel
 @onready var levelCardContainer: GridContainer = $MainMargin/MainLayout/LevelScroll/LevelCardContainer
@@ -23,6 +24,7 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 
 # Displays the selected playable Level Type when the Lobby enters the tree.
 func _ready() -> void:
+	homeButton.pressed.connect(_on_home_button_pressed)
 	var selectedLevelType := GameManager.GetLevelTypeById(GameManager.selectedLevelTypeId)
 	ShowSelectedLevelType(selectedLevelType)
 	levelCountLabel.text = "%d Levels" % GameManager.GetLevels().size()
@@ -48,8 +50,13 @@ func CreateLevelCards(levels: Array) -> void:
 	for levelIndex in range(levels.size()):
 		var levelCard := LEVEL_CARD_SCENE.instantiate()
 		levelCardContainer.add_child(levelCard)
-		levelCard.Setup(levels[levelIndex], levelIndex + 1)
-		levelCard.SetSelectedState(levels[levelIndex]["id"] == selectedLevelId)
+		var levelId: String = levels[levelIndex]["id"]
+		levelCard.Setup(
+			levels[levelIndex],
+			levelIndex + 1,
+			GameManager.GetLevelProgress(levelId)
+		)
+		levelCard.SetSelectedState(levelId == selectedLevelId)
 		levelCard.levelSelected.connect(_on_level_card_selected)
 
 # Removes existing cards before the Lobby grid is regenerated.
@@ -68,5 +75,11 @@ func _on_level_card_selected(levelId: String) -> void:
 
 	for levelCard in levelCardContainer.get_children():
 		levelCard.SetSelectedState(levelCard.levelId == levelId)
+
+	GameManager.OpenGame()
+
+# Returns to Home through GameManager's navigation entry point.
+func _on_home_button_pressed() -> void:
+	GameManager.OpenHome()
 
 #endregion

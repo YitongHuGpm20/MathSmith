@@ -89,3 +89,10 @@ theme_override_font_sizes/font_size = 13
 text = "Addition  |  Basic Arithmetic"
 autowrap_mode = 2
 mouse_filter = 2
+
+[node name="ProgressLabel" type="Label" parent="CardMargin/CardLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "NOT STARTED"
+mouse_filter = 2

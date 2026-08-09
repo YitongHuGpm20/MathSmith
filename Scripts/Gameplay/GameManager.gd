@@ -8,6 +8,9 @@ extends Node
 #region ========== Constants ==========
 
 const LEVEL_DATA_PATH: String = "res://Data/SampleLevels.json"
+const HOME_SCENE_PATH: String = "res://Scenes/HomeScene.tscn"
+const LOBBY_SCENE_PATH: String = "res://Scenes/LobbyScene.tscn"
+const GAME_SCENE_PATH: String = "res://Scenes/GameScene.tscn"
 const DEFAULT_LEVEL_TYPE_ID: String = "step_ordering"
 const EXPECTED_LEVEL_COUNT: int = 12
 const EXPECTED_QUESTION_COUNTS: Array[int] = [5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10]
@@ -36,6 +39,7 @@ var currentQuestionIndex: int = 0
 var correctSteps: Array[String] = []
 var questionCompleted: bool = false
 var revealedHintCount: int = 0
+var levelProgress: Dictionary = {}
 
 #endregion
 
@@ -52,6 +56,29 @@ func _ready() -> void:
 #endregion
 
 #region ========== Functions ==========
+
+# Opens the Home Scene while preserving current-session progress.
+func OpenHome() -> void:
+	ChangeScene(HOME_SCENE_PATH)
+
+# Opens the Lobby Scene while preserving current-session progress.
+func OpenLobby() -> void:
+	ChangeScene(LOBBY_SCENE_PATH)
+
+# Opens the Game Scene for the currently selected Level.
+func OpenGame() -> void:
+	if currentLevel.is_empty():
+		push_error("Cannot open Game Scene without a selected Level.")
+		return
+
+	ChangeScene(GAME_SCENE_PATH)
+
+# Changes scenes through one guarded navigation entry point.
+func ChangeScene(scenePath: String) -> void:
+	var changeError := get_tree().change_scene_to_file(scenePath)
+
+	if changeError != OK:
+		push_error("Failed to open scene '%s' with error %d." % [scenePath, changeError])
 
 # Registers the active Game Scene UI and starts its current Level.
 func RegisterUIManager(newUIManager: Node) -> void:
@@ -212,6 +239,42 @@ func SelectLevel(levelId: String) -> bool:
 # Returns the selected Level ID or an empty String before content is available.
 func GetSelectedLevelId() -> String:
 	return currentLevel.get("id", "")
+
+# Returns lightweight progress for one Level during the current run.
+func GetLevelProgress(levelId: String) -> Dictionary:
+	return levelProgress.get(
+		levelId,
+		{
+			"completedQuestions": 0,
+			"completed": false
+		}
+	)
+
+# Records the highest completed Question reached in the selected Level.
+func RecordQuestionCompletion() -> void:
+	var levelId: String = GetSelectedLevelId()
+
+	if levelId.is_empty():
+		return
+
+	var progressData := GetLevelProgress(levelId)
+	progressData["completedQuestions"] = maxi(
+		progressData["completedQuestions"],
+		currentQuestionIndex + 1
+	)
+	levelProgress[levelId] = progressData
+
+# Marks the selected Level complete for the remainder of the current run.
+func CompleteCurrentLevel() -> void:
+	var levelId: String = GetSelectedLevelId()
+
+	if levelId.is_empty():
+		return
+
+	var progressData := GetLevelProgress(levelId)
+	progressData["completedQuestions"] = currentLevel.get("questions", []).size()
+	progressData["completed"] = true
+	levelProgress[levelId] = progressData
 
 # Validates the three interaction definitions shared by all mathematical Levels.
 func ValidateLevelTypes(levelTypeData: Dictionary) -> bool:
@@ -412,6 +475,7 @@ func CheckAnswer() -> void:
 	# Update gameplay state only after an exact ordered match.
 	if currentSteps == correctSteps:
 		questionCompleted = true
+		RecordQuestionCompletion()
 		uiManager.ShowCorrectAnswer()
 	else:
 		uiManager.ShowIncorrectAnswer()
@@ -440,6 +504,7 @@ func GoToNextQuestion() -> void:
 
 	# Complete the level after the final question.
 	if nextQuestionIndex >= questions.size():
+		CompleteCurrentLevel()
 		uiManager.ShowEndMenu(questions.size(), questions.size())
 		return
 
@@ -450,8 +515,8 @@ func RestartLevel() -> void:
 	uiManager.HideEndMenu()
 	LoadQuestion(0)
 
-# Handles the future Lobby navigation entry point without changing M1 behavior.
+# Returns to the Lobby while preserving current-session Level progress.
 func BackToLobby() -> void:
-	print("Lobby navigation will be implemented in the M2 navigation task.")
+	OpenLobby()
 
 #endregion

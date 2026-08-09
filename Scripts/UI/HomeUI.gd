@@ -21,6 +21,7 @@ signal playRequested
 # Connects the primary action and gives it initial keyboard focus.
 func _ready() -> void:
 	playButton.pressed.connect(_on_play_button_pressed)
+	playRequested.connect(GameManager.OpenLobby)
 	playButton.grab_focus()
 
 #endregion

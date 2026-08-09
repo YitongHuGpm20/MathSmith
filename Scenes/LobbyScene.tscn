@@ -64,6 +64,12 @@ theme_override_font_sizes/font_size = 18
 text = "Current Mode: Step Ordering"
 vertical_alignment = 1
 
+[node name="HomeButton" type="Button" parent="MainMargin/MainLayout/Header"]
+custom_minimum_size = Vector2(96, 40)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Home"
+
 [node name="LevelTypeRow" type="HBoxContainer" parent="MainMargin/MainLayout"]
 layout_mode = 2
 theme_override_constants/separation = 12
