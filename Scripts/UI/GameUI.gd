@@ -118,14 +118,17 @@ func ShowCorrectAnswer() -> void:
 	feedbackLabel.text = "Correct!"
 	hintButton.disabled = true
 	checkButton.text = "Next"
+	AudioManager.PlayCorrect()
 
 # Displays the visual state for an incorrect answer.
 func ShowIncorrectAnswer() -> void:
 	feedbackLabel.text = "Not quite. Try again."
+	AudioManager.PlayWrong()
 
 # Displays feedback after a hint places one correct step.
 func ShowHintUsed(revealedHintCount: int) -> void:
 	feedbackLabel.text = "Hint: Step %d has been placed correctly." % revealedHintCount
+	AudioManager.PlayHint()
 
 # Enables or disables the hint control without changing gameplay state.
 func SetHintAvailable(isAvailable: bool) -> void:
@@ -141,6 +144,7 @@ func ShowDataError(message: String) -> void:
 func ShowEndMenu(completedCount: int, questionCount: int) -> void:
 	resultLabel.text = "%d / %d Questions Completed" % [completedCount, questionCount]
 	endMenu.visible = true
+	AudioManager.PlayVictory()
 
 # Hides the level completion overlay before gameplay restarts.
 func HideEndMenu() -> void:

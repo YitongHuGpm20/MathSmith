@@ -26,6 +26,7 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 	move_child(data, targetIndex)
 	UpdateOrderLabels()
 	orderChanged.emit()
+	AudioManager.PlayDrop()
 
 #endregion
 

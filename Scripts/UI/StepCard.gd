@@ -29,6 +29,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	var dragPreview := duplicate()
 	dragPreview.modulate.a = 0.7
 	set_drag_preview(dragPreview)
+	AudioManager.PlayDrag()
 	return self
 
 # Accepts another StepCard from the same visual step area.
@@ -45,6 +46,7 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	stepArea.move_child(data, get_index())
 	stepArea.UpdateOrderLabels()
 	stepArea.orderChanged.emit()
+	AudioManager.PlayDrop()
 
 #endregion
 
