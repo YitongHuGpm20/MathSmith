@@ -30,9 +30,12 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var resolvedSteps: VBoxContainer = $"../MainMargin/MainLayout/ChoiceModeScroll/ChoiceModeArea/ResolvedSteps"
 @onready var choiceSeparator: HSeparator = $"../MainMargin/MainLayout/ChoiceModeScroll/ChoiceModeArea/ChoiceSeparator"
 @onready var choiceGrid: GridContainer = $"../MainMargin/MainLayout/ChoiceModeScroll/ChoiceModeArea/ChoiceGrid"
+@onready var fillModeScroll: ScrollContainer = $"../MainMargin/MainLayout/FillModeScroll"
+@onready var fillModeArea: VBoxContainer = $"../MainMargin/MainLayout/FillModeScroll/FillModeArea"
 @onready var mainMargin: MarginContainer = $"../MainMargin"
 @onready var mainLayout: VBoxContainer = $"../MainMargin/MainLayout"
 @onready var questionPanel: PanelContainer = $"../MainMargin/MainLayout/QuestionPanel"
+@onready var optionTopSpacer: Control = $"../MainMargin/MainLayout/OptionTopSpacer"
 @onready var levelTitleLabel: Label = $"../MainMargin/MainLayout/TopBar/LevelTitleLabel"
 @onready var progressLabel: Label = $"../MainMargin/MainLayout/TopBar/ProgressLabel"
 @onready var ruleLabel: Label = $"../MainMargin/MainLayout/RuleLabel"
@@ -45,6 +48,12 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var resultLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ResultLabel"
 @onready var retryButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RetryButton"
 @onready var lobbyButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/LobbyButton"
+
+#endregion
+
+#region ========== Variables ==========
+
+var fillInputs: Dictionary = {}
 
 #endregion
 
@@ -81,7 +90,7 @@ func ShowQuestion(
 	questionCount: int,
 	steps: Array[String]
 ) -> void:
-	ConfigureGameplayMode(true)
+	ConfigureGameplayMode("step_ordering")
 	SetupQuestionHeader(levelTitle, ruleText, expression, questionNumber, questionCount)
 	feedbackLabel.text = "Arrange the solution steps in the correct order."
 	hintButton.disabled = false
@@ -98,7 +107,7 @@ func ShowMultipleChoiceQuestion(
 	questionNumber: int,
 	questionCount: int
 ) -> void:
-	ConfigureGameplayMode(false)
+	ConfigureGameplayMode("multiple_choice_ordering")
 	SetupQuestionHeader(levelTitle, ruleText, expression, questionNumber, questionCount)
 	feedbackLabel.text = "Choose the next correct solution step."
 	hintButton.disabled = false
@@ -107,6 +116,24 @@ func ShowMultipleChoiceQuestion(
 	checkButton.text = "Check"
 	ClearResolvedSteps()
 	ClearChoiceButtons()
+
+# Displays a generated Fill-in process while preserving the shared solution order.
+func ShowFillProcessQuestion(
+	levelTitle: String,
+	ruleText: String,
+	expression: String,
+	questionNumber: int,
+	questionCount: int,
+	fillStepData: Array
+) -> void:
+	ConfigureGameplayMode("fill_in_process")
+	SetupQuestionHeader(levelTitle, ruleText, expression, questionNumber, questionCount)
+	feedbackLabel.text = "Complete the missing values in the solution process."
+	hintButton.disabled = false
+	checkButton.visible = true
+	checkButton.disabled = false
+	checkButton.text = "Check"
+	CreateFillProcess(fillStepData)
 
 # Applies header content shared by every gameplay interaction mode.
 func SetupQuestionHeader(
@@ -122,9 +149,11 @@ func SetupQuestionHeader(
 	progressLabel.text = "%d/%d" % [questionNumber, questionCount]
 
 # Switches between the existing drag area and Multiple-Choice presentation.
-func ConfigureGameplayMode(showStepOrdering: bool) -> void:
-	stepScroll.visible = showStepOrdering
-	choiceModeScroll.visible = not showStepOrdering
+func ConfigureGameplayMode(levelTypeId: String) -> void:
+	stepScroll.visible = levelTypeId == "step_ordering"
+	choiceModeScroll.visible = levelTypeId == "multiple_choice_ordering"
+	fillModeScroll.visible = levelTypeId == "fill_in_process"
+	optionTopSpacer.visible = levelTypeId != "multiple_choice_ordering"
 
 # Rebuilds the step area from the supplied display order.
 func CreateStepCards(steps: Array[String]) -> void:
@@ -205,6 +234,150 @@ func ClearResolvedSteps() -> void:
 		resolvedSteps.remove_child(child)
 		child.queue_free()
 
+# Builds ordered process lines and inserts numeric inputs between text segments.
+func CreateFillProcess(fillStepData: Array) -> void:
+	ClearFillProcess()
+
+	for stepData in fillStepData:
+		var stepAnchor := Control.new()
+		stepAnchor.custom_minimum_size = Vector2(0, 54)
+		stepAnchor.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		fillModeArea.add_child(stepAnchor)
+		var stepRow := HBoxContainer.new()
+		stepRow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		stepRow.anchor_left = 0.5
+		stepRow.offset_left = -112.0
+		stepRow.add_theme_constant_override("separation", 6)
+		stepAnchor.add_child(stepRow)
+		var segments: Array = stepData["segments"]
+		var blankIds: Array = stepData["blankIds"]
+
+		for blankIndex in range(blankIds.size()):
+			AddFillTextSegment(stepRow, segments[blankIndex])
+			var blankId: String = blankIds[blankIndex]
+			var fillInput := LineEdit.new()
+			fillInput.custom_minimum_size = Vector2(84, 42)
+			fillInput.max_length = 8
+			fillInput.placeholder_text = "?"
+			fillInput.alignment = HORIZONTAL_ALIGNMENT_CENTER
+			fillInput.add_theme_font_size_override("font_size", 18)
+			ApplyFillInputState(fillInput, "empty")
+			fillInput.text_changed.connect(_on_fill_input_text_changed.bind(fillInput))
+			stepRow.add_child(fillInput)
+			fillInputs[blankId] = fillInput
+
+		AddFillTextSegment(stepRow, segments.back())
+
+	if not fillInputs.is_empty():
+		fillInputs.values()[0].grab_focus()
+
+# Adds one immutable expression segment around Fill-in inputs.
+func AddFillTextSegment(stepRow: HBoxContainer, segmentText: String) -> void:
+	if segmentText.is_empty():
+		return
+
+	var segmentLabel := Label.new()
+	segmentLabel.text = segmentText
+	segmentLabel.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	segmentLabel.add_theme_font_size_override("font_size", 19)
+	stepRow.add_child(segmentLabel)
+
+# Returns current player entries keyed by generated blank ID.
+func GetFillAnswers() -> Dictionary:
+	var enteredAnswers: Dictionary = {}
+
+	for blankId in fillInputs:
+		enteredAnswers[blankId] = fillInputs[blankId].text.strip_edges()
+
+	return enteredAnswers
+
+# Applies correct, incorrect, and empty states after one Check request.
+func ShowFillValidation(correctBlankIds: Array[String], incorrectBlankIds: Array[String]) -> void:
+	for blankId in fillInputs:
+		var fillInput: LineEdit = fillInputs[blankId]
+
+		if blankId in correctBlankIds:
+			fillInput.editable = false
+			ApplyFillInputState(
+				fillInput,
+				"revealed" if fillInput.get_meta("revealedByHint", false) else "correct"
+			)
+		elif blankId in incorrectBlankIds:
+			ApplyFillInputState(fillInput, "incorrect")
+		else:
+			ApplyFillInputState(fillInput, "empty")
+
+	feedbackLabel.text = "Check the highlighted missing values."
+	AudioManager.PlayWrong()
+
+# Locks every input in its correct state when the full process is complete.
+func ShowFillComplete() -> void:
+	for fillInput in fillInputs.values():
+		fillInput.editable = false
+		ApplyFillInputState(
+			fillInput,
+			"revealed" if fillInput.get_meta("revealedByHint", false) else "correct"
+		)
+
+	ShowCorrectAnswer()
+
+# Reveals one missing value and marks it as supplied by Hint.
+func RevealFillBlank(blankId: String, answer: String) -> void:
+	if not fillInputs.has(blankId):
+		return
+
+	var fillInput: LineEdit = fillInputs[blankId]
+	fillInput.text = answer
+	fillInput.editable = false
+	fillInput.set_meta("revealedByHint", true)
+	ApplyFillInputState(fillInput, "revealed")
+	feedbackLabel.text = "Hint: One missing value was revealed."
+	AudioManager.PlayHint()
+
+# Clears all generated rows and input references before the next question.
+func ClearFillProcess() -> void:
+	fillInputs.clear()
+
+	for child in fillModeArea.get_children():
+		fillModeArea.remove_child(child)
+		child.queue_free()
+
+# Applies a compact visual state without moving answer logic into the UI.
+func ApplyFillInputState(fillInput: LineEdit, state: String) -> void:
+	var inputStyle := StyleBoxFlat.new()
+	inputStyle.corner_radius_top_left = 10
+	inputStyle.corner_radius_top_right = 10
+	inputStyle.corner_radius_bottom_right = 10
+	inputStyle.corner_radius_bottom_left = 10
+	inputStyle.border_width_left = 1
+	inputStyle.border_width_top = 1
+	inputStyle.border_width_right = 1
+	inputStyle.border_width_bottom = 1
+
+	match state:
+		"correct":
+			inputStyle.bg_color = Color(0.06, 0.22, 0.17, 1)
+			inputStyle.border_color = Color(0.3, 0.88, 0.65, 1)
+		"incorrect":
+			inputStyle.bg_color = Color(0.25, 0.075, 0.09, 1)
+			inputStyle.border_color = Color(1, 0.38, 0.45, 1)
+		"revealed":
+			inputStyle.bg_color = Color(0.055, 0.17, 0.25, 1)
+			inputStyle.border_color = Color(0.3, 0.75, 1, 1)
+		_:
+			inputStyle.bg_color = Color(0.055, 0.075, 0.12, 1)
+			inputStyle.border_color = Color(0.2, 0.34, 0.5, 1)
+
+	fillInput.add_theme_stylebox_override("normal", inputStyle)
+	fillInput.add_theme_stylebox_override("read_only", inputStyle)
+	var focusStyle: StyleBoxFlat = inputStyle.duplicate()
+	focusStyle.border_width_left = 2
+	focusStyle.border_width_top = 2
+	focusStyle.border_width_right = 2
+	focusStyle.border_width_bottom = 2
+	focusStyle.border_color = Color(0.78, 0.9, 1, 1)
+	fillInput.add_theme_stylebox_override("focus", focusStyle)
+
 # Returns the step text in its current visual order for gameplay validation.
 func GetStepOrder() -> Array[String]:
 	var displayedSteps: Array[String] = []
@@ -236,6 +409,7 @@ func UpdateResponsiveLayout() -> void:
 	mainMargin.add_theme_constant_override("margin_bottom", verticalMargin)
 	mainLayout.add_theme_constant_override("separation", 8 if compactLayout else 14)
 	stepArea.add_theme_constant_override("separation", 6 if compactLayout else 10)
+
 	choiceGrid.columns = 1 if viewportSize.x < 900.0 else 2
 	questionPanel.custom_minimum_size.y = 70.0 if compactLayout else 92.0
 
@@ -312,5 +486,21 @@ func _on_step_order_changed() -> void:
 # Forwards one visual candidate selection to GameManager for validation.
 func _on_choice_button_pressed(choiceText: String) -> void:
 	choiceSelected.emit(choiceText)
+
+# Restricts Fill-in fields to whole-number input with one optional leading minus.
+func _on_fill_input_text_changed(newText: String, fillInput: LineEdit) -> void:
+	var filteredText := ""
+
+	for characterIndex in range(newText.length()):
+		var character := newText[characterIndex]
+
+		if character.is_valid_int() or (character == "-" and characterIndex == 0):
+			filteredText += character
+
+	if filteredText == newText:
+		return
+
+	fillInput.text = filteredText
+	fillInput.caret_column = filteredText.length()
 
 #endregion

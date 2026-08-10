@@ -6,7 +6,7 @@ extends PanelContainer
 
 #region ========== References ==========
 
-@onready var stepLabel: Label = $MarginContainer/StepLabel
+@onready var stepLabel: Label = $MarginContainer/TextAnchor/StepLabel
 
 #endregion
 

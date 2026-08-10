@@ -12,6 +12,7 @@ const LOBBY_SCENE_PATH: String = "res://Scenes/LobbyScene.tscn"
 const GAME_SCENE_PATH: String = "res://Scenes/GameScene.tscn"
 const DEFAULT_LEVEL_TYPE_ID: String = "step_ordering"
 const MULTIPLE_CHOICE_LEVEL_TYPE_ID: String = "multiple_choice_ordering"
+const FILL_PROCESS_LEVEL_TYPE_ID: String = "fill_in_process"
 
 #endregion
 
@@ -38,6 +39,8 @@ var levelProgress: Dictionary = {}
 var currentChoiceStage: int = 0
 var currentChoiceOptions: Array[String] = []
 var unavailableChoiceOptions: Array[String] = []
+var fillBlankAnswers: Dictionary = {}
+var revealedFillBlankIds: Array[String] = []
 
 #endregion
 
@@ -159,9 +162,6 @@ func SelectLevelType(levelTypeId: String) -> bool:
 		push_error("Cannot select unknown Level Type ID: " + levelTypeId)
 		return false
 
-	if levelTypeId == "fill_in_process":
-		return false
-
 	selectedLevelTypeId = levelTypeId
 	return true
 
@@ -194,6 +194,8 @@ func SelectLevel(levelId: String) -> bool:
 	currentChoiceStage = 0
 	currentChoiceOptions.clear()
 	unavailableChoiceOptions.clear()
+	fillBlankAnswers.clear()
+	revealedFillBlankIds.clear()
 	return true
 
 # Returns the selected Level ID or an empty String before content is available.
@@ -251,6 +253,8 @@ func LoadQuestion(questionIndex: int) -> void:
 	currentChoiceStage = 0
 	currentChoiceOptions.clear()
 	unavailableChoiceOptions.clear()
+	fillBlankAnswers.clear()
+	revealedFillBlankIds.clear()
 
 	var currentQuestion: Dictionary = questions[currentQuestionIndex]
 	var expression: String = currentQuestion.get("expression", "")
@@ -272,6 +276,16 @@ func LoadQuestion(questionIndex: int) -> void:
 			questions.size()
 		)
 		PrepareMultipleChoiceStage()
+	elif selectedLevelTypeId == FILL_PROCESS_LEVEL_TYPE_ID:
+		var fillStepData := BuildFillProcessData(correctSteps)
+		gameUI.ShowFillProcessQuestion(
+			currentLevel.get("title", "Untitled Level"),
+			GetSelectedLevelTypeRule(),
+			expression,
+			currentQuestionIndex + 1,
+			questions.size(),
+			fillStepData
+		)
 	else:
 		var shuffledSteps := ShuffleSteps(correctSteps)
 		gameUI.ShowQuestion(
@@ -305,6 +319,10 @@ func CheckAnswer() -> void:
 	if selectedLevelTypeId == MULTIPLE_CHOICE_LEVEL_TYPE_ID:
 		return
 
+	if selectedLevelTypeId == FILL_PROCESS_LEVEL_TYPE_ID:
+		CheckFillProcess()
+		return
+
 	var currentSteps: Array[String] = gameUI.GetStepOrder()
 
 	# Update gameplay state only after an exact ordered match.
@@ -319,6 +337,10 @@ func CheckAnswer() -> void:
 func UseHint() -> void:
 	if selectedLevelTypeId == MULTIPLE_CHOICE_LEVEL_TYPE_ID:
 		UseMultipleChoiceHint()
+		return
+
+	if selectedLevelTypeId == FILL_PROCESS_LEVEL_TYPE_ID:
+		UseFillProcessHint()
 		return
 
 	var currentSteps: Array[String] = gameUI.GetStepOrder()
@@ -357,6 +379,97 @@ func UpdateHintAvailability() -> void:
 		return
 
 	gameUI.SetHintAvailable(GetFirstIncorrectStepIndex(gameUI.GetStepOrder()) >= 0)
+
+# Derives numeric blanks directly from generated correct Steps.
+func BuildFillProcessData(solutionSteps: Array[String]) -> Array:
+	var fillStepData: Array = []
+	var numberPattern := RegEx.new()
+	numberPattern.compile("[0-9]+")
+
+	for stepIndex in range(solutionSteps.size()):
+		var stepText := solutionSteps[stepIndex]
+		var numberMatches := numberPattern.search_all(stepText)
+
+		if numberMatches.is_empty():
+			fillStepData.append({"segments": [stepText], "blankIds": []})
+			continue
+
+		# Later reasoning lines may contain two blanks; the final result uses one.
+		var desiredBlankCount := 1
+
+		if stepIndex > 0 and stepIndex < solutionSteps.size() - 1 and numberMatches.size() >= 2:
+			desiredBlankCount = 2
+
+		var selectedMatchStart := numberMatches.size() - desiredBlankCount
+		var segments: Array[String] = []
+		var blankIds: Array[String] = []
+		var textCursor := 0
+
+		for matchIndex in range(selectedMatchStart, numberMatches.size()):
+			var numberMatch: RegExMatch = numberMatches[matchIndex]
+			segments.append(stepText.substr(textCursor, numberMatch.get_start() - textCursor))
+			var blankId := "S%d_B%d" % [stepIndex, matchIndex - selectedMatchStart]
+			blankIds.append(blankId)
+			fillBlankAnswers[blankId] = numberMatch.get_string()
+			textCursor = numberMatch.get_end()
+
+		segments.append(stepText.substr(textCursor))
+		fillStepData.append({"segments": segments, "blankIds": blankIds})
+
+	return fillStepData
+
+# Validates every generated blank while preserving empty and incorrect states.
+func CheckFillProcess() -> void:
+	var enteredAnswers: Dictionary = gameUI.GetFillAnswers()
+	var correctBlankIds: Array[String] = []
+	var incorrectBlankIds: Array[String] = []
+
+	for blankId in fillBlankAnswers:
+		var enteredAnswer: String = enteredAnswers.get(blankId, "")
+
+		if enteredAnswer == fillBlankAnswers[blankId]:
+			correctBlankIds.append(blankId)
+		elif not enteredAnswer.is_empty():
+			incorrectBlankIds.append(blankId)
+
+	if correctBlankIds.size() == fillBlankAnswers.size():
+		questionCompleted = true
+		RecordQuestionCompletion()
+		gameUI.ShowFillComplete()
+		return
+
+	gameUI.ShowFillValidation(correctBlankIds, incorrectBlankIds)
+	UpdateFillHintAvailability(enteredAnswers)
+
+# Reveals one unresolved value without exposing the rest of the process.
+func UseFillProcessHint() -> void:
+	var enteredAnswers: Dictionary = gameUI.GetFillAnswers()
+
+	for blankId in fillBlankAnswers:
+		if (
+			blankId not in revealedFillBlankIds
+			and enteredAnswers.get(blankId, "") != fillBlankAnswers[blankId]
+		):
+			revealedFillBlankIds.append(blankId)
+			revealedHintCount += 1
+			gameUI.RevealFillBlank(blankId, fillBlankAnswers[blankId])
+			enteredAnswers[blankId] = fillBlankAnswers[blankId]
+			UpdateFillHintAvailability(enteredAnswers)
+			return
+
+	gameUI.SetHintAvailable(false)
+
+# Keeps Hint available only while at least one unrevealed value is unresolved.
+func UpdateFillHintAvailability(enteredAnswers: Dictionary) -> void:
+	for blankId in fillBlankAnswers:
+		if (
+			blankId not in revealedFillBlankIds
+			and enteredAnswers.get(blankId, "") != fillBlankAnswers[blankId]
+		):
+			gameUI.SetHintAvailable(true)
+			return
+
+	gameUI.SetHintAvailable(false)
 
 # Builds one randomized candidate set for the active solution stage.
 func PrepareMultipleChoiceStage() -> void:

@@ -136,6 +136,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "21 + 29"
 
+[node name="OptionTopSpacer" type="Control" parent="MainMargin/MainLayout"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="StepScroll" type="ScrollContainer" parent="MainMargin/MainLayout"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -177,6 +182,17 @@ size_flags_horizontal = 3
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
 columns = 2
+
+[node name="FillModeScroll" type="ScrollContainer" parent="MainMargin/MainLayout"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="FillModeArea" type="VBoxContainer" parent="MainMargin/MainLayout/FillModeScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
 
 [node name="FeedbackLabel" type="Label" parent="MainMargin/MainLayout" unique_id=342324537]
 custom_minimum_size = Vector2(0, 28)

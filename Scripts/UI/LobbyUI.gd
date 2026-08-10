@@ -15,6 +15,7 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 @onready var homeButton: Button = $MainMargin/MainLayout/Header/HomeButton
 @onready var stepOrderingButton: Button = $MainMargin/MainLayout/LevelTypeRow/StepOrderingButton
 @onready var choiceOrderingButton: Button = $MainMargin/MainLayout/LevelTypeRow/ChoiceOrderingButton
+@onready var fillProcessButton: Button = $MainMargin/MainLayout/LevelTypeRow/FillProcessButton
 @onready var levelCountLabel: Label = $MainMargin/MainLayout/SectionHeader/LevelCountLabel
 @onready var levelCardContainer: GridContainer = $MainMargin/MainLayout/LevelScroll/LevelCardContainer
 
@@ -27,6 +28,7 @@ func _ready() -> void:
 	homeButton.pressed.connect(_on_home_button_pressed)
 	stepOrderingButton.pressed.connect(_on_step_ordering_button_pressed)
 	choiceOrderingButton.pressed.connect(_on_choice_ordering_button_pressed)
+	fillProcessButton.pressed.connect(_on_fill_process_button_pressed)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
 	ShowSelectedLevelType()
 	levelCountLabel.text = "%d Levels" % GameManager.GetLevels().size()
@@ -41,12 +43,15 @@ func _ready() -> void:
 func ShowSelectedLevelType() -> void:
 	var stepOrderingData := GameManager.GetLevelTypeById("step_ordering")
 	var choiceOrderingData := GameManager.GetLevelTypeById("multiple_choice_ordering")
+	var fillProcessData := GameManager.GetLevelTypeById("fill_in_process")
 	stepOrderingButton.text = stepOrderingData.get("title", "Step Ordering")
 	choiceOrderingButton.text = choiceOrderingData.get("title", "Multiple-Choice Ordering")
+	fillProcessButton.text = fillProcessData.get("title", "Fill in the Process")
 	stepOrderingButton.set_pressed_no_signal(GameManager.selectedLevelTypeId == "step_ordering")
 	choiceOrderingButton.set_pressed_no_signal(
 		GameManager.selectedLevelTypeId == "multiple_choice_ordering"
 	)
+	fillProcessButton.set_pressed_no_signal(GameManager.selectedLevelTypeId == "fill_in_process")
 
 # Adapts the Level grid to wide, medium, and narrow windows.
 func UpdateResponsiveLayout() -> void:
@@ -108,6 +113,11 @@ func _on_step_ordering_button_pressed() -> void:
 # Selects Multiple-Choice Ordering without changing shared Level content.
 func _on_choice_ordering_button_pressed() -> void:
 	if GameManager.SelectLevelType("multiple_choice_ordering"):
+		ShowSelectedLevelType()
+
+# Selects Fill in the Process without duplicating Question or solution data.
+func _on_fill_process_button_pressed() -> void:
+	if GameManager.SelectLevelType("fill_in_process"):
 		ShowSelectedLevelType()
 
 #endregion
