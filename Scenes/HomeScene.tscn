@@ -1,14 +1,14 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene format=3 uid="uid://d3j2msqy66gj1"]
 
-[ext_resource type="Script" path="res://Scripts/UI/HomeUI.gd" id="1_home_ui"]
+[ext_resource type="Script" uid="uid://b85sl44wt6qh4" path="res://Scripts/UI/HomeUI.gd" id="1_home_ui"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
-[ext_resource type="Texture2D" path="res://Assets/Icons/play.svg" id="3_play"]
-[ext_resource type="Texture2D" path="res://Assets/Icons/score.svg" id="4_credits"]
-[ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="5_settings"]
-[ext_resource type="Texture2D" path="res://Assets/Icons/incorrect.svg" id="6_exit"]
-[ext_resource type="Texture2D" path="res://Assets/Icons/steps.svg" id="7_steps"]
-[ext_resource type="Texture2D" path="res://Assets/Icons/modes.svg" id="8_modes"]
-[ext_resource type="Texture2D" path="res://Assets/Icons/progress.svg" id="9_progress"]
+[ext_resource type="Texture2D" uid="uid://bw0u5aeiil7fh" path="res://Assets/Icons/play.svg" id="3_play"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/info.svg" id="4_credits"]
+[ext_resource type="Texture2D" uid="uid://dt35qmpiwiy3l" path="res://Assets/Icons/settings.svg" id="5_settings"]
+[ext_resource type="Texture2D" uid="uid://pxur70ma636f" path="res://Assets/Icons/incorrect.svg" id="6_exit"]
+[ext_resource type="Texture2D" uid="uid://cdqsudpxy83he" path="res://Assets/Icons/steps.svg" id="7_steps"]
+[ext_resource type="Texture2D" uid="uid://bvos8byg17f8j" path="res://Assets/Icons/modes.svg" id="8_modes"]
+[ext_resource type="Texture2D" uid="uid://ce12xygy43tk4" path="res://Assets/Icons/progress.svg" id="9_progress"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_play"]
 content_margin_left = 34.0
@@ -28,24 +28,6 @@ corner_radius_bottom_left = 16
 shadow_color = Color(0.02, 0.48, 0.9, 0.28)
 shadow_size = 16
 
-[sub_resource type="StyleBoxFlat" id="StyleBox_play_hover"]
-content_margin_left = 34.0
-content_margin_top = 20.0
-content_margin_right = 34.0
-content_margin_bottom = 20.0
-bg_color = Color(0.065, 0.48, 0.82, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.48, 0.88, 1, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0.02, 0.56, 1, 0.4)
-shadow_size = 22
-
 [sub_resource type="StyleBoxFlat" id="StyleBox_play_pressed"]
 content_margin_left = 34.0
 content_margin_top = 21.0
@@ -64,6 +46,24 @@ corner_radius_bottom_left = 16
 shadow_color = Color(0.02, 0.42, 0.8, 0.18)
 shadow_size = 9
 
+[sub_resource type="StyleBoxFlat" id="StyleBox_play_hover"]
+content_margin_left = 34.0
+content_margin_top = 20.0
+content_margin_right = 34.0
+content_margin_bottom = 20.0
+bg_color = Color(0.065, 0.48, 0.82, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.48, 0.88, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.02, 0.56, 1, 0.4)
+shadow_size = 22
+
 [sub_resource type="StyleBoxFlat" id="StyleBox_feature"]
 bg_color = Color(0.045, 0.065, 0.105, 0.86)
 border_width_left = 1
@@ -76,7 +76,24 @@ corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
 
-[node name="HomeScene" type="Control"]
+[sub_resource type="StyleBoxFlat" id="CreditsOverlayStyle"]
+bg_color = Color(0.008, 0.014, 0.03, 0.88)
+
+[sub_resource type="StyleBoxFlat" id="CreditsPanelStyle"]
+bg_color = Color(0.035, 0.055, 0.095, 0.99)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.55, 0.8, 0.75)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.02, 0.48, 0.9, 0.25)
+shadow_size = 24
+
+[node name="HomeScene" type="Control" unique_id=1261641927]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -86,27 +103,27 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_home_ui")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=224009038]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 color = Color(0.014, 0.022, 0.046, 1)
-mouse_filter = 2
 
-[node name="HeroGlow" type="ColorRect" parent="."]
+[node name="HeroGlow" type="ColorRect" parent="." unique_id=1611255795]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 color = Color(0.025, 0.14, 0.25, 0.24)
-mouse_filter = 2
 
-[node name="Decorations" type="Control" parent="."]
+[node name="Decorations" type="Control" parent="." unique_id=1535462917]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -115,7 +132,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ExpressionA" type="Label" parent="Decorations"]
+[node name="ExpressionA" type="Label" parent="Decorations" unique_id=1706249024]
 layout_mode = 0
 offset_left = 88.0
 offset_top = 176.0
@@ -125,7 +142,7 @@ theme_override_colors/font_color = Color(0.28, 0.58, 0.76, 0.14)
 theme_override_font_sizes/font_size = 18
 text = "8 + 5 = 13"
 
-[node name="ExpressionB" type="Label" parent="Decorations"]
+[node name="ExpressionB" type="Label" parent="Decorations" unique_id=1801472258]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -139,7 +156,7 @@ theme_override_colors/font_color = Color(0.28, 0.58, 0.76, 0.12)
 theme_override_font_sizes/font_size = 18
 text = "24 / 6 = 4"
 
-[node name="ExpressionC" type="Label" parent="Decorations"]
+[node name="ExpressionC" type="Label" parent="Decorations" unique_id=2075929472]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -153,7 +170,7 @@ theme_override_colors/font_color = Color(0.28, 0.58, 0.76, 0.11)
 theme_override_font_sizes/font_size = 18
 text = "(8 + 4) * 3"
 
-[node name="ExpressionD" type="Label" parent="Decorations"]
+[node name="ExpressionD" type="Label" parent="Decorations" unique_id=653088706]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -170,7 +187,7 @@ theme_override_colors/font_color = Color(0.28, 0.58, 0.76, 0.1)
 theme_override_font_sizes/font_size = 18
 text = "42 - 19 = 23"
 
-[node name="MainMargin" type="MarginContainer" parent="."]
+[node name="MainMargin" type="MarginContainer" parent="." unique_id=1299918402]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -182,34 +199,34 @@ theme_override_constants/margin_top = 48
 theme_override_constants/margin_right = 72
 theme_override_constants/margin_bottom = 44
 
-[node name="PageLayout" type="VBoxContainer" parent="MainMargin"]
+[node name="PageLayout" type="VBoxContainer" parent="MainMargin" unique_id=41858294]
 layout_mode = 2
 theme_override_constants/separation = 18
 
-[node name="ContentCenter" type="CenterContainer" parent="MainMargin/PageLayout"]
+[node name="ContentCenter" type="CenterContainer" parent="MainMargin/PageLayout" unique_id=1024957392]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="LandingContent" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter"]
+[node name="LandingContent" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter" unique_id=373891992]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(1320, 0)
 layout_mode = 2
 theme_override_constants/separation = 22
 alignment = 1
 
-[node name="Hero" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent"]
+[node name="Hero" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent" unique_id=2132042063]
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="EyebrowLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+[node name="EyebrowLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero" unique_id=931382879]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.32, 0.78, 1, 1)
 theme_override_font_sizes/font_size = 15
 text = "LEARN THE PROCESS"
 horizontal_alignment = 1
 
-[node name="TitleLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+[node name="TitleLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero" unique_id=323715491]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.97, 1, 1)
@@ -217,7 +234,7 @@ theme_override_font_sizes/font_size = 82
 text = "MathSmith"
 horizontal_alignment = 1
 
-[node name="TaglineLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+[node name="TaglineLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero" unique_id=9911345]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.78, 0.85, 0.93, 1)
@@ -226,7 +243,7 @@ text = "Build stronger math skills, one step at a time."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="SupportingLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+[node name="SupportingLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero" unique_id=653346095]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
 theme_override_font_sizes/font_size = 17
@@ -234,177 +251,175 @@ text = "Learn how calculations work by rebuilding the reasoning behind them."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="PlayTopSpacer" type="Control" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+[node name="PlayTopSpacer" type="Control" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero" unique_id=443498033]
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="PlayButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+[node name="PlayButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero" unique_id=1714292050]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 78)
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 25
 theme_override_constants/h_separation = 7
+theme_override_font_sizes/font_size = 25
 theme_override_styles/normal = SubResource("StyleBox_play")
-theme_override_styles/hover = SubResource("StyleBox_play_hover")
 theme_override_styles/pressed = SubResource("StyleBox_play_pressed")
+theme_override_styles/hover = SubResource("StyleBox_play_hover")
 text = "PLAY"
 icon = ExtResource("3_play")
-icon_max_width = 22
-alignment = 1
 
-[node name="PlayBottomSpacer" type="Control" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+[node name="PlayBottomSpacer" type="Control" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero" unique_id=711240154]
 custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Divider" type="HSeparator" parent="MainMargin/PageLayout/ContentCenter/LandingContent"]
+[node name="Divider" type="HSeparator" parent="MainMargin/PageLayout/ContentCenter/LandingContent" unique_id=1062945132]
 layout_mode = 2
 
-[node name="FeatureGrid" type="GridContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent"]
+[node name="FeatureGrid" type="GridContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent" unique_id=1116028920]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 16
 theme_override_constants/v_separation = 12
 columns = 3
 
-[node name="StepsFeature" type="PanelContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid"]
+[node name="StepsFeature" type="PanelContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid" unique_id=35819609]
 custom_minimum_size = Vector2(0, 128)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBox_feature")
 
-[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature"]
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature" unique_id=719264093]
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 18
 
-[node name="Layout" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin"]
+[node name="Layout" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin" unique_id=70036331]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout"]
+[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout" unique_id=2003437098]
+modulate = Color(0.35, 0.8, 1, 1)
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("7_steps")
 expand_mode = 1
 stretch_mode = 5
-modulate = Color(0.35, 0.8, 1, 1)
 
-[node name="Text" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout"]
+[node name="Text" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout" unique_id=1604213452]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout/Text"]
+[node name="Title" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout/Text" unique_id=1944276256]
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "Step-by-Step Learning"
 
-[node name="Description" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout/Text"]
+[node name="Description" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout/Text" unique_id=49787435]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
 theme_override_font_sizes/font_size = 16
 text = "Understand the reasoning behind each calculation."
 autowrap_mode = 2
 
-[node name="ModesFeature" type="PanelContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid"]
+[node name="ModesFeature" type="PanelContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid" unique_id=1387295840]
 custom_minimum_size = Vector2(0, 128)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBox_feature")
 
-[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature"]
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature" unique_id=1372921487]
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 18
 
-[node name="Layout" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin"]
+[node name="Layout" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin" unique_id=2033306801]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout"]
+[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout" unique_id=572955811]
+modulate = Color(0.45, 0.72, 1, 1)
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("8_modes")
 expand_mode = 1
 stretch_mode = 5
-modulate = Color(0.45, 0.72, 1, 1)
 
-[node name="Text" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout"]
+[node name="Text" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout" unique_id=767093368]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout/Text"]
+[node name="Title" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout/Text" unique_id=757007140]
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "Multiple Challenge Modes"
 
-[node name="Description" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout/Text"]
+[node name="Description" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout/Text" unique_id=582433819]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
 theme_override_font_sizes/font_size = 16
 text = "Practice the same math in different ways."
 autowrap_mode = 2
 
-[node name="ProgressFeature" type="PanelContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid"]
+[node name="ProgressFeature" type="PanelContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid" unique_id=169639569]
 custom_minimum_size = Vector2(0, 128)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBox_feature")
 
-[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature"]
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature" unique_id=1861485925]
 layout_mode = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 18
 
-[node name="Layout" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin"]
+[node name="Layout" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin" unique_id=279534294]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout"]
+[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout" unique_id=649678761]
+modulate = Color(0.4, 0.88, 0.75, 1)
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("9_progress")
 expand_mode = 1
 stretch_mode = 5
-modulate = Color(0.4, 0.88, 0.75, 1)
 
-[node name="Text" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout"]
+[node name="Text" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout" unique_id=942456776]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout/Text"]
+[node name="Title" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout/Text" unique_id=1996577928]
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "Track Your Progress"
 
-[node name="Description" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout/Text"]
+[node name="Description" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout/Text" unique_id=1060694147]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
 theme_override_font_sizes/font_size = 16
 text = "Build skills across increasingly complex levels."
 autowrap_mode = 2
 
-[node name="SecondaryActions" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent"]
+[node name="SecondaryActions" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent" unique_id=629631049]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="CreditsButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions"]
+[node name="CreditsButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions" unique_id=1081346483]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(152, 48)
 layout_mode = 2
@@ -412,19 +427,17 @@ mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 17
 text = "Credits"
 icon = ExtResource("4_credits")
-icon_max_width = 17
 
-[node name="SettingsButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions"]
+[node name="SettingsButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions" unique_id=1780859304]
 custom_minimum_size = Vector2(152, 48)
 layout_mode = 2
-disabled = true
 tooltip_text = "Settings will be available in a future milestone."
 theme_override_font_sizes/font_size = 17
+disabled = true
 text = "Settings"
 icon = ExtResource("5_settings")
-icon_max_width = 17
 
-[node name="ExitButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions"]
+[node name="ExitButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions" unique_id=1376587342]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(152, 48)
 layout_mode = 2
@@ -432,9 +445,106 @@ mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 17
 text = "Exit"
 icon = ExtResource("6_exit")
-icon_max_width = 17
 
-[node name="CreditsDialog" type="AcceptDialog" parent="."]
-title = "Credits"
-dialog_text = "MathSmith\n\nGame Design, Technical Design, and Development\nby jsbug\n\nBuilt with Godot Engine."
-ok_button_text = "Close"
+[node name="CreditsOverlay" type="PanelContainer" parent="." unique_id=2131756867]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("CreditsOverlayStyle")
+
+[node name="CenterContainer" type="CenterContainer" parent="CreditsOverlay" unique_id=1624433271]
+layout_mode = 2
+
+[node name="CreditsPanel" type="PanelContainer" parent="CreditsOverlay/CenterContainer" unique_id=1362806606]
+custom_minimum_size = Vector2(620, 590)
+layout_mode = 2
+theme_override_styles/panel = SubResource("CreditsPanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="CreditsOverlay/CenterContainer/CreditsPanel" unique_id=124085692]
+layout_mode = 2
+theme_override_constants/margin_left = 52
+theme_override_constants/margin_top = 42
+theme_override_constants/margin_right = 52
+theme_override_constants/margin_bottom = 42
+
+[node name="Content" type="VBoxContainer" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin" unique_id=1291592710]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content" unique_id=1166444542]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "Credits"
+horizontal_alignment = 1
+
+[node name="Divider" type="HSeparator" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content" unique_id=410401258]
+layout_mode = 2
+
+[node name="CreatorRoleLabel" type="Label" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content" unique_id=1213535463]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "GAME DESIGN • TECHNICAL DESIGN • DEVELOPMENT"
+horizontal_alignment = 1
+
+[node name="CreatorLabel" type="Label" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content" unique_id=262028510]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Yitong Hu"
+horizontal_alignment = 1
+
+[node name="CreatorGroupSpacer" type="Control" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="AudioRoleLabel" type="Label" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content" unique_id=192181816]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "SOUND EFFECTS"
+horizontal_alignment = 1
+
+[node name="AudioSourceLabel" type="Label" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content" unique_id=577640320]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "kenney.nl"
+horizontal_alignment = 1
+
+[node name="AudioGroupSpacer" type="Control" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="IconsRoleLabel" type="Label" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content" unique_id=1036990332]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "ICONS"
+horizontal_alignment = 1
+
+[node name="IconsSourceLabel" type="Label" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content" unique_id=914911]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "lucide.dev"
+horizontal_alignment = 1
+
+[node name="CloseTopSpacer" type="Control" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="CloseButton" type="Button" parent="CreditsOverlay/CenterContainer/CreditsPanel/Margin/Content" unique_id=702911750]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 17
+text = "Close"
+icon = ExtResource("6_exit")

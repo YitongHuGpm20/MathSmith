@@ -16,7 +16,8 @@ signal exitRequested
 @onready var playButton: Button = %PlayButton
 @onready var creditsButton: Button = %CreditsButton
 @onready var exitButton: Button = %ExitButton
-@onready var creditsDialog: AcceptDialog = $CreditsDialog
+@onready var creditsOverlay: PanelContainer = $CreditsOverlay
+@onready var closeCreditsButton: Button = %CloseButton
 @onready var mainMargin: MarginContainer = $MainMargin
 @onready var landingContent: VBoxContainer = %LandingContent
 @onready var featureGrid: GridContainer = %FeatureGrid
@@ -31,6 +32,7 @@ signal exitRequested
 func _ready() -> void:
 	playButton.pressed.connect(_on_play_button_pressed)
 	creditsButton.pressed.connect(_on_credits_button_pressed)
+	closeCreditsButton.pressed.connect(_on_close_credits_button_pressed)
 	exitButton.pressed.connect(_on_exit_button_pressed)
 	playRequested.connect(GameManager.OpenLobby)
 	exitRequested.connect(GameManager.QuitGame)
@@ -67,9 +69,15 @@ func UpdateResponsiveLayout() -> void:
 func _on_play_button_pressed() -> void:
 	playRequested.emit()
 
-# Opens the local Credits dialog without involving gameplay state.
+# Opens the local Credits overlay without involving gameplay state.
 func _on_credits_button_pressed() -> void:
-	creditsDialog.popup_centered()
+	creditsOverlay.visible = true
+	closeCreditsButton.grab_focus()
+
+# Closes the Credits overlay and restores focus to its Home action.
+func _on_close_credits_button_pressed() -> void:
+	creditsOverlay.visible = false
+	creditsButton.grab_focus()
 
 # Emits the application exit request through the shared manager.
 func _on_exit_button_pressed() -> void:
