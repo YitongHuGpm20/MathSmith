@@ -26,18 +26,28 @@ func GenerateSteps(expression: String) -> Array[String]:
 	if operationCount == 0:
 		return []
 
-	# Prefer paired make-ten grouping for compatible three-addend expressions.
+	# Prefer purposeful regrouping when an addition chain offers an easier sum.
 	var threeAddendSteps := GenerateThreeAddendMakeTenSteps(expressionTree)
 
 	if not threeAddendSteps.is_empty():
-		return FormatLocalSteps(threeAddendSteps)
+		return FinalizeSteps(expression, FormatLocalSteps(threeAddendSteps))
+
+	var fourAddendSteps := GenerateFourAddendGroupingSteps(expressionTree)
+
+	if not fourAddendSteps.is_empty():
+		return FinalizeSteps(expression, FormatLocalSteps(fourAddendSteps))
+
+	var cancellationSteps := GenerateAdditionSubtractionCancellationSteps(expressionTree)
+
+	if not cancellationSteps.is_empty():
+		return FinalizeSteps(expression, FormatLocalSteps(cancellationSteps))
 
 	# A single operation receives a full strategy demonstration.
 	if operationCount == 1:
-		return FormatLocalSteps(GenerateDetailedOperationSteps(expressionTree))
+		return FinalizeSteps(expression, FormatLocalSteps(GenerateDetailedOperationSteps(expressionTree)))
 
 	# Multi-operation expressions emphasize order and reduce one operation at a time.
-	return GenerateExpressionReductionSteps(expressionTree, operationCount)
+	return FinalizeSteps(expression, GenerateExpressionReductionSteps(expressionTree))
 
 # Generates two paired tens by splitting the middle of three addends.
 func GenerateThreeAddendMakeTenSteps(expressionTree: Dictionary) -> Array[String]:
@@ -93,6 +103,85 @@ func CollectAdditionOperands(expressionNode: Dictionary, addends: Array[int]) ->
 		CollectAdditionOperands(expressionNode["left"], addends)
 		and CollectAdditionOperands(expressionNode["right"], addends)
 	)
+
+# Groups four addends into two pairs when pairing makes both sums easier to read.
+func GenerateFourAddendGroupingSteps(expressionTree: Dictionary) -> Array[String]:
+	var addends: Array[int] = []
+
+	if not CollectAdditionOperands(expressionTree, addends) or addends.size() != 4:
+		return []
+
+	var pairings := [
+		[0, 1, 2, 3],
+		[0, 2, 1, 3],
+		[0, 3, 1, 2]
+	]
+	var bestPairing: Array = []
+	var bestScore := 100000
+
+	# Prefer pair totals close to a multiple of five, then preserve source order on ties.
+	for pairing in pairings:
+		var firstTotal: int = addends[pairing[0]] + addends[pairing[1]]
+		var secondTotal: int = addends[pairing[2]] + addends[pairing[3]]
+		var pairingScore := DistanceToMultipleOfFive(firstTotal) + DistanceToMultipleOfFive(secondTotal)
+
+		if pairingScore < bestScore:
+			bestScore = pairingScore
+			bestPairing = pairing
+
+	if bestPairing.is_empty() or bestPairing == pairings[0]:
+		return []
+
+	var firstLeft: int = addends[bestPairing[0]]
+	var firstRight: int = addends[bestPairing[1]]
+	var secondLeft: int = addends[bestPairing[2]]
+	var secondRight: int = addends[bestPairing[3]]
+	var firstPairTotal := firstLeft + firstRight
+	var secondPairTotal := secondLeft + secondRight
+	return [
+		"(%d + %d) + (%d + %d)" % [firstLeft, firstRight, secondLeft, secondRight],
+		"%d + %d" % [firstPairTotal, secondPairTotal],
+		str(firstPairTotal + secondPairTotal)
+	]
+
+# Returns how far a value is from a nearby mental-math landmark.
+func DistanceToMultipleOfFive(value: int) -> int:
+	var remainder := value % 5
+	return mini(remainder, 5 - remainder)
+
+# Uses cancellation when the final subtraction naturally reduces the preceding addend.
+func GenerateAdditionSubtractionCancellationSteps(expressionTree: Dictionary) -> Array[String]:
+	if expressionTree["type"] != "operation" or expressionTree["operation"] != "-":
+		return []
+
+	var additionNode: Dictionary = expressionTree["left"]
+	var subtractedNode: Dictionary = expressionTree["right"]
+
+	if (
+		additionNode["type"] != "operation"
+		or additionNode["operation"] != "+"
+		or additionNode["left"]["type"] != "number"
+		or additionNode["right"]["type"] != "number"
+		or subtractedNode["type"] != "number"
+	):
+		return []
+
+	var baseValue: int = additionNode["left"]["value"]
+	var addedValue: int = additionNode["right"]["value"]
+	var subtractedValue: int = subtractedNode["value"]
+	var difference := addedValue - subtractedValue
+
+	if difference < 0:
+		return []
+
+	if difference == 0:
+		return [str(baseValue)]
+
+	return [
+		"%d + (%d - %d)" % [baseValue, addedValue, subtractedValue],
+		"%d + %d" % [baseValue, difference],
+		str(baseValue + difference)
+	]
 
 # Produces a complete teaching strategy for a single binary operation.
 func GenerateDetailedOperationSteps(operationNode: Dictionary) -> Array[String]:
@@ -193,10 +282,21 @@ func GenerateAdditionSteps(firstNumber: int, secondNumber: int) -> Array[String]
 		str(finalAnswer)
 	]
 
-# Generates subtraction steps by bridging through a ten or subtracting chunks.
+# Generates subtraction steps using compensation, bridging, or place-value chunks.
 func GenerateSubtractionSteps(firstNumber: int, secondNumber: int) -> Array[String]:
 	var finalAnswer := firstNumber - secondNumber
 	var onesValue := firstNumber % 10
+	var nextRoundTen := ceili(secondNumber / 10.0) * 10
+	var compensation := nextRoundTen - secondNumber
+
+	# Subtract a nearby round number and compensate when the correction is small.
+	if secondNumber >= 10 and compensation > 0 and compensation <= 2:
+		var roundedDifference := firstNumber - nextRoundTen
+		return [
+			"%d - %d + %d" % [firstNumber, nextRoundTen, compensation],
+			"%d + %d" % [roundedDifference, compensation],
+			str(finalAnswer)
+		]
 
 	# Bridge through the previous multiple of ten when subtraction crosses it.
 	if firstNumber <= 100 and onesValue > 0 and secondNumber > onesValue:
@@ -290,23 +390,40 @@ func GenerateMultiplicationSteps(firstNumber: int, secondNumber: int) -> Array[S
 		str(finalAnswer)
 	]
 
-# Generates division steps using the inverse multiplication relationship.
+# Generates division steps directly or with useful partial-quotient decomposition.
 func GenerateDivisionSteps(dividend: int, divisor: int) -> Array[String]:
 	if divisor == 0 or dividend % divisor != 0:
 		push_error("Step Ordering currently requires exact whole-number division.")
 		return []
 
 	var quotient := floori(float(dividend) / float(divisor))
-	return [
-		"%d * ? = %d" % [divisor, dividend],
-		"%d * %d = %d" % [divisor, quotient, dividend],
-		str(quotient)
-	]
+
+	# Show partial quotients only for a larger division with a clean round chunk.
+	if dividend >= 80 and quotient >= 10:
+		var firstQuotientPart := quotient - 1
+
+		while firstQuotientPart > 0 and firstQuotientPart * divisor % 10 != 0:
+			firstQuotientPart -= 1
+
+		var secondQuotientPart := quotient - firstQuotientPart
+
+		if firstQuotientPart > 0 and secondQuotientPart > 0:
+			var firstDividendPart := firstQuotientPart * divisor
+			var secondDividendPart := secondQuotientPart * divisor
+			return [
+				"(%d + %d) / %d" % [firstDividendPart, secondDividendPart, divisor],
+				"%d / %d + %d / %d" % [firstDividendPart, divisor, secondDividendPart, divisor],
+				"%d + %d" % [firstQuotientPart, secondQuotientPart],
+				str(quotient)
+			]
+
+	# Known division facts need no artificial inverse-equation detour.
+	return [str(quotient)]
 
 # Generates reduction steps while preserving parser-defined operation order.
-func GenerateExpressionReductionSteps(expressionTree: Dictionary, operationCount: int) -> Array[String]:
+func GenerateExpressionReductionSteps(expressionTree: Dictionary) -> Array[String]:
 	var generatedSteps: Array[String] = []
-	var remainingOperations := operationCount
+	var remainingOperations := expressionParser.CountOperations(expressionTree)
 
 	while remainingOperations > 0:
 		var nextOperation := FindNextOperation(expressionTree)
@@ -316,82 +433,48 @@ func GenerateExpressionReductionSteps(expressionTree: Dictionary, operationCount
 
 		var operationResult := EvaluateOperation(nextOperation)
 
-		# Expand the first operation when only two reductions would be too short.
-		if operationCount == 2 and remainingOperations == 2:
-			for localExpression in GenerateCompactOperationSteps(nextOperation):
-				AppendUniqueStep(
-					generatedSteps,
-					"= " + FormatExpression(expressionTree, nextOperation["id"], localExpression)
-				)
-		else:
-			AppendUniqueStep(
-				generatedSteps,
-				"= " + FormatExpression(expressionTree, nextOperation["id"], str(operationResult))
-			)
+		# Resolve the operation directly; expansion is reserved for standalone teaching facts.
+		AppendUniqueStep(
+			generatedSteps,
+			"= " + FormatExpression(expressionTree, nextOperation["id"], str(operationResult))
+		)
 
 		ReplaceOperationWithNumber(nextOperation, operationResult)
 		remainingOperations -= 1
 
+		# Collapse an obvious add-then-subtract cancellation after precedence is resolved.
+		var cancellationNode := FindResolvedCancellation(expressionTree)
+
+		if not cancellationNode.is_empty():
+			var cancellationResult: int = cancellationNode["left"]["left"]["value"]
+			ReplaceOperationWithNumber(cancellationNode, cancellationResult)
+			remainingOperations -= 2
+			AppendUniqueStep(generatedSteps, "= " + FormatExpression(expressionTree))
+
 	return generatedSteps
 
-# Produces a short pedagogical expansion before reducing one nested operation.
-func GenerateCompactOperationSteps(operationNode: Dictionary) -> Array[String]:
-	var leftValue: int = operationNode["left"]["value"]
-	var rightValue: int = operationNode["right"]["value"]
-	var operation: String = operationNode["operation"]
-	var result := EvaluateOperation(operationNode)
+# Finds a numeric pattern shaped like (a + b) - b after earlier reductions.
+func FindResolvedCancellation(expressionNode: Dictionary) -> Dictionary:
+	if expressionNode["type"] == "number":
+		return {}
 
-	match operation:
-		"+":
-			var additionResult := leftValue + rightValue
+	if (
+		expressionNode["operation"] == "-"
+		and expressionNode["left"]["type"] == "operation"
+		and expressionNode["left"]["operation"] == "+"
+		and expressionNode["left"]["left"]["type"] == "number"
+		and expressionNode["left"]["right"]["type"] == "number"
+		and expressionNode["right"]["type"] == "number"
+		and expressionNode["left"]["right"]["value"] == expressionNode["right"]["value"]
+	):
+		return expressionNode
 
-			# Use one concise bridge-through-ten strategy inside a larger expression.
-			if leftValue < 10 and rightValue < 10 and additionResult > 10:
-				var largerNumber := maxi(leftValue, rightValue)
-				var smallerNumber := mini(leftValue, rightValue)
-				var amountToTen := 10 - largerNumber
-				return [
-					"%d + %d + %d" % [largerNumber, amountToTen, smallerNumber - amountToTen],
-					"10 + %d" % [smallerNumber - amountToTen],
-					str(additionResult)
-				]
+	var leftMatch := FindResolvedCancellation(expressionNode["left"])
 
-			if leftValue >= 10 and rightValue < 10 and leftValue % 10 + rightValue > 10:
-				var amountToNextTen := 10 - leftValue % 10
-				var remainingAmount := rightValue - amountToNextTen
-				return [
-					"%d + %d + %d" % [leftValue, amountToNextTen, remainingAmount],
-					"%d + %d" % [leftValue + amountToNextTen, remainingAmount],
-					str(additionResult)
-				]
+	if not leftMatch.is_empty():
+		return leftMatch
 
-			return ["%d + %d" % [leftValue, rightValue], str(additionResult)]
-		"-":
-			return GenerateSubtractionSteps(leftValue, rightValue)
-		"*":
-			var repeatedAddends: Array[int] = []
-
-			for _addendIndex in range(rightValue):
-				repeatedAddends.append(leftValue)
-
-			return [JoinNumbers(repeatedAddends), str(leftValue * rightValue)]
-		"/":
-			var quotient := floori(float(leftValue) / float(rightValue))
-
-			if quotient == 1:
-				return ["%d fits into %d once" % [rightValue, leftValue], str(result)]
-
-			var firstQuotientPart := maxi(quotient - 1, 1)
-			var secondQuotientPart := quotient - firstQuotientPart
-			var firstDividendPart := firstQuotientPart * rightValue
-			var secondDividendPart := leftValue - firstDividendPart
-			return [
-				"(%d + %d) / %d" % [firstDividendPart, secondDividendPart, rightValue],
-				"%d + %d" % [firstQuotientPart, secondQuotientPart],
-				str(result)
-			]
-
-	return [str(result)]
+	return FindResolvedCancellation(expressionNode["right"])
 
 # Finds the next fully numeric operation in left-to-right tree order.
 func FindNextOperation(expressionNode: Dictionary) -> Dictionary:
@@ -503,6 +586,25 @@ func FormatLocalSteps(localSteps: Array[String]) -> Array[String]:
 		AppendUniqueStep(formattedSteps, "= " + localStep)
 
 	return formattedSteps
+
+# Removes repeated source expressions and guarantees consistent display prefixes.
+func FinalizeSteps(sourceExpression: String, generatedSteps: Array[String]) -> Array[String]:
+	var finalSteps: Array[String] = []
+	var normalizedSource := NormalizeExpressionText(sourceExpression)
+
+	for generatedStep in generatedSteps:
+		var normalizedStep := NormalizeExpressionText(generatedStep.trim_prefix("= "))
+
+		if normalizedStep == normalizedSource:
+			continue
+
+		AppendUniqueStep(finalSteps, generatedStep)
+
+	return finalSteps
+
+# Normalizes spacing for reliable unchanged-expression comparisons.
+func NormalizeExpressionText(expression: String) -> String:
+	return expression.replace(" ", "")
 
 # Adds a step only when it differs from the previously generated display step.
 func AppendUniqueStep(generatedSteps: Array[String], stepText: String) -> void:
