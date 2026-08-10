@@ -168,6 +168,7 @@ func CreateStepCards(steps: Array[String]) -> void:
 # Removes all cards from the current question display.
 func ClearStepCards() -> void:
 	for child in stepArea.get_children():
+		stepArea.remove_child(child)
 		child.queue_free()
 
 # Displays the candidates for one solution stage in randomized order.
@@ -204,14 +205,14 @@ func AddResolvedChoiceStep(stepText: String) -> void:
 	AudioManager.PlayCorrect()
 
 # Marks an incorrect candidate while keeping the remaining choices available.
-func ShowIncorrectChoice(choiceText: String) -> void:
+func ShowIncorrectChoice(choiceText: String, feedbackMessage: String) -> void:
 	for choiceButton in choiceGrid.get_children():
 		if choiceButton.get_meta("choiceText", "") == choiceText:
 			choiceButton.disabled = true
 			choiceButton.modulate = Color(1, 0.48, 0.48, 0.78)
 			break
 
-	feedbackLabel.text = "That step does not follow here. Try another option."
+	feedbackLabel.text = feedbackMessage
 	AudioManager.PlayWrong()
 
 # Removes one incorrect candidate as the Multiple-Choice Hint action.
@@ -292,7 +293,11 @@ func GetFillAnswers() -> Dictionary:
 	return enteredAnswers
 
 # Applies correct, incorrect, and empty states after one Check request.
-func ShowFillValidation(correctBlankIds: Array[String], incorrectBlankIds: Array[String]) -> void:
+func ShowFillValidation(
+	correctBlankIds: Array[String],
+	incorrectBlankIds: Array[String],
+	feedbackMessage: String
+) -> void:
 	for blankId in fillInputs:
 		var fillInput: LineEdit = fillInputs[blankId]
 
@@ -307,7 +312,7 @@ func ShowFillValidation(correctBlankIds: Array[String], incorrectBlankIds: Array
 		else:
 			ApplyFillInputState(fillInput, "empty")
 
-	feedbackLabel.text = "Check the highlighted missing values."
+	feedbackLabel.text = feedbackMessage
 	AudioManager.PlayWrong()
 
 # Locks every input in its correct state when the full process is complete.
@@ -425,8 +430,8 @@ func ShowCorrectAnswer(playAudio: bool = true) -> void:
 		AudioManager.PlayCorrect()
 
 # Displays the visual state for an incorrect answer.
-func ShowIncorrectAnswer() -> void:
-	feedbackLabel.text = "Not quite. Try again."
+func ShowIncorrectAnswer(feedbackMessage: String) -> void:
+	feedbackLabel.text = feedbackMessage
 	AudioManager.PlayWrong()
 
 # Displays feedback after a hint places one correct step.

@@ -35,6 +35,8 @@ var currentQuestionIndex: int = 0
 var correctSteps: Array[String] = []
 var questionCompleted: bool = false
 var revealedHintCount: int = 0
+var consecutiveIncorrectAttempts: int = 0
+var currentExpression: String = ""
 var levelProgress: Dictionary = {}
 var currentChoiceStage: int = 0
 var currentChoiceOptions: Array[String] = []
@@ -191,6 +193,8 @@ func SelectLevel(levelId: String) -> bool:
 	correctSteps.clear()
 	questionCompleted = false
 	revealedHintCount = 0
+	consecutiveIncorrectAttempts = 0
+	currentExpression = ""
 	currentChoiceStage = 0
 	currentChoiceOptions.clear()
 	unavailableChoiceOptions.clear()
@@ -250,6 +254,7 @@ func LoadQuestion(questionIndex: int) -> void:
 	currentQuestionIndex = questionIndex
 	questionCompleted = false
 	revealedHintCount = 0
+	consecutiveIncorrectAttempts = 0
 	currentChoiceStage = 0
 	currentChoiceOptions.clear()
 	unavailableChoiceOptions.clear()
@@ -258,6 +263,7 @@ func LoadQuestion(questionIndex: int) -> void:
 
 	var currentQuestion: Dictionary = questions[currentQuestionIndex]
 	var expression: String = currentQuestion.get("expression", "")
+	currentExpression = expression
 	correctSteps = stepGenerator.GenerateSteps(expression)
 
 	# Stop if the expression cannot produce a valid solution process.
@@ -328,10 +334,11 @@ func CheckAnswer() -> void:
 	# Update gameplay state only after an exact ordered match.
 	if currentSteps == correctSteps:
 		questionCompleted = true
+		consecutiveIncorrectAttempts = 0
 		RecordQuestionCompletion()
 		gameUI.ShowCorrectAnswer()
 	else:
-		gameUI.ShowIncorrectAnswer()
+		gameUI.ShowIncorrectAnswer(RegisterIncorrectAttempt())
 
 # Places the next correct step and updates the remaining hint availability.
 func UseHint() -> void:
@@ -434,11 +441,16 @@ func CheckFillProcess() -> void:
 
 	if correctBlankIds.size() == fillBlankAnswers.size():
 		questionCompleted = true
+		consecutiveIncorrectAttempts = 0
 		RecordQuestionCompletion()
 		gameUI.ShowFillComplete()
 		return
 
-	gameUI.ShowFillValidation(correctBlankIds, incorrectBlankIds)
+	gameUI.ShowFillValidation(
+		correctBlankIds,
+		incorrectBlankIds,
+		RegisterIncorrectAttempt()
+	)
 	UpdateFillHintAvailability(enteredAnswers)
 
 # Reveals one unresolved value without exposing the rest of the process.
@@ -471,10 +483,70 @@ func UpdateFillHintAvailability(enteredAnswers: Dictionary) -> void:
 
 	gameUI.SetHintAvailable(false)
 
+# Records one automatic-feedback attempt and returns its progressive message.
+func RegisterIncorrectAttempt() -> String:
+	consecutiveIncorrectAttempts += 1
+
+	if consecutiveIncorrectAttempts == 1:
+		return "Not quite. Review your work and try again."
+
+	if consecutiveIncorrectAttempts == 2:
+		return GetDirectionalErrorFeedback()
+
+	return GetContextualErrorFeedback()
+
+# Identifies a general area to review without exposing the exact correction.
+func GetDirectionalErrorFeedback() -> String:
+	if selectedLevelTypeId == FILL_PROCESS_LEVEL_TYPE_ID:
+		return "Check the arithmetic in the highlighted missing values."
+
+	if "(" in currentExpression:
+		return "Check how the grouped parts of the expression are being handled."
+
+	if HasMixedOperationPrecedence():
+		return "Check the order in which the operations are being solved."
+
+	if "/" in currentExpression:
+		return "Check how the dividend is being divided into equal groups."
+
+	if "*" in currentExpression:
+		return "Check the multiplication strategy used in each step."
+
+	if "-" in currentExpression:
+		return "Check how the subtraction is decomposed between steps."
+
+	return "Check how the addends are decomposed and regrouped."
+
+# Explains the relevant mathematical rule after repeated incorrect attempts.
+func GetContextualErrorFeedback() -> String:
+	if "(" in currentExpression:
+		return "Operations inside parentheses must be resolved before the surrounding operation."
+
+	if HasMixedOperationPrecedence():
+		return "Multiplication and division must be resolved before addition and subtraction."
+
+	if "/" in currentExpression:
+		return "A division decomposition must split the dividend into parts divisible by the divisor."
+
+	if "*" in currentExpression:
+		return "Partial products must represent the same factors as the original multiplication."
+
+	if "-" in currentExpression:
+		return "Each subtraction transformation must preserve the value of the original difference."
+
+	return "Regrouping addends may change their grouping, but it must preserve the same total."
+
+# Returns whether standard operation precedence is relevant to the active expression.
+func HasMixedOperationPrecedence() -> bool:
+	var hasHigherPriorityOperation := "*" in currentExpression or "/" in currentExpression
+	var hasLowerPriorityOperation := "+" in currentExpression or "-" in currentExpression
+	return hasHigherPriorityOperation and hasLowerPriorityOperation
+
 # Builds one randomized candidate set for the active solution stage.
 func PrepareMultipleChoiceStage() -> void:
 	if currentChoiceStage >= correctSteps.size():
 		questionCompleted = true
+		consecutiveIncorrectAttempts = 0
 		RecordQuestionCompletion()
 		gameUI.ShowMultipleChoiceComplete()
 		return
@@ -496,7 +568,7 @@ func SelectMultipleChoice(choiceText: String) -> void:
 	if choiceText != correctStep:
 		if choiceText not in unavailableChoiceOptions:
 			unavailableChoiceOptions.append(choiceText)
-		gameUI.ShowIncorrectChoice(choiceText)
+		gameUI.ShowIncorrectChoice(choiceText, RegisterIncorrectAttempt())
 		UpdateMultipleChoiceHintAvailability(correctStep)
 		return
 
