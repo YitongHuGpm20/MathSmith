@@ -4,6 +4,12 @@
 ## not validate the resulting order or make gameplay progression decisions.
 extends VBoxContainer
 
+#region ========== Signals ==========
+
+signal orderChanged
+
+#endregion
+
 #region ========== Godot Functions ==========
 
 # Accepts StepCard controls dragged within this step area.
@@ -19,6 +25,7 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 	var targetIndex := GetDropIndex(at_position.y)
 	move_child(data, targetIndex)
 	UpdateOrderLabels()
+	orderChanged.emit()
 
 #endregion
 

@@ -87,6 +87,19 @@ theme_override_font_sizes/font_size = 17
 text = "0 / 99"
 horizontal_alignment = 2
 
+[node name="SettingsButton" type="Button" parent="MainMargin/MainLayout/TopBar"]
+custom_minimum_size = Vector2(96, 40)
+layout_mode = 2
+disabled = true
+tooltip_text = "Settings will be available in a future milestone."
+text = "Settings"
+
+[node name="LobbyButton" type="Button" parent="MainMargin/MainLayout/TopBar"]
+custom_minimum_size = Vector2(112, 40)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Back to Lobby"
+
 [node name="RuleLabel" type="Label" parent="MainMargin/MainLayout" unique_id=1211477185]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.73, 0.82, 1)

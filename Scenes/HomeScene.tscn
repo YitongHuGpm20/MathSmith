@@ -153,9 +153,38 @@ theme_override_styles/hover = SubResource("StyleBox_play_hover")
 theme_override_styles/pressed = SubResource("StyleBox_play_pressed")
 text = "Play"
 
+[node name="MenuButtonRow" type="HBoxContainer" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="CreditsButton" type="Button" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout/MenuButtonRow"]
+custom_minimum_size = Vector2(120, 42)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Credits"
+
+[node name="SettingsButton" type="Button" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout/MenuButtonRow"]
+custom_minimum_size = Vector2(120, 42)
+layout_mode = 2
+disabled = true
+tooltip_text = "Settings will be available in a future milestone."
+text = "Settings"
+
+[node name="ExitButton" type="Button" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout/MenuButtonRow"]
+custom_minimum_size = Vector2(120, 42)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Exit"
+
 [node name="PrototypeLabel" type="Label" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.54, 0.62, 1)
 theme_override_font_sizes/font_size = 12
 text = "EDUCATIONAL GAME PROTOTYPE"
 horizontal_alignment = 1
+
+[node name="CreditsDialog" type="AcceptDialog" parent="."]
+title = "Credits"
+dialog_text = "MathSmith\n\nGame Design, Technical Design, and Development\nby jsbug\n\nBuilt with Godot Engine."
+ok_button_text = "Close"

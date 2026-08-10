@@ -72,6 +72,13 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Home"
 
+[node name="SettingsButton" type="Button" parent="MainMargin/MainLayout/Header"]
+custom_minimum_size = Vector2(96, 40)
+layout_mode = 2
+disabled = true
+tooltip_text = "Settings will be available in a future milestone."
+text = "Settings"
+
 [node name="LevelTypeRow" type="HBoxContainer" parent="MainMargin/MainLayout"]
 layout_mode = 2
 theme_override_constants/separation = 12

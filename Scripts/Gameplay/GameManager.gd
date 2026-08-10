@@ -70,6 +70,10 @@ func OpenGame() -> void:
 
 	ChangeScene(GAME_SCENE_PATH)
 
+# Exits the running application from a shared menu action.
+func QuitGame() -> void:
+	get_tree().quit()
+
 # Changes scenes through one guarded navigation entry point.
 func ChangeScene(scenePath: String) -> void:
 	var changeError := get_tree().change_scene_to_file(scenePath)
@@ -87,6 +91,7 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	gameUI.hintRequested.connect(UseHint)
 	gameUI.retryRequested.connect(RestartLevel)
 	gameUI.lobbyRequested.connect(BackToLobby)
+	gameUI.orderChanged.connect(UpdateHintAvailability)
 
 	# Surface content errors only after a visual UI is available.
 	if levels.is_empty():
@@ -122,6 +127,9 @@ func DisconnectGameUISignals() -> void:
 
 	if gameUI.lobbyRequested.is_connected(BackToLobby):
 		gameUI.lobbyRequested.disconnect(BackToLobby)
+
+	if gameUI.orderChanged.is_connected(UpdateHintAvailability):
+		gameUI.orderChanged.disconnect(UpdateHintAvailability)
 
 # Returns all Level Types that describe available gameplay interactions.
 func GetLevelTypes() -> Dictionary:
@@ -269,20 +277,38 @@ func CheckAnswer() -> void:
 
 # Places the next correct step and updates the remaining hint availability.
 func UseHint() -> void:
-	if revealedHintCount >= correctSteps.size():
+	var currentSteps: Array[String] = gameUI.GetStepOrder()
+	var firstIncorrectIndex := GetFirstIncorrectStepIndex(currentSteps)
+
+	if firstIncorrectIndex < 0:
 		gameUI.SetHintAvailable(false)
 		return
 
-	# The manager selects the correct step; the UI only moves its visual card.
-	var targetStep := correctSteps[revealedHintCount]
-	var stepWasPlaced: bool = gameUI.PlaceStepAt(targetStep, revealedHintCount)
+	# Place the first incorrect step so every Hint resolves one useful error.
+	var targetStep := correctSteps[firstIncorrectIndex]
+	var stepWasPlaced: bool = gameUI.PlaceStepAt(targetStep, firstIncorrectIndex)
 
 	if not stepWasPlaced:
 		return
 
 	revealedHintCount += 1
 	gameUI.ShowHintUsed(revealedHintCount)
-	gameUI.SetHintAvailable(revealedHintCount < correctSteps.size())
+	UpdateHintAvailability()
+
+# Returns the first incorrect position or -1 when the displayed order is solved.
+func GetFirstIncorrectStepIndex(displayedSteps: Array[String]) -> int:
+	for stepIndex in range(correctSteps.size()):
+		if stepIndex >= displayedSteps.size() or displayedSteps[stepIndex] != correctSteps[stepIndex]:
+			return stepIndex
+
+	return -1
+
+# Keeps Hint available only while the active question still contains an error.
+func UpdateHintAvailability() -> void:
+	if not is_instance_valid(gameUI) or questionCompleted:
+		return
+
+	gameUI.SetHintAvailable(GetFirstIncorrectStepIndex(gameUI.GetStepOrder()) >= 0)
 
 # Advances to the next question or completes the current level.
 func GoToNextQuestion() -> void:

@@ -44,6 +44,7 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var stepArea := get_parent()
 	stepArea.move_child(data, get_index())
 	stepArea.UpdateOrderLabels()
+	stepArea.orderChanged.emit()
 
 #endregion
 

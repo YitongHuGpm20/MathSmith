@@ -10,6 +10,7 @@ signal checkRequested
 signal hintRequested
 signal retryRequested
 signal lobbyRequested
+signal orderChanged
 
 #endregion
 
@@ -29,6 +30,7 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var feedbackLabel: Label = $"../MainMargin/MainLayout/FeedbackLabel"
 @onready var hintButton: Button = $"../MainMargin/MainLayout/BottomBar/HintButton"
 @onready var checkButton: Button = $"../MainMargin/MainLayout/BottomBar/CheckButton"
+@onready var topLobbyButton: Button = $"../MainMargin/MainLayout/TopBar/LobbyButton"
 @onready var endMenu: PanelContainer = $"../EndMenu"
 @onready var resultLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ResultLabel"
 @onready var retryButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RetryButton"
@@ -42,8 +44,10 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 func _ready() -> void:
 	hintButton.pressed.connect(_on_hint_button_pressed)
 	checkButton.pressed.connect(_on_check_button_pressed)
+	topLobbyButton.pressed.connect(_on_lobby_button_pressed)
 	retryButton.pressed.connect(_on_retry_button_pressed)
 	lobbyButton.pressed.connect(_on_lobby_button_pressed)
+	stepArea.orderChanged.connect(_on_step_order_changed)
 
 	# Wait until every sibling UI branch has completed its ready lifecycle.
 	GameManager.call_deferred("RegisterGameUI", self)
@@ -112,6 +116,7 @@ func PlaceStepAt(stepText: String, targetIndex: int) -> bool:
 # Displays the visual state for a correct answer.
 func ShowCorrectAnswer() -> void:
 	feedbackLabel.text = "Correct!"
+	hintButton.disabled = true
 	checkButton.text = "Next"
 
 # Displays the visual state for an incorrect answer.
@@ -160,5 +165,9 @@ func _on_retry_button_pressed() -> void:
 # Forwards the Lobby request to GameManager.
 func _on_lobby_button_pressed() -> void:
 	lobbyRequested.emit()
+
+# Forwards visual ordering changes for gameplay-owned Hint availability checks.
+func _on_step_order_changed() -> void:
+	orderChanged.emit()
 
 #endregion
