@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/LobbyUI.gd" id="1_lobby_ui"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/check.svg" id="5_check"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/lock.svg" id="6_lock"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/search.svg" id="7_search"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/filter.svg" id="8_filter"]
 
 [node name="LobbyScene" type="Control"]
 layout_mode = 3
@@ -113,6 +115,26 @@ layout_mode = 2
 toggle_mode = true
 text = "Fill in the Process"
 icon = ExtResource("5_check")
+icon_max_width = 18
+
+[node name="SearchRow" type="HBoxContainer" parent="MainMargin/MainLayout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SearchInput" type="LineEdit" parent="MainMargin/MainLayout/SearchRow"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Search levels, skills, questions, or expressions..."
+clear_button_enabled = true
+right_icon = ExtResource("7_search")
+
+[node name="FilterButton" type="OptionButton" parent="MainMargin/MainLayout/SearchRow"]
+custom_minimum_size = Vector2(230, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "All Levels"
+icon = ExtResource("8_filter")
 icon_max_width = 18
 
 [node name="SectionHeader" type="HBoxContainer" parent="MainMargin/MainLayout"]
