@@ -102,10 +102,10 @@ icon_max_width = 18
 [node name="ChoiceOrderingButton" type="Button" parent="MainMargin/MainLayout/LevelTypeRow"]
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
-disabled = true
-text = "Multiple-Choice Ordering - M3"
-icon = ExtResource("6_lock")
-icon_max_width = 17
+toggle_mode = true
+text = "Multiple-Choice Ordering"
+icon = ExtResource("5_check")
+icon_max_width = 18
 
 [node name="FillProcessButton" type="Button" parent="MainMargin/MainLayout/LevelTypeRow"]
 custom_minimum_size = Vector2(180, 44)

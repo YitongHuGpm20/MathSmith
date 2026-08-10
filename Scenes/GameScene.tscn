@@ -147,6 +147,37 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 10
 script = ExtResource("2_step_area")
 
+[node name="ChoiceModeScroll" type="ScrollContainer" parent="MainMargin/MainLayout"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ChoiceModeArea" type="VBoxContainer" parent="MainMargin/MainLayout/ChoiceModeScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="StageLabel" type="Label" parent="MainMargin/MainLayout/ChoiceModeScroll/ChoiceModeArea"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 17
+text = "Choose step 1 of 4"
+
+[node name="ResolvedSteps" type="VBoxContainer" parent="MainMargin/MainLayout/ChoiceModeScroll/ChoiceModeArea"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ChoiceSeparator" type="HSeparator" parent="MainMargin/MainLayout/ChoiceModeScroll/ChoiceModeArea"]
+layout_mode = 2
+
+[node name="ChoiceGrid" type="GridContainer" parent="MainMargin/MainLayout/ChoiceModeScroll/ChoiceModeArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 2
+
 [node name="FeedbackLabel" type="Label" parent="MainMargin/MainLayout" unique_id=342324537]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2

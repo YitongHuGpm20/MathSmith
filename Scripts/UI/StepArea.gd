@@ -21,7 +21,7 @@ func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
 	return true
 
 # Moves a dropped StepCard to the position nearest the pointer.
-func _drop_data(at_position: Vector2, data: Variant) -> void:
+func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	if data.get_parent() != self:
 		return
 

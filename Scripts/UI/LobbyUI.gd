@@ -14,6 +14,7 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 
 @onready var homeButton: Button = $MainMargin/MainLayout/Header/HomeButton
 @onready var stepOrderingButton: Button = $MainMargin/MainLayout/LevelTypeRow/StepOrderingButton
+@onready var choiceOrderingButton: Button = $MainMargin/MainLayout/LevelTypeRow/ChoiceOrderingButton
 @onready var levelCountLabel: Label = $MainMargin/MainLayout/SectionHeader/LevelCountLabel
 @onready var levelCardContainer: GridContainer = $MainMargin/MainLayout/LevelScroll/LevelCardContainer
 
@@ -24,9 +25,10 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 # Displays the selected playable Level Type when the Lobby enters the tree.
 func _ready() -> void:
 	homeButton.pressed.connect(_on_home_button_pressed)
+	stepOrderingButton.pressed.connect(_on_step_ordering_button_pressed)
+	choiceOrderingButton.pressed.connect(_on_choice_ordering_button_pressed)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
-	var selectedLevelType := GameManager.GetLevelTypeById(GameManager.selectedLevelTypeId)
-	ShowSelectedLevelType(selectedLevelType)
+	ShowSelectedLevelType()
 	levelCountLabel.text = "%d Levels" % GameManager.GetLevels().size()
 	CreateLevelCards(GameManager.GetLevels())
 	UpdateResponsiveLayout()
@@ -36,10 +38,15 @@ func _ready() -> void:
 #region ========== Functions ==========
 
 # Updates the Lobby header and selected Type button from shared content.
-func ShowSelectedLevelType(levelTypeData: Dictionary) -> void:
-	var levelTypeTitle: String = levelTypeData.get("title", "Step Ordering")
-	stepOrderingButton.text = levelTypeTitle
-	stepOrderingButton.set_pressed_no_signal(true)
+func ShowSelectedLevelType() -> void:
+	var stepOrderingData := GameManager.GetLevelTypeById("step_ordering")
+	var choiceOrderingData := GameManager.GetLevelTypeById("multiple_choice_ordering")
+	stepOrderingButton.text = stepOrderingData.get("title", "Step Ordering")
+	choiceOrderingButton.text = choiceOrderingData.get("title", "Multiple-Choice Ordering")
+	stepOrderingButton.set_pressed_no_signal(GameManager.selectedLevelTypeId == "step_ordering")
+	choiceOrderingButton.set_pressed_no_signal(
+		GameManager.selectedLevelTypeId == "multiple_choice_ordering"
+	)
 
 # Adapts the Level grid to wide, medium, and narrow windows.
 func UpdateResponsiveLayout() -> void:
@@ -92,5 +99,15 @@ func _on_level_card_selected(levelId: String) -> void:
 # Returns to Home through GameManager's navigation entry point.
 func _on_home_button_pressed() -> void:
 	GameManager.OpenHome()
+
+# Selects the existing drag-and-drop Step Ordering interaction.
+func _on_step_ordering_button_pressed() -> void:
+	if GameManager.SelectLevelType("step_ordering"):
+		ShowSelectedLevelType()
+
+# Selects Multiple-Choice Ordering without changing shared Level content.
+func _on_choice_ordering_button_pressed() -> void:
+	if GameManager.SelectLevelType("multiple_choice_ordering"):
+		ShowSelectedLevelType()
 
 #endregion
