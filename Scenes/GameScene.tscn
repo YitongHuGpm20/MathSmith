@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://b8tycbj4qxcqq"]
+[gd_scene load_steps=16 format=3 uid="uid://b8tycbj4qxcqq"]
 
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="1_theme"]
 [ext_resource type="Script" path="res://Scripts/UI/StepArea.gd" id="2_step_area"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" path="res://Assets/Icons/check.svg" id="7_check"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/replay.svg" id="8_replay"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/correct.svg" id="9_correct"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/score.svg" id="10_score"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionPanelStyle"]
 bg_color = Color(0.045, 0.115, 0.19, 0.98)
@@ -40,6 +41,20 @@ corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 shadow_color = Color(0.03, 0.5, 0.88, 0.26)
 shadow_size = 24
+
+[sub_resource type="StyleBoxFlat" id="ProgressBackgroundStyle"]
+bg_color = Color(0.09, 0.13, 0.2, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="ProgressFillStyle"]
+bg_color = Color(0.18, 0.68, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [node name="GameScene" type="Control" unique_id=403715330]
 layout_mode = 3
@@ -85,17 +100,65 @@ theme_override_constants/separation = 16
 
 [node name="LevelTitleLabel" type="Label" parent="MainMargin/MainLayout/TopBar" unique_id=605139686]
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
 text = "Level Title"
 
-[node name="ProgressLabel" type="Label" parent="MainMargin/MainLayout/TopBar" unique_id=2146601884]
-custom_minimum_size = Vector2(92, 0)
+[node name="ProgressGroup" type="HBoxContainer" parent="MainMargin/MainLayout/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 9
+alignment = 1
+
+[node name="ProgressLabel" type="Label" parent="MainMargin/MainLayout/TopBar/ProgressGroup" unique_id=2146601884]
+custom_minimum_size = Vector2(46, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
 theme_override_font_sizes/font_size = 17
 text = "0 / 99"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="MainMargin/MainLayout/TopBar/ProgressGroup"]
+custom_minimum_size = Vector2(150, 10)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/background = SubResource("ProgressBackgroundStyle")
+theme_override_styles/fill = SubResource("ProgressFillStyle")
+value = 35.0
+show_percentage = false
+
+[node name="TopSpacer" type="Control" parent="MainMargin/MainLayout/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="ScoreGroup" type="HBoxContainer" parent="MainMargin/MainLayout/TopBar"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="ScoreIcon" type="TextureRect" parent="MainMargin/MainLayout/TopBar/ScoreGroup"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("10_score")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.35, 0.9, 0.72, 1)
+
+[node name="ScoreLabel" type="Label" parent="MainMargin/MainLayout/TopBar/ScoreGroup"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.9, 0.72, 1)
+theme_override_font_sizes/font_size = 17
+text = "Score 0"
 horizontal_alignment = 2
+
+[node name="ScoreGainLabel" type="Label" parent="MainMargin/MainLayout/TopBar/ScoreGroup"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.78, 0.28, 1)
+theme_override_font_sizes/font_size = 17
+text = "+100"
 
 [node name="SettingsButton" type="Button" parent="MainMargin/MainLayout/TopBar"]
 custom_minimum_size = Vector2(96, 40)
@@ -258,7 +321,7 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
 theme_override_font_sizes/font_size = 30
-text = "Level Complete!"
+text = "LEVEL COMPLETE"
 horizontal_alignment = 1
 
 [node name="CompleteIcon" type="TextureRect" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
@@ -269,11 +332,18 @@ expand_mode = 3
 stretch_mode = 5
 modulate = Color(0.35, 0.9, 0.72, 1)
 
+[node name="StarsLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.78, 0.28, 1)
+theme_override_font_sizes/font_size = 34
+text = "★★★"
+horizontal_alignment = 1
+
 [node name="ResultLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=466808595]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.77, 0.85, 1)
 theme_override_font_sizes/font_size = 17
-text = "99 / 99 Questions Completed"
+text = "Score 500 / 500  •  100%"
 horizontal_alignment = 1
 
 [node name="RetryButton" type="Button" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1508312665]

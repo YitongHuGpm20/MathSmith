@@ -13,6 +13,9 @@ const GAME_SCENE_PATH: String = "res://Scenes/GameScene.tscn"
 const DEFAULT_LEVEL_TYPE_ID: String = "step_ordering"
 const MULTIPLE_CHOICE_LEVEL_TYPE_ID: String = "multiple_choice_ordering"
 const FILL_PROCESS_LEVEL_TYPE_ID: String = "fill_in_process"
+const MAX_QUESTION_SCORE: int = 100
+const INCORRECT_ATTEMPT_PENALTY: int = 10
+const HINT_SCORE_PENALTY: int = 10
 
 #endregion
 
@@ -43,6 +46,13 @@ var currentChoiceOptions: Array[String] = []
 var unavailableChoiceOptions: Array[String] = []
 var fillBlankAnswers: Dictionary = {}
 var revealedFillBlankIds: Array[String] = []
+var currentQuestionScore: int = MAX_QUESTION_SCORE
+var currentLevelScore: int = 0
+var incorrectAttempts: int = 0
+var hintsUsed: int = 0
+var currentLevelIncorrectAttempts: int = 0
+var currentLevelHintsUsed: int = 0
+var questionScoreCommitted: bool = false
 
 #endregion
 
@@ -112,6 +122,7 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	if currentLevel.is_empty():
 		currentLevel = levels[0]
 
+	ResetLevelScoring()
 	LoadQuestion(0)
 
 # Releases a departing Game Scene UI without changing persistent gameplay data.
@@ -200,6 +211,7 @@ func SelectLevel(levelId: String) -> bool:
 	unavailableChoiceOptions.clear()
 	fillBlankAnswers.clear()
 	revealedFillBlankIds.clear()
+	ResetLevelScoring()
 	return true
 
 # Returns the selected Level ID or an empty String before content is available.
@@ -231,7 +243,7 @@ func RecordQuestionCompletion() -> void:
 	levelProgress[levelId] = progressData
 
 # Marks the selected Level complete for the remainder of the current run.
-func CompleteCurrentLevel() -> void:
+func CompleteCurrentLevel(starCount: int) -> void:
 	var levelId: String = GetSelectedLevelId()
 
 	if levelId.is_empty():
@@ -239,7 +251,7 @@ func CompleteCurrentLevel() -> void:
 
 	var progressData := GetLevelProgress(levelId)
 	progressData["completedQuestions"] = currentLevel.get("questions", []).size()
-	progressData["completed"] = true
+	progressData["completed"] = progressData.get("completed", false) or starCount >= 1
 	levelProgress[levelId] = progressData
 
 # Loads the requested question and prepares its ordered and shuffled steps.
@@ -260,6 +272,7 @@ func LoadQuestion(questionIndex: int) -> void:
 	unavailableChoiceOptions.clear()
 	fillBlankAnswers.clear()
 	revealedFillBlankIds.clear()
+	ResetQuestionScoring()
 
 	var currentQuestion: Dictionary = questions[currentQuestionIndex]
 	var expression: String = currentQuestion.get("expression", "")
@@ -303,6 +316,8 @@ func LoadQuestion(questionIndex: int) -> void:
 			shuffledSteps
 		)
 
+	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
+
 # Returns a shuffled step list that differs from the correct order when possible.
 func ShuffleSteps(orderedSteps: Array[String]) -> Array[String]:
 	var shuffledSteps: Array[String] = orderedSteps.duplicate()
@@ -333,9 +348,7 @@ func CheckAnswer() -> void:
 
 	# Update gameplay state only after an exact ordered match.
 	if currentSteps == correctSteps:
-		questionCompleted = true
-		consecutiveIncorrectAttempts = 0
-		RecordQuestionCompletion()
+		CompleteQuestion()
 		gameUI.ShowCorrectAnswer()
 	else:
 		gameUI.ShowIncorrectAnswer(RegisterIncorrectAttempt())
@@ -365,6 +378,7 @@ func UseHint() -> void:
 		return
 
 	revealedHintCount += 1
+	RegisterHintUsed()
 	gameUI.ShowHintUsed(revealedHintCount)
 	UpdateHintAvailability()
 
@@ -440,9 +454,7 @@ func CheckFillProcess() -> void:
 			incorrectBlankIds.append(blankId)
 
 	if correctBlankIds.size() == fillBlankAnswers.size():
-		questionCompleted = true
-		consecutiveIncorrectAttempts = 0
-		RecordQuestionCompletion()
+		CompleteQuestion()
 		gameUI.ShowFillComplete()
 		return
 
@@ -464,6 +476,7 @@ func UseFillProcessHint() -> void:
 		):
 			revealedFillBlankIds.append(blankId)
 			revealedHintCount += 1
+			RegisterHintUsed()
 			gameUI.RevealFillBlank(blankId, fillBlankAnswers[blankId])
 			enteredAnswers[blankId] = fillBlankAnswers[blankId]
 			UpdateFillHintAvailability(enteredAnswers)
@@ -486,6 +499,14 @@ func UpdateFillHintAvailability(enteredAnswers: Dictionary) -> void:
 # Records one automatic-feedback attempt and returns its progressive message.
 func RegisterIncorrectAttempt() -> String:
 	consecutiveIncorrectAttempts += 1
+	incorrectAttempts += 1
+	currentLevelIncorrectAttempts += 1
+
+	# The first mistake is penalty-free; every later mistake costs ten points.
+	if incorrectAttempts >= 2:
+		currentQuestionScore = maxi(0, currentQuestionScore - INCORRECT_ATTEMPT_PENALTY)
+
+	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
 	if consecutiveIncorrectAttempts == 1:
 		return "Not quite. Review your work and try again."
@@ -545,9 +566,7 @@ func HasMixedOperationPrecedence() -> bool:
 # Builds one randomized candidate set for the active solution stage.
 func PrepareMultipleChoiceStage() -> void:
 	if currentChoiceStage >= correctSteps.size():
-		questionCompleted = true
-		consecutiveIncorrectAttempts = 0
-		RecordQuestionCompletion()
+		CompleteQuestion()
 		gameUI.ShowMultipleChoiceComplete()
 		return
 
@@ -597,6 +616,7 @@ func UseMultipleChoiceHint() -> void:
 	var removedChoice := removableChoices[0]
 	unavailableChoiceOptions.append(removedChoice)
 	revealedHintCount += 1
+	RegisterHintUsed()
 	gameUI.RemoveChoiceOption(removedChoice)
 	gameUI.ShowMultipleChoiceHintUsed()
 	UpdateMultipleChoiceHintAvailability(correctStep)
@@ -722,15 +742,68 @@ func GoToNextQuestion() -> void:
 
 	# Complete the level after the final question.
 	if nextQuestionIndex >= questions.size():
-		CompleteCurrentLevel()
-		gameUI.ShowEndMenu(questions.size(), questions.size())
+		var maxLevelScore: int = questions.size() * MAX_QUESTION_SCORE
+		var starCount := CalculateStarRating(currentLevelScore, maxLevelScore)
+		var scorePercentage := roundi(float(currentLevelScore) / float(maxLevelScore) * 100.0)
+		CompleteCurrentLevel(starCount)
+		gameUI.ShowEndMenu(currentLevelScore, maxLevelScore, scorePercentage, starCount)
 		return
 
 	LoadQuestion(nextQuestionIndex)
 
+# Resets all score counters owned by one newly started Level session.
+func ResetLevelScoring() -> void:
+	currentLevelScore = 0
+	currentLevelIncorrectAttempts = 0
+	currentLevelHintsUsed = 0
+	ResetQuestionScoring()
+
+# Gives a newly loaded Question its full score and fresh action counters.
+func ResetQuestionScoring() -> void:
+	currentQuestionScore = MAX_QUESTION_SCORE
+	incorrectAttempts = 0
+	hintsUsed = 0
+	questionScoreCommitted = false
+
+# Charges one successful Hint use without allowing a negative Question Score.
+func RegisterHintUsed() -> void:
+	hintsUsed += 1
+	currentLevelHintsUsed += 1
+	currentQuestionScore = maxi(0, currentQuestionScore - HINT_SCORE_PENALTY)
+	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
+
+# Completes one Question and commits its final score to the Level exactly once.
+func CompleteQuestion() -> void:
+	if questionScoreCommitted:
+		return
+
+	questionCompleted = true
+	consecutiveIncorrectAttempts = 0
+	questionScoreCommitted = true
+	currentLevelScore += currentQuestionScore
+	RecordQuestionCompletion()
+	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
+
+# Calculates a Level rating using score percentage as its only input.
+func CalculateStarRating(levelScore: int, maxLevelScore: int) -> int:
+	if maxLevelScore <= 0:
+		return 0
+
+	var scoreRatio := float(levelScore) / float(maxLevelScore)
+
+	if scoreRatio >= 0.9:
+		return 3
+	if scoreRatio >= 0.7:
+		return 2
+	if scoreRatio >= 0.5:
+		return 1
+
+	return 0
+
 # Restarts the active level from its first question.
 func RestartLevel() -> void:
 	gameUI.HideEndMenu()
+	ResetLevelScoring()
 	LoadQuestion(0)
 
 # Returns to the Lobby while preserving current-session Level progress.

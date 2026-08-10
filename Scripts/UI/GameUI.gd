@@ -37,7 +37,10 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var questionPanel: PanelContainer = $"../MainMargin/MainLayout/QuestionPanel"
 @onready var optionTopSpacer: Control = $"../MainMargin/MainLayout/OptionTopSpacer"
 @onready var levelTitleLabel: Label = $"../MainMargin/MainLayout/TopBar/LevelTitleLabel"
-@onready var progressLabel: Label = $"../MainMargin/MainLayout/TopBar/ProgressLabel"
+@onready var progressLabel: Label = $"../MainMargin/MainLayout/TopBar/ProgressGroup/ProgressLabel"
+@onready var progressBar: ProgressBar = $"../MainMargin/MainLayout/TopBar/ProgressGroup/ProgressBar"
+@onready var scoreLabel: Label = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreLabel"
+@onready var scoreGainLabel: Label = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreGainLabel"
 @onready var ruleLabel: Label = $"../MainMargin/MainLayout/RuleLabel"
 @onready var equationLabel: Label = $"../MainMargin/MainLayout/QuestionPanel/CenterContainer/EquationLabel"
 @onready var feedbackLabel: Label = $"../MainMargin/MainLayout/FeedbackLabel"
@@ -45,6 +48,9 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var checkButton: Button = $"../MainMargin/MainLayout/BottomBar/CheckButton"
 @onready var topLobbyButton: Button = $"../MainMargin/MainLayout/TopBar/LobbyButton"
 @onready var endMenu: PanelContainer = $"../EndMenu"
+@onready var completeLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CompleteLabel"
+@onready var completeIcon: TextureRect = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CompleteIcon"
+@onready var starsLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsLabel"
 @onready var resultLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ResultLabel"
 @onready var retryButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RetryButton"
 @onready var lobbyButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/LobbyButton"
@@ -54,6 +60,8 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 #region ========== Variables ==========
 
 var fillInputs: Dictionary = {}
+var displayedLevelScore: int = 0
+var scoreTween: Tween = null
 
 #endregion
 
@@ -147,6 +155,42 @@ func SetupQuestionHeader(
 	ruleLabel.text = ruleText
 	equationLabel.text = expression
 	progressLabel.text = "%d/%d" % [questionNumber, questionCount]
+	progressBar.max_value = questionCount
+	progressBar.value = questionNumber
+
+# Displays only points already earned by completing Questions.
+func UpdateScore(_currentScore: int, levelScore: int) -> void:
+	var earnedScore := levelScore - displayedLevelScore
+	displayedLevelScore = levelScore
+	scoreLabel.text = "Score %d" % levelScore
+
+	if earnedScore > 0:
+		PlayScoreGainAnimation(earnedScore)
+	else:
+		scoreGainLabel.visible = false
+
+# Briefly celebrates newly committed points without obstructing gameplay.
+func PlayScoreGainAnimation(earnedScore: int) -> void:
+	if scoreTween and scoreTween.is_valid():
+		scoreTween.kill()
+
+	scoreGainLabel.text = "+%d" % earnedScore
+	scoreGainLabel.visible = true
+	scoreGainLabel.modulate = Color(1, 1, 1, 0)
+	scoreGainLabel.scale = Vector2(0.82, 0.82)
+	scoreLabel.pivot_offset = scoreLabel.size * 0.5
+	scoreLabel.scale = Vector2.ONE
+
+	# Fade and pop the earned amount, then restore the compact score display.
+	scoreTween = create_tween().set_parallel(true)
+	scoreTween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	scoreTween.tween_property(scoreGainLabel, "modulate:a", 1.0, 0.18)
+	scoreTween.tween_property(scoreGainLabel, "scale", Vector2.ONE, 0.18)
+	scoreTween.tween_property(scoreLabel, "scale", Vector2(1.08, 1.08), 0.18)
+	scoreTween.chain().set_parallel(true)
+	scoreTween.tween_property(scoreGainLabel, "modulate:a", 0.0, 0.45).set_delay(0.35)
+	scoreTween.tween_property(scoreLabel, "scale", Vector2.ONE, 0.25).set_delay(0.2)
+	scoreTween.chain().tween_callback(scoreGainLabel.hide)
 
 # Switches between the existing drag area and Multiple-Choice presentation.
 func ConfigureGameplayMode(levelTypeId: String) -> void:
@@ -455,10 +499,24 @@ func ShowDataError(message: String) -> void:
 	checkButton.disabled = true
 
 # Displays the level completion overlay and result text.
-func ShowEndMenu(completedCount: int, questionCount: int) -> void:
-	resultLabel.text = "%d / %d Questions Completed" % [completedCount, questionCount]
+func ShowEndMenu(levelScore: int, maxLevelScore: int, scorePercentage: int, starCount: int) -> void:
+	var levelCompleted := starCount >= 1
+	completeLabel.text = "LEVEL COMPLETE" if levelCompleted else "NEEDS PRACTICE"
+	completeLabel.add_theme_color_override(
+		"font_color",
+		Color(0.45, 0.82, 1, 1) if levelCompleted else Color(1, 0.68, 0.34, 1)
+	)
+	completeIcon.modulate = (
+		Color(0.35, 0.9, 0.72, 1) if levelCompleted else Color(1, 0.68, 0.34, 1)
+	)
+	completeIcon.visible = levelCompleted
+	starsLabel.text = "★".repeat(starCount) + "☆".repeat(3 - starCount)
+	resultLabel.text = "Score %d / %d  •  %d%%" % [levelScore, maxLevelScore, scorePercentage]
+	retryButton.text = "Play Again" if levelCompleted else "Try Again"
 	endMenu.visible = true
-	AudioManager.PlayVictory()
+
+	if levelCompleted:
+		AudioManager.PlayVictory()
 
 # Hides the level completion overlay before gameplay restarts.
 func HideEndMenu() -> void:
