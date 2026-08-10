@@ -56,12 +56,12 @@
 	  "title": "Division Basics",
 	  "skills": ["division", "decomposition"],
 	  "questions": [
-		{"id": "L04_Q01", "expression": "12 / 3"},
-		{"id": "L04_Q02", "expression": "18 / 6"},
-		{"id": "L04_Q03", "expression": "24 / 4"},
-		{"id": "L04_Q04", "expression": "35 / 5"},
-		{"id": "L04_Q05", "expression": "48 / 6"},
-		{"id": "L04_Q06", "expression": "72 / 8"}
+		{"id": "L04_Q01", "expression": "84 / 7"},
+		{"id": "L04_Q02", "expression": "96 / 8"},
+		{"id": "L04_Q03", "expression": "132 / 11"},
+		{"id": "L04_Q04", "expression": "156 / 12"},
+		{"id": "L04_Q05", "expression": "180 / 15"},
+		{"id": "L04_Q06", "expression": "168 / 14"}
 	  ]
 	},
 	{
@@ -84,12 +84,12 @@
 	  "skills": ["multi_operand", "multi_step"],
 	  "questions": [
 		{"id": "L06_Q01", "expression": "8 + 5 + 7"},
-		{"id": "L06_Q02", "expression": "24 - 9 + 6"},
-		{"id": "L06_Q03", "expression": "4 * 3 + 8"},
-		{"id": "L06_Q04", "expression": "36 / 6 + 9"},
+		{"id": "L06_Q02", "expression": "16 + 7 - 4"},
+		{"id": "L06_Q03", "expression": "7 + 8 + 5"},
+		{"id": "L06_Q04", "expression": "6 + 9 + 5"},
 		{"id": "L06_Q05", "expression": "18 + 7 - 5"},
-		{"id": "L06_Q06", "expression": "6 * 5 - 12"},
-		{"id": "L06_Q07", "expression": "48 / 8 + 11"}
+		{"id": "L06_Q06", "expression": "28 + 9 - 6"},
+		{"id": "L06_Q07", "expression": "4 + 11 + 5"}
 	  ]
 	},
 	{
@@ -101,7 +101,7 @@
 		{"id": "L07_Q02", "expression": "30 - 6 - 9 + 4"},
 		{"id": "L07_Q03", "expression": "3 * 4 + 6 - 2"},
 		{"id": "L07_Q04", "expression": "48 / 6 + 5 * 2"},
-		{"id": "L07_Q05", "expression": "18 + 12 / 3 - 4"},
+		{"id": "L07_Q05", "expression": "18 + 12 / 3 - 5"},
 		{"id": "L07_Q06", "expression": "7 * 5 - 8 + 3"},
 		{"id": "L07_Q07", "expression": "64 / 8 + 9 + 6"},
 		{"id": "L07_Q08", "expression": "20 - 3 * 4 + 7"}
@@ -112,9 +112,9 @@
 	  "title": "Mixed Operations",
 	  "skills": ["mixed_operations", "precedence"],
 	  "questions": [
-		{"id": "L08_Q01", "expression": "8 + 4 * 3"},
-		{"id": "L08_Q02", "expression": "24 - 12 / 3"},
-		{"id": "L08_Q03", "expression": "6 * 5 + 14"},
+		{"id": "L08_Q01", "expression": "8 + 4 * 3 - 5"},
+		{"id": "L08_Q02", "expression": "24 - 12 / 3 + 7"},
+		{"id": "L08_Q03", "expression": "6 * 5 + 14 - 9"},
 		{"id": "L08_Q04", "expression": "36 / 6 + 5 * 2"},
 		{"id": "L08_Q05", "expression": "42 - 4 * 7 + 3"},
 		{"id": "L08_Q06", "expression": "18 + 24 / 6 - 5"},
@@ -127,14 +127,14 @@
 	  "title": "Parentheses",
 	  "skills": ["parentheses", "precedence"],
 	  "questions": [
-		{"id": "L09_Q01", "expression": "(8 + 4) * 3"},
-		{"id": "L09_Q02", "expression": "24 / (2 + 4)"},
-		{"id": "L09_Q03", "expression": "5 * (9 - 3)"},
-		{"id": "L09_Q04", "expression": "40 - (6 + 8)"},
-		{"id": "L09_Q05", "expression": "(18 / 3) + 7"},
-		{"id": "L09_Q06", "expression": "6 + (4 * 5)"},
-		{"id": "L09_Q07", "expression": "(15 - 7) * 4"},
-		{"id": "L09_Q08", "expression": "72 / (10 - 4)"},
+		{"id": "L09_Q01", "expression": "(8 + 4) * 3 - 6"},
+		{"id": "L09_Q02", "expression": "24 / (2 + 4) + 7"},
+		{"id": "L09_Q03", "expression": "5 * (9 - 3) + 8"},
+		{"id": "L09_Q04", "expression": "40 - (6 + 8) + 5"},
+		{"id": "L09_Q05", "expression": "(18 / 3) + 7 * 2"},
+		{"id": "L09_Q06", "expression": "6 + (4 * 5) - 9"},
+		{"id": "L09_Q07", "expression": "(15 - 7) * 4 + 6"},
+		{"id": "L09_Q08", "expression": "72 / (10 - 4) + 5"},
 		{"id": "L09_Q09", "expression": "3 * (12 + 6) - 8"}
 	  ]
 	},
