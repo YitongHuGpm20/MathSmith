@@ -13,10 +13,15 @@ signal exitRequested
 
 #region ========== References ==========
 
-@onready var playButton: Button = $MainCenter/HeroPanel/HeroMargin/HeroLayout/PlayButton
-@onready var creditsButton: Button = $MainCenter/HeroPanel/HeroMargin/HeroLayout/MenuButtonRow/CreditsButton
-@onready var exitButton: Button = $MainCenter/HeroPanel/HeroMargin/HeroLayout/MenuButtonRow/ExitButton
+@onready var playButton: Button = %PlayButton
+@onready var creditsButton: Button = %CreditsButton
+@onready var exitButton: Button = %ExitButton
 @onready var creditsDialog: AcceptDialog = $CreditsDialog
+@onready var mainMargin: MarginContainer = $MainMargin
+@onready var landingContent: VBoxContainer = %LandingContent
+@onready var featureGrid: GridContainer = %FeatureGrid
+@onready var titleLabel: Label = %TitleLabel
+@onready var taglineLabel: Label = %TaglineLabel
 
 #endregion
 
@@ -29,7 +34,30 @@ func _ready() -> void:
 	exitButton.pressed.connect(_on_exit_button_pressed)
 	playRequested.connect(GameManager.OpenLobby)
 	exitRequested.connect(GameManager.QuitGame)
+	get_viewport().size_changed.connect(UpdateResponsiveLayout)
+	UpdateResponsiveLayout()
 	playButton.grab_focus()
+
+#endregion
+
+#region ========== Functions ==========
+
+# Adapts landing-page width, feature columns, and typography to the viewport.
+func UpdateResponsiveLayout() -> void:
+	var viewportWidth := get_viewport_rect().size.x
+	var narrowLayout := viewportWidth < 900.0
+	var pageMargin := 24 if narrowLayout else 72
+
+	mainMargin.add_theme_constant_override("margin_left", pageMargin)
+	mainMargin.add_theme_constant_override("margin_right", pageMargin)
+	featureGrid.columns = 1 if narrowLayout else 3
+	titleLabel.add_theme_font_size_override("font_size", 56 if narrowLayout else 82)
+	taglineLabel.add_theme_font_size_override("font_size", 22 if narrowLayout else 28)
+
+	if narrowLayout:
+		landingContent.custom_minimum_size.x = maxf(viewportWidth - pageMargin * 2.0, 320.0)
+	else:
+		landingContent.custom_minimum_size.x = minf(viewportWidth * 0.72, 1320.0)
 
 #endregion
 

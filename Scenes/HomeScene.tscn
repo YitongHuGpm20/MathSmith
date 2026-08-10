@@ -1,55 +1,80 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/HomeUI.gd" id="1_home_ui"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_hero"]
-bg_color = Color(0.12, 0.14, 0.19, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.25, 0.285, 0.36, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+[ext_resource type="Texture2D" path="res://Assets/Icons/play.svg" id="3_play"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/score.svg" id="4_credits"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="5_settings"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/incorrect.svg" id="6_exit"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/steps.svg" id="7_steps"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/modes.svg" id="8_modes"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/progress.svg" id="9_progress"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_play"]
-bg_color = Color(0.11, 0.48, 0.76, 1)
+content_margin_left = 34.0
+content_margin_top = 20.0
+content_margin_right = 34.0
+content_margin_bottom = 20.0
+bg_color = Color(0.055, 0.39, 0.7, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.38, 0.76, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.28, 0.78, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.02, 0.48, 0.9, 0.28)
+shadow_size = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_play_hover"]
-bg_color = Color(0.14, 0.58, 0.9, 1)
+content_margin_left = 34.0
+content_margin_top = 20.0
+content_margin_right = 34.0
+content_margin_bottom = 20.0
+bg_color = Color(0.065, 0.48, 0.82, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.56, 0.86, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.48, 0.88, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.02, 0.56, 1, 0.4)
+shadow_size = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_play_pressed"]
-bg_color = Color(0.08, 0.38, 0.64, 1)
+content_margin_left = 34.0
+content_margin_top = 21.0
+content_margin_right = 34.0
+content_margin_bottom = 19.0
+bg_color = Color(0.05, 0.34, 0.62, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.35, 0.7, 0.94, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.24, 0.68, 0.92, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.02, 0.42, 0.8, 0.18)
+shadow_size = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_feature"]
+bg_color = Color(0.045, 0.065, 0.105, 0.86)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.13, 0.24, 0.36, 0.82)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
 
 [node name="HomeScene" type="Control"]
 layout_mode = 3
@@ -68,121 +93,346 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.07, 0.085, 0.12, 1)
+color = Color(0.014, 0.022, 0.046, 1)
 mouse_filter = 2
 
-[node name="AccentGlow" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -330.0
-offset_top = -230.0
-offset_right = 330.0
-offset_bottom = 230.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.08, 0.25, 0.38, 0.24)
-mouse_filter = 2
-
-[node name="MainCenter" type="CenterContainer" parent="."]
+[node name="HeroGlow" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 32.0
-offset_top = 32.0
-offset_right = -32.0
-offset_bottom = -32.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.025, 0.14, 0.25, 0.24)
+mouse_filter = 2
 
-[node name="HeroPanel" type="PanelContainer" parent="MainCenter"]
-custom_minimum_size = Vector2(520, 410)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBox_hero")
+[node name="Decorations" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="HeroMargin" type="MarginContainer" parent="MainCenter/HeroPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 64
-theme_override_constants/margin_top = 52
-theme_override_constants/margin_right = 64
-theme_override_constants/margin_bottom = 52
+[node name="ExpressionA" type="Label" parent="Decorations"]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 176.0
+offset_right = 260.0
+offset_bottom = 208.0
+theme_override_colors/font_color = Color(0.28, 0.58, 0.76, 0.14)
+theme_override_font_sizes/font_size = 18
+text = "8 + 5 = 13"
 
-[node name="HeroLayout" type="VBoxContainer" parent="MainCenter/HeroPanel/HeroMargin"]
+[node name="ExpressionB" type="Label" parent="Decorations"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -298.0
+offset_top = 218.0
+offset_right = -88.0
+offset_bottom = 250.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.28, 0.58, 0.76, 0.12)
+theme_override_font_sizes/font_size = 18
+text = "24 / 6 = 4"
+
+[node name="ExpressionC" type="Label" parent="Decorations"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 156.0
+offset_top = -208.0
+offset_right = 352.0
+offset_bottom = -176.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.28, 0.58, 0.76, 0.11)
+theme_override_font_sizes/font_size = 18
+text = "(8 + 4) * 3"
+
+[node name="ExpressionD" type="Label" parent="Decorations"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -296.0
+offset_top = -184.0
+offset_right = -104.0
+offset_bottom = -152.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.28, 0.58, 0.76, 0.1)
+theme_override_font_sizes/font_size = 18
+text = "42 - 19 = 23"
+
+[node name="MainMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 72
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 72
+theme_override_constants/margin_bottom = 44
+
+[node name="PageLayout" type="VBoxContainer" parent="MainMargin"]
 layout_mode = 2
 theme_override_constants/separation = 18
+
+[node name="ContentCenter" type="CenterContainer" parent="MainMargin/PageLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LandingContent" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(1320, 0)
+layout_mode = 2
+theme_override_constants/separation = 22
 alignment = 1
 
-[node name="EyebrowLabel" type="Label" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
+[node name="Hero" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="EyebrowLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.78, 1, 1)
+theme_override_font_sizes/font_size = 15
 text = "LEARN THE PROCESS"
 horizontal_alignment = 1
 
-[node name="TitleLabel" type="Label" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
+[node name="TitleLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 56
+theme_override_colors/font_color = Color(0.94, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 82
 text = "MathSmith"
 horizontal_alignment = 1
 
-[node name="SubtitleLabel" type="Label" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
+[node name="TaglineLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.76, 0.84, 1)
-theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(0.78, 0.85, 0.93, 1)
+theme_override_font_sizes/font_size = 28
 text = "Build stronger math skills, one step at a time."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="Spacer" type="Control" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
-custom_minimum_size = Vector2(0, 12)
+[node name="SupportingLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 17
+text = "Learn how calculations work by rebuilding the reasoning behind them."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="PlayTopSpacer" type="Control" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="PlayButton" type="Button" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
-custom_minimum_size = Vector2(260, 56)
+[node name="PlayButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 78)
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 25
+theme_override_constants/h_separation = 7
 theme_override_styles/normal = SubResource("StyleBox_play")
 theme_override_styles/hover = SubResource("StyleBox_play_hover")
 theme_override_styles/pressed = SubResource("StyleBox_play_pressed")
-text = "Play"
+text = "PLAY"
+icon = ExtResource("3_play")
+icon_max_width = 22
+alignment = 1
 
-[node name="MenuButtonRow" type="HBoxContainer" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
+[node name="PlayBottomSpacer" type="Control" parent="MainMargin/PageLayout/ContentCenter/LandingContent/Hero"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Divider" type="HSeparator" parent="MainMargin/PageLayout/ContentCenter/LandingContent"]
+layout_mode = 2
+
+[node name="FeatureGrid" type="GridContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 12
+columns = 3
+
+[node name="StepsFeature" type="PanelContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid"]
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBox_feature")
+
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="Layout" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("7_steps")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.35, 0.8, 1, 1)
+
+[node name="Text" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout/Text"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Step-by-Step Learning"
+
+[node name="Description" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/StepsFeature/Margin/Layout/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 16
+text = "Understand the reasoning behind each calculation."
+autowrap_mode = 2
+
+[node name="ModesFeature" type="PanelContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid"]
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBox_feature")
+
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="Layout" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("8_modes")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.45, 0.72, 1, 1)
+
+[node name="Text" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout/Text"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Multiple Challenge Modes"
+
+[node name="Description" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ModesFeature/Margin/Layout/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 16
+text = "Practice the same math in different ways."
+autowrap_mode = 2
+
+[node name="ProgressFeature" type="PanelContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid"]
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBox_feature")
+
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="Layout" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("9_progress")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.4, 0.88, 0.75, 1)
+
+[node name="Text" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout/Text"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Track Your Progress"
+
+[node name="Description" type="Label" parent="MainMargin/PageLayout/ContentCenter/LandingContent/FeatureGrid/ProgressFeature/Margin/Layout/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 16
+text = "Build skills across increasingly complex levels."
+autowrap_mode = 2
+
+[node name="SecondaryActions" type="HBoxContainer" parent="MainMargin/PageLayout/ContentCenter/LandingContent"]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="CreditsButton" type="Button" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout/MenuButtonRow"]
-custom_minimum_size = Vector2(120, 42)
+[node name="CreditsButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(152, 48)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 17
 text = "Credits"
+icon = ExtResource("4_credits")
+icon_max_width = 17
 
-[node name="SettingsButton" type="Button" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout/MenuButtonRow"]
-custom_minimum_size = Vector2(120, 42)
+[node name="SettingsButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions"]
+custom_minimum_size = Vector2(152, 48)
 layout_mode = 2
 disabled = true
 tooltip_text = "Settings will be available in a future milestone."
+theme_override_font_sizes/font_size = 17
 text = "Settings"
+icon = ExtResource("5_settings")
+icon_max_width = 17
 
-[node name="ExitButton" type="Button" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout/MenuButtonRow"]
-custom_minimum_size = Vector2(120, 42)
+[node name="ExitButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(152, 48)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 17
 text = "Exit"
-
-[node name="PrototypeLabel" type="Label" parent="MainCenter/HeroPanel/HeroMargin/HeroLayout"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.54, 0.62, 1)
-theme_override_font_sizes/font_size = 12
-text = "EDUCATIONAL GAME PROTOTYPE"
-horizontal_alignment = 1
+icon = ExtResource("6_exit")
+icon_max_width = 17
 
 [node name="CreditsDialog" type="AcceptDialog" parent="."]
 title = "Credits"

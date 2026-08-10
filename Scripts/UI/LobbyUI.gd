@@ -12,7 +12,6 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 
 #region ========== References ==========
 
-@onready var currentLevelTypeLabel: Label = $MainMargin/MainLayout/Header/CurrentLevelTypeLabel
 @onready var homeButton: Button = $MainMargin/MainLayout/Header/HomeButton
 @onready var stepOrderingButton: Button = $MainMargin/MainLayout/LevelTypeRow/StepOrderingButton
 @onready var levelCountLabel: Label = $MainMargin/MainLayout/SectionHeader/LevelCountLabel
@@ -39,7 +38,6 @@ func _ready() -> void:
 # Updates the Lobby header and selected Type button from shared content.
 func ShowSelectedLevelType(levelTypeData: Dictionary) -> void:
 	var levelTypeTitle: String = levelTypeData.get("title", "Step Ordering")
-	currentLevelTypeLabel.text = "Current Mode: " + levelTypeTitle
 	stepOrderingButton.text = levelTypeTitle
 	stepOrderingButton.set_pressed_no_signal(true)
 

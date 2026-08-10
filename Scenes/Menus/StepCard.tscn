@@ -7,16 +7,18 @@ content_margin_left = 0.0
 content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
-bg_color = Color(0.105, 0.125, 0.17, 1)
+bg_color = Color(0.055, 0.08, 0.13, 0.97)
 border_width_left = 3
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.24, 0.3, 0.39, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.16, 0.3, 0.46, 0.92)
+corner_radius_top_left = 13
+corner_radius_top_right = 13
+corner_radius_bottom_right = 13
+corner_radius_bottom_left = 13
+shadow_color = Color(0, 0, 0, 0.22)
+shadow_size = 6
 
 [node name="StepCard" type="PanelContainer" unique_id=540115962]
 custom_minimum_size = Vector2(0, 54)
