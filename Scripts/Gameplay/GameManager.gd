@@ -16,6 +16,9 @@ const FILL_PROCESS_LEVEL_TYPE_ID: String = "fill_in_process"
 const MAX_QUESTION_SCORE: int = 100
 const INCORRECT_ATTEMPT_PENALTY: int = 10
 const HINT_SCORE_PENALTY: int = 10
+const EARLY_LEVEL_HINT_BUDGET: int = 3
+const MIDDLE_LEVEL_HINT_BUDGET: int = 4
+const ADVANCED_LEVEL_HINT_BUDGET: int = 5
 
 #endregion
 
@@ -53,6 +56,8 @@ var hintsUsed: int = 0
 var currentLevelIncorrectAttempts: int = 0
 var currentLevelHintsUsed: int = 0
 var questionScoreCommitted: bool = false
+var remainingHints: int = 0
+var levelHintBudget: int = 0
 
 #endregion
 
@@ -317,6 +322,10 @@ func LoadQuestion(questionIndex: int) -> void:
 		)
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
+	gameUI.UpdateHintCount(remainingHints)
+
+	if remainingHints <= 0:
+		gameUI.SetHintAvailable(false)
 
 # Returns a shuffled step list that differs from the correct order when possible.
 func ShuffleSteps(orderedSteps: Array[String]) -> Array[String]:
@@ -355,6 +364,11 @@ func CheckAnswer() -> void:
 
 # Places the next correct step and updates the remaining hint availability.
 func UseHint() -> void:
+	# Ignore stale or programmatic requests after the shared budget is exhausted.
+	if remainingHints <= 0:
+		gameUI.SetHintAvailable(false)
+		return
+
 	if selectedLevelTypeId == MULTIPLE_CHOICE_LEVEL_TYPE_ID:
 		UseMultipleChoiceHint()
 		return
@@ -367,7 +381,10 @@ func UseHint() -> void:
 	var firstIncorrectIndex := GetFirstIncorrectStepIndex(currentSteps)
 
 	if firstIncorrectIndex < 0:
-		gameUI.SetHintAvailable(false)
+		# Give general strategy without revealing that the current order is correct.
+		RegisterHintUsed()
+		gameUI.ShowOrderingReviewHint()
+		UpdateSharedHintAvailability(true)
 		return
 
 	# Place the first incorrect step so every Hint resolves one useful error.
@@ -390,7 +407,7 @@ func GetFirstIncorrectStepIndex(displayedSteps: Array[String]) -> int:
 
 	return -1
 
-# Keeps Hint available only while the active question still contains an error.
+# Keeps Hint available without using answer correctness as a visual signal.
 func UpdateHintAvailability() -> void:
 	if (
 		not is_instance_valid(gameUI)
@@ -399,7 +416,7 @@ func UpdateHintAvailability() -> void:
 	):
 		return
 
-	gameUI.SetHintAvailable(GetFirstIncorrectStepIndex(gameUI.GetStepOrder()) >= 0)
+	UpdateSharedHintAvailability(true)
 
 # Derives numeric blanks directly from generated correct Steps.
 func BuildFillProcessData(solutionSteps: Array[String]) -> Array:
@@ -482,7 +499,7 @@ func UseFillProcessHint() -> void:
 			UpdateFillHintAvailability(enteredAnswers)
 			return
 
-	gameUI.SetHintAvailable(false)
+	UpdateSharedHintAvailability(false)
 
 # Keeps Hint available only while at least one unrevealed value is unresolved.
 func UpdateFillHintAvailability(enteredAnswers: Dictionary) -> void:
@@ -491,10 +508,10 @@ func UpdateFillHintAvailability(enteredAnswers: Dictionary) -> void:
 			blankId not in revealedFillBlankIds
 			and enteredAnswers.get(blankId, "") != fillBlankAnswers[blankId]
 		):
-			gameUI.SetHintAvailable(true)
+			UpdateSharedHintAvailability(true)
 			return
 
-	gameUI.SetHintAvailable(false)
+	UpdateSharedHintAvailability(false)
 
 # Records one automatic-feedback attempt and returns its progressive message.
 func RegisterIncorrectAttempt() -> String:
@@ -575,7 +592,7 @@ func PrepareMultipleChoiceStage() -> void:
 	currentChoiceOptions = BuildChoiceOptions(correctStep, candidateCount)
 	unavailableChoiceOptions.clear()
 	gameUI.ShowChoiceStage(currentChoiceStage, correctSteps.size(), currentChoiceOptions)
-	gameUI.SetHintAvailable(currentChoiceOptions.size() > 1)
+	UpdateSharedHintAvailability(currentChoiceOptions.size() > 1)
 
 # Validates one candidate and advances only when it matches the intended Step.
 func SelectMultipleChoice(choiceText: String) -> void:
@@ -598,7 +615,7 @@ func SelectMultipleChoice(choiceText: String) -> void:
 # Removes one unused incorrect candidate without revealing later solution stages.
 func UseMultipleChoiceHint() -> void:
 	if questionCompleted or currentChoiceStage >= correctSteps.size():
-		gameUI.SetHintAvailable(false)
+		UpdateSharedHintAvailability(false)
 		return
 
 	var correctStep := correctSteps[currentChoiceStage]
@@ -609,7 +626,7 @@ func UseMultipleChoiceHint() -> void:
 			removableChoices.append(choiceText)
 
 	if removableChoices.is_empty():
-		gameUI.SetHintAvailable(false)
+		UpdateSharedHintAvailability(false)
 		return
 
 	removableChoices.shuffle()
@@ -625,10 +642,10 @@ func UseMultipleChoiceHint() -> void:
 func UpdateMultipleChoiceHintAvailability(correctStep: String) -> void:
 	for choiceText in currentChoiceOptions:
 		if choiceText != correctStep and choiceText not in unavailableChoiceOptions:
-			gameUI.SetHintAvailable(true)
+			UpdateSharedHintAvailability(true)
 			return
 
-	gameUI.SetHintAvailable(false)
+	UpdateSharedHintAvailability(false)
 
 # Creates plausible, unique, non-equivalent distractors around one correct Step.
 func BuildChoiceOptions(correctStep: String, candidateCount: int) -> Array[String]:
@@ -756,6 +773,8 @@ func ResetLevelScoring() -> void:
 	currentLevelScore = 0
 	currentLevelIncorrectAttempts = 0
 	currentLevelHintsUsed = 0
+	levelHintBudget = GetLevelHintBudget()
+	remainingHints = levelHintBudget
 	ResetQuestionScoring()
 
 # Gives a newly loaded Question its full score and fresh action counters.
@@ -769,8 +788,31 @@ func ResetQuestionScoring() -> void:
 func RegisterHintUsed() -> void:
 	hintsUsed += 1
 	currentLevelHintsUsed += 1
+	remainingHints = maxi(0, remainingHints - 1)
 	currentQuestionScore = maxi(0, currentQuestionScore - HINT_SCORE_PENALTY)
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
+	gameUI.UpdateHintCount(remainingHints)
+
+# Returns the fixed shared Hint budget for the selected Level range.
+func GetLevelHintBudget() -> int:
+	var selectedLevelIndex := 0
+	var selectedLevelId := GetSelectedLevelId()
+
+	for levelIndex in range(levels.size()):
+		if levels[levelIndex].get("id", "") == selectedLevelId:
+			selectedLevelIndex = levelIndex
+			break
+
+	if selectedLevelIndex < 4:
+		return EARLY_LEVEL_HINT_BUDGET
+	if selectedLevelIndex < 8:
+		return MIDDLE_LEVEL_HINT_BUDGET
+
+	return ADVANCED_LEVEL_HINT_BUDGET
+
+# Combines mode-specific usefulness with the shared remaining Hint count.
+func UpdateSharedHintAvailability(isModeHintAvailable: bool) -> void:
+	gameUI.SetHintAvailable(isModeHintAvailable and remainingHints > 0)
 
 # Completes one Question and commits its final score to the Level exactly once.
 func CompleteQuestion() -> void:

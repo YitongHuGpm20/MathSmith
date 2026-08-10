@@ -483,6 +483,11 @@ func ShowHintUsed(revealedHintCount: int) -> void:
 	feedbackLabel.text = "Hint: Step %d has been placed correctly." % revealedHintCount
 	AudioManager.PlayHint()
 
+# Gives general ordering guidance without confirming the current answer state.
+func ShowOrderingReviewHint() -> void:
+	feedbackLabel.text = "Hint: Compare each step with the transformation before it."
+	AudioManager.PlayHint()
+
 # Displays feedback after a Multiple-Choice Hint removes one distractor.
 func ShowMultipleChoiceHintUsed() -> void:
 	feedbackLabel.text = "Hint: One incorrect option was removed."
@@ -491,6 +496,10 @@ func ShowMultipleChoiceHintUsed() -> void:
 # Enables or disables the hint control without changing gameplay state.
 func SetHintAvailable(isAvailable: bool) -> void:
 	hintButton.disabled = not isAvailable
+
+# Displays the number of shared Hints remaining in the active Level.
+func UpdateHintCount(remainingHintCount: int) -> void:
+	hintButton.text = "Hint (%d)" % remainingHintCount
 
 # Displays a safe visual error state when gameplay data cannot be used.
 func ShowDataError(message: String) -> void:
