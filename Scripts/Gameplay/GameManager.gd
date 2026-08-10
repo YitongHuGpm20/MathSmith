@@ -14,8 +14,8 @@ const DEFAULT_LEVEL_TYPE_ID: String = "step_ordering"
 const MULTIPLE_CHOICE_LEVEL_TYPE_ID: String = "multiple_choice_ordering"
 const FILL_PROCESS_LEVEL_TYPE_ID: String = "fill_in_process"
 const MAX_QUESTION_SCORE: int = 100
-const INCORRECT_ATTEMPT_PENALTY: int = 10
-const HINT_SCORE_PENALTY: int = 10
+const INCORRECT_ATTEMPT_PENALTY: int = 15
+const HINT_SCORE_PENALTY: int = 15
 const EARLY_LEVEL_HINT_BUDGET: int = 3
 const MIDDLE_LEVEL_HINT_BUDGET: int = 4
 const ADVANCED_LEVEL_HINT_BUDGET: int = 5
@@ -229,7 +229,8 @@ func GetLevelProgress(levelId: String) -> Dictionary:
 		levelId,
 		{
 			"completedQuestions": 0,
-			"completed": false
+			"completed": false,
+			"needsPractice": false
 		}
 	)
 
@@ -247,16 +248,18 @@ func RecordQuestionCompletion() -> void:
 	)
 	levelProgress[levelId] = progressData
 
-# Marks the selected Level complete for the remainder of the current run.
-func CompleteCurrentLevel(starCount: int) -> void:
+# Records the completed session as Level Complete or Needs Practice.
+func RecordLevelResult(starCount: int) -> void:
 	var levelId: String = GetSelectedLevelId()
 
 	if levelId.is_empty():
 		return
 
 	var progressData := GetLevelProgress(levelId)
+	var wasCompleted: bool = progressData.get("completed", false)
 	progressData["completedQuestions"] = currentLevel.get("questions", []).size()
-	progressData["completed"] = progressData.get("completed", false) or starCount >= 1
+	progressData["completed"] = wasCompleted or starCount >= 1
+	progressData["needsPractice"] = not progressData["completed"] and starCount == 0
 	levelProgress[levelId] = progressData
 
 # Loads the requested question and prepares its ordered and shuffled steps.
@@ -519,7 +522,7 @@ func RegisterIncorrectAttempt() -> String:
 	incorrectAttempts += 1
 	currentLevelIncorrectAttempts += 1
 
-	# The first mistake is penalty-free; every later mistake costs ten points.
+	# The first mistake is penalty-free; repeated guessing has a stronger cost.
 	if incorrectAttempts >= 2:
 		currentQuestionScore = maxi(0, currentQuestionScore - INCORRECT_ATTEMPT_PENALTY)
 
@@ -762,7 +765,7 @@ func GoToNextQuestion() -> void:
 		var maxLevelScore: int = questions.size() * MAX_QUESTION_SCORE
 		var starCount := CalculateStarRating(currentLevelScore, maxLevelScore)
 		var scorePercentage := roundi(float(currentLevelScore) / float(maxLevelScore) * 100.0)
-		CompleteCurrentLevel(starCount)
+		RecordLevelResult(starCount)
 		gameUI.ShowEndMenu(currentLevelScore, maxLevelScore, scorePercentage, starCount)
 		return
 
@@ -833,11 +836,11 @@ func CalculateStarRating(levelScore: int, maxLevelScore: int) -> int:
 
 	var scoreRatio := float(levelScore) / float(maxLevelScore)
 
-	if scoreRatio >= 0.9:
+	if scoreRatio >= 0.95:
 		return 3
-	if scoreRatio >= 0.7:
+	if scoreRatio >= 0.8:
 		return 2
-	if scoreRatio >= 0.5:
+	if scoreRatio >= 0.6:
 		return 1
 
 	return 0

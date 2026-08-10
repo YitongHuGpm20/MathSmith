@@ -10,6 +10,13 @@ signal orderChanged
 
 #endregion
 
+#region ========== Variables ==========
+
+var cardPositionTweens: Dictionary = {}
+var animationRevision: int = 0
+
+#endregion
+
 #region ========== Godot Functions ==========
 
 # Accepts StepCard controls dragged within this step area.
@@ -44,13 +51,16 @@ func GetDropIndex(mouseY: float) -> int:
 	return maxi(get_child_count() - 1, 0)
 
 # Moves a dragged card immediately and animates surrounding cards into place.
-func PreviewCardPosition(stepCard: Control, targetIndex: int) -> void:
+func PreviewCardPosition(stepCard: Control, targetIndex: int, animateMovedCard: bool = false) -> void:
 	var currentIndex := stepCard.get_index()
 	var boundedIndex := clampi(targetIndex, 0, get_child_count() - 1)
 
 	if boundedIndex == currentIndex:
 		return
 
+	# A new reorder supersedes every unfinished drag or Hint animation.
+	StopCardPositionTweens()
+	animationRevision += 1
 	var previousPositions: Dictionary = {}
 
 	for child in get_children():
@@ -58,13 +68,27 @@ func PreviewCardPosition(stepCard: Control, targetIndex: int) -> void:
 
 	move_child(stepCard, boundedIndex)
 	queue_sort()
-	AnimateCardPositions.call_deferred(previousPositions, stepCard)
+	AnimateCardPositions.call_deferred(
+		previousPositions,
+		stepCard,
+		animationRevision,
+		animateMovedCard
+	)
 	orderChanged.emit()
 
 # Tweens non-dragged cards from their previous slots to their new slots.
-func AnimateCardPositions(previousPositions: Dictionary, draggedCard: Control) -> void:
+func AnimateCardPositions(
+	previousPositions: Dictionary,
+	draggedCard: Control,
+	requestedRevision: int,
+	animateMovedCard: bool
+) -> void:
+	# Ignore deferred animation work replaced by a newer queue order.
+	if requestedRevision != animationRevision:
+		return
+
 	for child in get_children():
-		if child == draggedCard or not previousPositions.has(child):
+		if (child == draggedCard and not animateMovedCard) or not previousPositions.has(child):
 			continue
 
 		var targetPosition: Vector2 = child.position
@@ -78,6 +102,17 @@ func AnimateCardPositions(previousPositions: Dictionary, draggedCard: Control) -
 		reorderTween.set_trans(Tween.TRANS_QUAD)
 		reorderTween.set_ease(Tween.EASE_OUT)
 		reorderTween.tween_property(child, "position", targetPosition, 0.14)
+		cardPositionTweens[child] = reorderTween
+
+# Stops stale position Tweens before another reorder captures card coordinates.
+func StopCardPositionTweens() -> void:
+	for child in cardPositionTweens:
+		var positionTween: Tween = cardPositionTweens[child]
+
+		if positionTween and positionTween.is_valid():
+			positionTween.kill()
+
+	cardPositionTweens.clear()
 
 # Emits the final order after a drag is released.
 func ConfirmCardPosition() -> void:

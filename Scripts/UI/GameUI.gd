@@ -211,6 +211,8 @@ func CreateStepCards(steps: Array[String]) -> void:
 
 # Removes all cards from the current question display.
 func ClearStepCards() -> void:
+	stepArea.StopCardPositionTweens()
+
 	for child in stepArea.get_children():
 		stepArea.remove_child(child)
 		child.queue_free()
@@ -440,7 +442,7 @@ func GetStepOrder() -> Array[String]:
 func PlaceStepAt(stepText: String, targetIndex: int) -> bool:
 	for child in stepArea.get_children():
 		if child.stepText == stepText:
-			stepArea.PreviewCardPosition(child, targetIndex)
+			stepArea.PreviewCardPosition(child, targetIndex, true)
 			return true
 
 	return false

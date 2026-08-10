@@ -29,6 +29,7 @@ var questionCount: int = 0
 var levelNumber: int = 1
 var completedQuestions: int = 0
 var levelCompleted: bool = false
+var levelNeedsPractice: bool = false
 
 #endregion
 
@@ -52,6 +53,7 @@ func Setup(levelData: Dictionary, displayLevelNumber: int, progressData: Diction
 	levelNumber = displayLevelNumber
 	completedQuestions = progressData.get("completedQuestions", 0)
 	levelCompleted = progressData.get("completed", false)
+	levelNeedsPractice = progressData.get("needsPractice", false)
 
 	if is_node_ready():
 		UpdateDisplay()
@@ -78,6 +80,9 @@ func FormatSkills(skills: Array) -> String:
 func GetProgressText() -> String:
 	if levelCompleted:
 		return "COMPLETED"
+
+	if levelNeedsPractice:
+		return "NEEDS PRACTICE"
 
 	if completedQuestions > 0:
 		return "IN PROGRESS  %d/%d" % [completedQuestions, questionCount]

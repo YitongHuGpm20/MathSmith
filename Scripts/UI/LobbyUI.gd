@@ -84,6 +84,7 @@ func SetupFilters() -> void:
 	AddFilterOption("All Levels", "all")
 	AddFilterOption("Not Started", "status:not_started")
 	AddFilterOption("In Progress", "status:in_progress")
+	AddFilterOption("Needs Practice", "status:needs_practice")
 	AddFilterOption("Completed", "status:completed")
 
 	# Collect each Skill once so content changes automatically update the filter.
@@ -148,8 +149,14 @@ func MatchesFilter(level: Dictionary, selectedFilter: String) -> bool:
 		var status := selectedFilter.trim_prefix("status:")
 		if status == "completed":
 			return progressData.get("completed", false)
+		if status == "needs_practice":
+			return progressData.get("needsPractice", false)
 		if status == "in_progress":
-			return progressData.get("completedQuestions", 0) > 0 and not progressData.get("completed", false)
+			return (
+				progressData.get("completedQuestions", 0) > 0
+				and not progressData.get("completed", false)
+				and not progressData.get("needsPractice", false)
+			)
 		return progressData.get("completedQuestions", 0) == 0
 
 	if selectedFilter.begins_with("skill:"):
