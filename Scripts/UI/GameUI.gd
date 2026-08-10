@@ -23,6 +23,9 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 #region ========== References ==========
 
 @onready var stepArea = $"../MainMargin/MainLayout/StepScroll/StepArea"
+@onready var mainMargin: MarginContainer = $"../MainMargin"
+@onready var mainLayout: VBoxContainer = $"../MainMargin/MainLayout"
+@onready var questionPanel: PanelContainer = $"../MainMargin/MainLayout/QuestionPanel"
 @onready var levelTitleLabel: Label = $"../MainMargin/MainLayout/TopBar/LevelTitleLabel"
 @onready var progressLabel: Label = $"../MainMargin/MainLayout/TopBar/ProgressLabel"
 @onready var ruleLabel: Label = $"../MainMargin/MainLayout/RuleLabel"
@@ -48,6 +51,8 @@ func _ready() -> void:
 	retryButton.pressed.connect(_on_retry_button_pressed)
 	lobbyButton.pressed.connect(_on_lobby_button_pressed)
 	stepArea.orderChanged.connect(_on_step_order_changed)
+	get_viewport().size_changed.connect(UpdateResponsiveLayout)
+	UpdateResponsiveLayout()
 
 	# Wait until every sibling UI branch has completed its ready lifecycle.
 	GameManager.call_deferred("RegisterGameUI", self)
@@ -87,7 +92,7 @@ func CreateStepCards(steps: Array[String]) -> void:
 	for stepIndex in range(steps.size()):
 		var stepCard := STEP_CARD_SCENE.instantiate()
 		stepArea.add_child(stepCard)
-		stepCard.Setup(stepIndex + 1, steps[stepIndex])
+		stepCard.Setup(steps[stepIndex])
 
 # Removes all cards from the current question display.
 func ClearStepCards() -> void:
@@ -107,11 +112,25 @@ func GetStepOrder() -> Array[String]:
 func PlaceStepAt(stepText: String, targetIndex: int) -> bool:
 	for child in stepArea.get_children():
 		if child.stepText == stepText:
-			stepArea.move_child(child, targetIndex)
-			stepArea.UpdateOrderLabels()
+			stepArea.PreviewCardPosition(child, targetIndex)
 			return true
 
 	return false
+
+# Compresses vertical chrome on smaller windows so five Steps remain visible.
+func UpdateResponsiveLayout() -> void:
+	var viewportSize := get_viewport().get_visible_rect().size
+	var compactLayout := viewportSize.y < 760.0
+	var horizontalMargin := 24 if viewportSize.x < 900.0 else 56
+	var verticalMargin := 18 if compactLayout else 32
+
+	mainMargin.add_theme_constant_override("margin_left", horizontalMargin)
+	mainMargin.add_theme_constant_override("margin_right", horizontalMargin)
+	mainMargin.add_theme_constant_override("margin_top", verticalMargin)
+	mainMargin.add_theme_constant_override("margin_bottom", verticalMargin)
+	mainLayout.add_theme_constant_override("separation", 8 if compactLayout else 14)
+	stepArea.add_theme_constant_override("separation", 6 if compactLayout else 10)
+	questionPanel.custom_minimum_size.y = 70.0 if compactLayout else 92.0
 
 # Displays the visual state for a correct answer.
 func ShowCorrectAnswer() -> void:

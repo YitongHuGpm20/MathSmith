@@ -1,7 +1,7 @@
 ## Manages drag-and-drop placement inside the Game Scene Step list.
 ##
-## This UI component changes card positions and refreshes order labels. It does
-## not validate the resulting order or make gameplay progression decisions.
+## This UI component previews card positions and animates live reordering. It
+## does not validate the resulting order or make gameplay progression decisions.
 extends VBoxContainer
 
 #region ========== Signals ==========
@@ -13,19 +13,20 @@ signal orderChanged
 #region ========== Godot Functions ==========
 
 # Accepts StepCard controls dragged within this step area.
-func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-	return data is PanelContainer
+func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
+	if not data is PanelContainer or data.get_parent() != self:
+		return false
+
+	PreviewCardPosition(data, GetDropIndex(at_position.y))
+	return true
 
 # Moves a dropped StepCard to the position nearest the pointer.
 func _drop_data(at_position: Vector2, data: Variant) -> void:
 	if data.get_parent() != self:
 		return
 
-	# Reposition the card and refresh all displayed order numbers.
-	var targetIndex := GetDropIndex(at_position.y)
-	move_child(data, targetIndex)
-	UpdateOrderLabels()
-	orderChanged.emit()
+	# Hovering already selected the position; dropping confirms the visual order.
+	ConfirmCardPosition()
 	AudioManager.PlayDrop()
 
 #endregion
@@ -42,10 +43,44 @@ func GetDropIndex(mouseY: float) -> int:
 
 	return maxi(get_child_count() - 1, 0)
 
-# Refreshes every card label after the visual order changes.
-func UpdateOrderLabels() -> void:
-	for childIndex in range(get_child_count()):
-		var stepCard := get_child(childIndex)
-		stepCard.Setup(childIndex + 1, stepCard.stepText)
+# Moves a dragged card immediately and animates surrounding cards into place.
+func PreviewCardPosition(stepCard: Control, targetIndex: int) -> void:
+	var currentIndex := stepCard.get_index()
+	var boundedIndex := clampi(targetIndex, 0, get_child_count() - 1)
+
+	if boundedIndex == currentIndex:
+		return
+
+	var previousPositions: Dictionary = {}
+
+	for child in get_children():
+		previousPositions[child] = child.position
+
+	move_child(stepCard, boundedIndex)
+	queue_sort()
+	AnimateCardPositions.call_deferred(previousPositions, stepCard)
+	orderChanged.emit()
+
+# Tweens non-dragged cards from their previous slots to their new slots.
+func AnimateCardPositions(previousPositions: Dictionary, draggedCard: Control) -> void:
+	for child in get_children():
+		if child == draggedCard or not previousPositions.has(child):
+			continue
+
+		var targetPosition: Vector2 = child.position
+		var previousPosition: Vector2 = previousPositions[child]
+
+		if previousPosition.is_equal_approx(targetPosition):
+			continue
+
+		child.position = previousPosition
+		var reorderTween := child.create_tween()
+		reorderTween.set_trans(Tween.TRANS_QUAD)
+		reorderTween.set_ease(Tween.EASE_OUT)
+		reorderTween.tween_property(child, "position", targetPosition, 0.14)
+
+# Emits the final order after a drag is released.
+func ConfirmCardPosition() -> void:
+	orderChanged.emit()
 
 #endregion

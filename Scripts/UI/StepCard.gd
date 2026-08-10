@@ -6,15 +6,14 @@ extends PanelContainer
 
 #region ========== References ==========
 
-@onready var orderLabel: Label = $MarginContainer/HBoxContainer/OrderLabel
-@onready var stepLabel: Label = $MarginContainer/HBoxContainer/StepLabel
+@onready var stepLabel: Label = $MarginContainer/StepLabel
 
 #endregion
 
 #region ========== Variables ==========
 
 var stepText: String = ""
-var orderNumber: int = 1
+var isDragging: bool = false
 
 #endregion
 
@@ -24,38 +23,64 @@ var orderNumber: int = 1
 func _ready() -> void:
 	UpdateDisplay()
 
-# Creates a translucent visual copy while this card is being dragged.
-func _get_drag_data(_at_position: Vector2) -> Variant:
-	var dragPreview := duplicate()
-	dragPreview.modulate.a = 0.7
-	set_drag_preview(dragPreview)
+# Creates a full-size card that stays attached to the original mouse grab point.
+func _get_drag_data(at_position: Vector2) -> Variant:
+	var previewRoot := Control.new()
+	var previewCard := duplicate()
+	previewRoot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	previewCard.stepText = stepText
+	previewCard.position = -at_position
+	previewCard.custom_minimum_size = size
+	previewCard.size = size
+	previewCard.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	previewCard.modulate = Color(1.05, 1.05, 1.05, 0.96)
+	previewRoot.add_child(previewCard)
+	set_drag_preview(previewRoot)
+
+	# Hide the source so the card appears physically lifted from the queue.
+	isDragging = true
+	modulate.a = 0.0
 	AudioManager.PlayDrag()
 	return self
 
+# Restores the source card after the drag succeeds or is cancelled.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_DRAG_END or not isDragging:
+		return
+
+	isDragging = false
+	modulate.a = 1.0
+
 # Accepts another StepCard from the same visual step area.
-func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-	return data is PanelContainer and data != self
+func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
+	if not data is PanelContainer or data == self or data.get_parent() != get_parent():
+		return false
+
+	# Reorder while hovering above or below this card's midpoint.
+	var targetIndex := get_index()
+
+	if at_position.y > size.y * 0.5:
+		targetIndex += 1
+
+	get_parent().PreviewCardPosition(data, targetIndex)
+	return true
 
 # Moves the dragged card to this card's current list position.
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	if data.get_parent() != get_parent():
 		return
 
-	# Delegate list positioning and label refresh to the shared StepArea.
-	var stepArea := get_parent()
-	stepArea.move_child(data, get_index())
-	stepArea.UpdateOrderLabels()
-	stepArea.orderChanged.emit()
+	# Hovering already selected the position; dropping confirms the visual order.
+	get_parent().ConfirmCardPosition()
 	AudioManager.PlayDrop()
 
 #endregion
 
 #region ========== Functions ==========
 
-# Applies the displayed order number and generated solution text.
-func Setup(displayOrderNumber: int, displayText: String) -> void:
+# Applies the generated solution text without displaying a redundant order number.
+func Setup(displayText: String) -> void:
 	stepText = displayText
-	orderNumber = displayOrderNumber
 
 	# Defer label access when Setup runs before the card's ready lifecycle.
 	if not is_node_ready():
@@ -65,7 +90,6 @@ func Setup(displayOrderNumber: int, displayText: String) -> void:
 
 # Refreshes visual labels from the card's stored setup data.
 func UpdateDisplay() -> void:
-	orderLabel.text = str(orderNumber) + "."
 	stepLabel.text = stepText
 
 #endregion
