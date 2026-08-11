@@ -8,7 +8,7 @@ extends Node
 #region ========== Constants ==========
 
 const SAVE_FILE_PATH: String = "user://mathsmith_save.json"
-const SAVE_SCHEMA_VERSION: int = 2
+const SAVE_SCHEMA_VERSION: int = 3
 
 #endregion
 
@@ -36,7 +36,7 @@ func GetDefaultSaveData() -> Dictionary:
 			"masterVolume": 1.0,
 			"sfxVolume": 1.0,
 			"mute": false,
-			"tutorialEnabled": true
+			"language": "en"
 		},
 		"levelProgress": {},
 		"mistakeBook": [],
@@ -117,6 +117,13 @@ func SetSection(sectionName: String, sectionData: Variant, saveImmediately: bool
 # Restores the default schema after a confirmed Reset Progress action.
 func ResetAllData() -> bool:
 	saveData = GetDefaultSaveData()
+	return SaveLocalData()
+
+# Clears player learning records while preserving current preferences.
+func ResetPlayerProgress() -> bool:
+	var settingsData: Dictionary = GetSection("settings")
+	saveData = GetDefaultSaveData()
+	saveData["settings"] = settingsData
 	return SaveLocalData()
 
 #endregion

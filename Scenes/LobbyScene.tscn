@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/LobbyUI.gd" id="1_lobby_ui"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://Assets/Icons/lock.svg" id="6_lock"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/search.svg" id="7_search"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/filter.svg" id="8_filter"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="9_settings_panel"]
 
 [node name="LobbyScene" type="Control"]
 layout_mode = 3
@@ -80,8 +81,6 @@ icon_max_width = 18
 custom_minimum_size = Vector2(152, 48)
 layout_mode = 2
 size_flags_vertical = 4
-disabled = true
-tooltip_text = "Settings will be available in a future milestone."
 theme_override_font_sizes/font_size = 17
 theme_override_constants/h_separation = 7
 text = "Settings"
@@ -162,3 +161,5 @@ size_flags_horizontal = 3
 theme_override_constants/h_separation = 18
 theme_override_constants/v_separation = 18
 columns = 3
+
+[node name="SettingsPanel" parent="." instance=ExtResource("9_settings_panel")]

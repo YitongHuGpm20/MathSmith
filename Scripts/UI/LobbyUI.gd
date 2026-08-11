@@ -13,6 +13,7 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 #region ========== References ==========
 
 @onready var homeButton: Button = $MainMargin/MainLayout/Header/HomeButton
+@onready var settingsButton: Button = $MainMargin/MainLayout/Header/SettingsButton
 @onready var stepOrderingButton: Button = $MainMargin/MainLayout/LevelTypeRow/StepOrderingButton
 @onready var choiceOrderingButton: Button = $MainMargin/MainLayout/LevelTypeRow/ChoiceOrderingButton
 @onready var fillProcessButton: Button = $MainMargin/MainLayout/LevelTypeRow/FillProcessButton
@@ -20,6 +21,7 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 @onready var filterButton: OptionButton = $MainMargin/MainLayout/SearchRow/FilterButton
 @onready var levelCountLabel: Label = $MainMargin/MainLayout/SectionHeader/LevelCountLabel
 @onready var levelCardContainer: GridContainer = $MainMargin/MainLayout/LevelScroll/LevelCardContainer
+@onready var settingsPanel = $SettingsPanel
 
 #endregion
 
@@ -35,6 +37,8 @@ var filterValues: Array[String] = []
 # Displays the selected playable Level Type when the Lobby enters the tree.
 func _ready() -> void:
 	homeButton.pressed.connect(_on_home_button_pressed)
+	settingsButton.pressed.connect(settingsPanel.Open)
+	settingsPanel.progressReset.connect(RefreshLevelCards)
 	stepOrderingButton.pressed.connect(_on_step_ordering_button_pressed)
 	choiceOrderingButton.pressed.connect(_on_choice_ordering_button_pressed)
 	fillProcessButton.pressed.connect(_on_fill_process_button_pressed)

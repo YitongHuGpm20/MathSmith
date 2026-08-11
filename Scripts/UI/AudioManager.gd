@@ -21,6 +21,9 @@ const VICTORY_STREAM: AudioStream = preload("res://Assets/Audio/Victory.ogg")
 var buttonPlayer: AudioStreamPlayer
 var interactionPlayer: AudioStreamPlayer
 var feedbackPlayer: AudioStreamPlayer
+var masterVolume: float = 1.0
+var sfxVolume: float = 1.0
+var muted: bool = false
 
 #endregion
 
@@ -31,6 +34,7 @@ func _ready() -> void:
 	buttonPlayer = CreateAudioPlayer("ButtonPlayer")
 	interactionPlayer = CreateAudioPlayer("InteractionPlayer")
 	feedbackPlayer = CreateAudioPlayer("FeedbackPlayer")
+	LoadAudioSettings()
 	get_tree().node_added.connect(_on_node_added)
 	RegisterButtons(get_tree().current_scene)
 
@@ -45,6 +49,38 @@ func CreateAudioPlayer(playerName: String) -> AudioStreamPlayer:
 	audioPlayer.max_polyphony = 4
 	add_child(audioPlayer)
 	return audioPlayer
+
+# Loads persisted audio preferences and applies them to every SFX channel.
+func LoadAudioSettings() -> void:
+	var settingsData: Dictionary = SaveManager.GetSection("settings")
+	masterVolume = settingsData.get("masterVolume", 1.0)
+	sfxVolume = settingsData.get("sfxVolume", 1.0)
+	muted = settingsData.get("mute", false)
+	ApplyAudioVolume()
+
+# Updates the shared Master Volume from a normalized linear value.
+func SetMasterVolume(newVolume: float) -> void:
+	masterVolume = clampf(newVolume, 0.0, 1.0)
+	ApplyAudioVolume()
+
+# Updates the shared SFX Volume from a normalized linear value.
+func SetSFXVolume(newVolume: float) -> void:
+	sfxVolume = clampf(newVolume, 0.0, 1.0)
+	ApplyAudioVolume()
+
+# Applies or removes mute without losing either saved volume level.
+func SetMuted(isMuted: bool) -> void:
+	muted = isMuted
+	ApplyAudioVolume()
+
+# Combines Master and SFX values for MathSmith's current audio-only mix.
+func ApplyAudioVolume() -> void:
+	var combinedVolume := masterVolume * sfxVolume
+	var volumeDecibels := -80.0 if muted or combinedVolume <= 0.0 else linear_to_db(combinedVolume)
+
+	for audioPlayer in [buttonPlayer, interactionPlayer, feedbackPlayer]:
+		if is_instance_valid(audioPlayer):
+			audioPlayer.volume_db = volumeDecibels
 
 # Recursively connects all Buttons contained in a newly loaded UI branch.
 func RegisterButtons(rootNode: Node) -> void:

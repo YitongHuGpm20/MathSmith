@@ -1,0 +1,232 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/SettingsUI.gd" id="1_script"]
+[ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="PanelStyle"]
+bg_color = Color(0.035, 0.055, 0.095, 0.99)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.55, 0.8, 0.75)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.02, 0.48, 0.9, 0.25)
+shadow_size = 24
+
+[sub_resource type="StyleBoxFlat" id="DangerNormalStyle"]
+bg_color = Color(0.34, 0.055, 0.075, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.22, 0.28, 0.85)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="DangerHoverStyle"]
+bg_color = Color(0.48, 0.065, 0.09, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.34, 0.38, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="DangerPressedStyle"]
+bg_color = Color(0.25, 0.035, 0.055, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.16, 0.22, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="SettingsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.008, 0.014, 0.03, 0.88)
+
+[node name="CenterContainer" type="CenterContainer" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Overlay/CenterContainer"]
+custom_minimum_size = Vector2(650, 600)
+layout_mode = 2
+theme_override_styles/panel = SubResource("PanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="Overlay/CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 40
+
+[node name="SettingsContent" type="VBoxContainer" parent="Overlay/CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 22
+alignment = 1
+
+[node name="Title" type="Label" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="Divider" type="HSeparator" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent"]
+layout_mode = 2
+
+[node name="MasterRow" type="HBoxContainer" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Label" type="Label" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/MasterRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Master Volume"
+
+[node name="MasterSlider" type="HSlider" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 100.0
+
+[node name="MasterValueLabel" type="Label" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/MasterRow"]
+custom_minimum_size = Vector2(54, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="SFXRow" type="HBoxContainer" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Label" type="Label" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/SFXRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "SFX Volume"
+
+[node name="SFXSlider" type="HSlider" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/SFXRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 100.0
+
+[node name="SFXValueLabel" type="Label" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/SFXRow"]
+custom_minimum_size = Vector2(54, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="MuteRow" type="HBoxContainer" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/MuteRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Mute All Audio"
+
+[node name="MuteToggle" type="CheckBox" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/MuteRow"]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+tooltip_text = "Mute all audio"
+
+[node name="LanguageRow" type="HBoxContainer" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Label" type="Label" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/LanguageRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Language"
+
+[node name="LanguageButton" type="OptionButton" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent/LanguageRow"]
+custom_minimum_size = Vector2(240, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ResetProgressButton" type="Button" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent"]
+custom_minimum_size = Vector2(250, 46)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.92, 0.93, 1)
+theme_override_styles/normal = SubResource("DangerNormalStyle")
+theme_override_styles/hover = SubResource("DangerHoverStyle")
+theme_override_styles/pressed = SubResource("DangerPressedStyle")
+text = "Reset Progress"
+
+[node name="CloseButton" type="Button" parent="Overlay/CenterContainer/Panel/Margin/SettingsContent"]
+custom_minimum_size = Vector2(250, 46)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Close"
+
+[node name="ResetContent" type="VBoxContainer" parent="Overlay/CenterContainer/Panel/Margin"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="Title" type="Label" parent="Overlay/CenterContainer/Panel/Margin/ResetContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.68, 0.34, 1)
+theme_override_font_sizes/font_size = 30
+text = "Reset Progress?"
+horizontal_alignment = 1
+
+[node name="Message" type="Label" parent="Overlay/CenterContainer/Panel/Margin/ResetContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 17
+text = "THIS ACTION CANNOT BE UNDONE.\n\nThis will permanently remove Level progress, scores, stars,\ntutorial history, mistakes, mastery, history, and Zen records.\n\nAudio and Language preferences will be kept."
+horizontal_alignment = 1
+
+[node name="Actions" type="HBoxContainer" parent="Overlay/CenterContainer/Panel/Margin/ResetContent"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="CancelButton" type="Button" parent="Overlay/CenterContainer/Panel/Margin/ResetContent/Actions"]
+custom_minimum_size = Vector2(180, 46)
+layout_mode = 2
+text = "Cancel"
+
+[node name="ConfirmButton" type="Button" parent="Overlay/CenterContainer/Panel/Margin/ResetContent/Actions"]
+custom_minimum_size = Vector2(180, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.93, 1)
+theme_override_styles/normal = SubResource("DangerNormalStyle")
+theme_override_styles/hover = SubResource("DangerHoverStyle")
+theme_override_styles/pressed = SubResource("DangerPressedStyle")
+text = "Reset Progress"

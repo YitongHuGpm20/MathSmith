@@ -293,6 +293,10 @@ func RecordLevelResult(starCount: int) -> Dictionary:
 func SaveLevelProgress() -> void:
 	SaveManager.SetSection("levelProgress", levelProgress)
 
+# Reloads cleared or externally changed progress from Local Save storage.
+func ReloadPersistentProgress() -> void:
+	LoadLevelProgress()
+
 # Loads mode-specific progress and migrates the previous shared Level format.
 func LoadLevelProgress() -> void:
 	var loadedProgress = SaveManager.GetSection("levelProgress")
@@ -318,11 +322,7 @@ func SetLevelProgress(levelId: String, progressData: Dictionary) -> void:
 
 # Shows interaction guidance only for an enabled and unviewed Level Type.
 func ShowTutorialIfNeeded() -> void:
-	var settingsData: Dictionary = SaveManager.GetSection("settings")
 	var tutorialState: Dictionary = SaveManager.GetSection("tutorialState")
-
-	if not settingsData.get("tutorialEnabled", true):
-		return
 
 	if tutorialState.get(selectedLevelTypeId, false):
 		return

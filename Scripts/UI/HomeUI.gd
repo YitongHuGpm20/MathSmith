@@ -15,6 +15,7 @@ signal exitRequested
 
 @onready var playButton: Button = %PlayButton
 @onready var creditsButton: Button = %CreditsButton
+@onready var settingsButton: Button = $MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions/SettingsButton
 @onready var exitButton: Button = %ExitButton
 @onready var creditsOverlay: PanelContainer = $CreditsOverlay
 @onready var closeCreditsButton: Button = %CloseButton
@@ -23,6 +24,7 @@ signal exitRequested
 @onready var featureGrid: GridContainer = %FeatureGrid
 @onready var titleLabel: Label = %TitleLabel
 @onready var taglineLabel: Label = %TaglineLabel
+@onready var settingsPanel = $SettingsPanel
 
 #endregion
 
@@ -32,6 +34,7 @@ signal exitRequested
 func _ready() -> void:
 	playButton.pressed.connect(_on_play_button_pressed)
 	creditsButton.pressed.connect(_on_credits_button_pressed)
+	settingsButton.pressed.connect(settingsPanel.Open)
 	closeCreditsButton.pressed.connect(_on_close_credits_button_pressed)
 	exitButton.pressed.connect(_on_exit_button_pressed)
 	playRequested.connect(GameManager.OpenLobby)

@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://cdqsudpxy83he" path="res://Assets/Icons/steps.svg" id="7_steps"]
 [ext_resource type="Texture2D" uid="uid://bvos8byg17f8j" path="res://Assets/Icons/modes.svg" id="8_modes"]
 [ext_resource type="Texture2D" uid="uid://ce12xygy43tk4" path="res://Assets/Icons/progress.svg" id="9_progress"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="10_settings_panel"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_play"]
 content_margin_left = 34.0
@@ -431,9 +432,7 @@ icon = ExtResource("4_credits")
 [node name="SettingsButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions" unique_id=1780859304]
 custom_minimum_size = Vector2(152, 48)
 layout_mode = 2
-tooltip_text = "Settings will be available in a future milestone."
 theme_override_font_sizes/font_size = 17
-disabled = true
 text = "Settings"
 icon = ExtResource("5_settings")
 
@@ -548,3 +547,5 @@ mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 17
 text = "Close"
 icon = ExtResource("6_exit")
+
+[node name="SettingsPanel" parent="." instance=ExtResource("10_settings_panel")]

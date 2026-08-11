@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://b8tycbj4qxcqq"]
+[gd_scene load_steps=19 format=3 uid="uid://b8tycbj4qxcqq"]
 
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="1_theme"]
 [ext_resource type="Script" path="res://Scripts/UI/StepArea.gd" id="2_step_area"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" path="res://Assets/Icons/score.svg" id="10_score"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/next.svg" id="11_next"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/tutorial.svg" id="12_tutorial"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="13_settings_panel"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionPanelStyle"]
 bg_color = Color(0.045, 0.115, 0.19, 0.98)
@@ -173,8 +174,6 @@ icon_max_width = 19
 [node name="SettingsButton" type="Button" parent="MainMargin/MainLayout/TopBar"]
 custom_minimum_size = Vector2(96, 40)
 layout_mode = 2
-disabled = true
-tooltip_text = "Settings will be available in a future milestone."
 theme_override_constants/h_separation = 7
 text = "Settings"
 icon = ExtResource("4_settings")
@@ -483,3 +482,5 @@ mouse_default_cursor_shape = 2
 text = "Got It"
 icon = ExtResource("7_check")
 icon_max_width = 18
+
+[node name="SettingsPanel" parent="." instance=ExtResource("13_settings_panel")]

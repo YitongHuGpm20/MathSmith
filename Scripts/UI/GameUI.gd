@@ -51,6 +51,7 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var checkButton: Button = $"../MainMargin/MainLayout/BottomBar/CheckButton"
 @onready var topLobbyButton: Button = $"../MainMargin/MainLayout/TopBar/LobbyButton"
 @onready var tutorialButton: Button = $"../MainMargin/MainLayout/TopBar/TutorialButton"
+@onready var settingsButton: Button = $"../MainMargin/MainLayout/TopBar/SettingsButton"
 @onready var endMenu: PanelContainer = $"../EndMenu"
 @onready var completeLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CompleteLabel"
 @onready var completeIcon: TextureRect = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CompleteIcon"
@@ -67,6 +68,7 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var tutorialTitleLabel: Label = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/TutorialTitleLabel"
 @onready var tutorialInstructionsLabel: Label = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/TutorialInstructionsLabel"
 @onready var closeTutorialButton: Button = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/Actions/CloseButton"
+@onready var settingsPanel = $"../SettingsPanel"
 
 #endregion
 
@@ -86,6 +88,7 @@ func _ready() -> void:
 	checkButton.pressed.connect(_on_check_button_pressed)
 	topLobbyButton.pressed.connect(_on_lobby_button_pressed)
 	tutorialButton.pressed.connect(_on_tutorial_button_pressed)
+	settingsButton.pressed.connect(settingsPanel.Open)
 	retryButton.pressed.connect(_on_retry_button_pressed)
 	nextLevelButton.pressed.connect(_on_next_level_button_pressed)
 	lobbyButton.pressed.connect(_on_lobby_button_pressed)
