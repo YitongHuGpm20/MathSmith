@@ -47,6 +47,8 @@ const ZEN_SOLVED_ICON: Texture2D = preload("res://Assets/Icons/correct.svg")
 @onready var progressBar: ProgressBar = $"../MainMargin/MainLayout/TopBar/ProgressGroup/ProgressBar"
 @onready var zenTimerGroup: HBoxContainer = $"../MainMargin/MainLayout/TopBar/ZenTimerGroup"
 @onready var zenTimerLabel: Label = $"../MainMargin/MainLayout/TopBar/ZenTimerGroup/ZenTimerLabel"
+@onready var survivalLivesGroup: HBoxContainer = $"../MainMargin/MainLayout/TopBar/SurvivalLivesGroup"
+@onready var survivalLivesLabel: Label = $"../MainMargin/MainLayout/TopBar/SurvivalLivesGroup/SurvivalLivesLabel"
 @onready var scoreLabel: Label = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreLabel"
 @onready var scoreIcon: TextureRect = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreIcon"
 @onready var scoreGainLabel: Label = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreGainLabel"
@@ -85,6 +87,7 @@ var fillInputs: Dictionary = {}
 var displayedLevelScore: int = 0
 var scoreTween: Tween = null
 var zenModeActive: bool = false
+var survivalModeActive: bool = false
 
 #endregion
 
@@ -188,7 +191,7 @@ func SetupQuestionHeader(
 
 # Displays only points already earned by completing Questions.
 func UpdateScore(_currentScore: int, levelScore: int) -> void:
-	if zenModeActive:
+	if zenModeActive or survivalModeActive:
 		return
 
 	var earnedScore := levelScore - displayedLevelScore
@@ -200,14 +203,17 @@ func UpdateScore(_currentScore: int, levelScore: int) -> void:
 	else:
 		scoreGainLabel.visible = false
 
-# Switches shared header controls between Level progress and timed Zen status.
-func SetZenModeActive(isActive: bool) -> void:
-	zenModeActive = isActive
-	zenTimerGroup.visible = isActive
-	progressBar.visible = not isActive
-	tutorialButton.visible = not isActive
-	hintButton.visible = not isActive
-	scoreIcon.texture = ZEN_SOLVED_ICON if isActive else SCORE_ICON
+# Switches shared header controls between Levels and both replay modes.
+func SetReplayMode(replayModeId: String) -> void:
+	zenModeActive = replayModeId == "zen"
+	survivalModeActive = replayModeId == "survival"
+	var replayModeActive := zenModeActive or survivalModeActive
+	zenTimerGroup.visible = zenModeActive
+	survivalLivesGroup.visible = survivalModeActive
+	progressBar.visible = not replayModeActive
+	tutorialButton.visible = not replayModeActive
+	hintButton.visible = not replayModeActive
+	scoreIcon.texture = ZEN_SOLVED_ICON if replayModeActive else SCORE_ICON
 	scoreGainLabel.visible = false
 
 # Displays the remaining Zen time and number of completed Questions.
@@ -220,6 +226,14 @@ func UpdateZenStatus(remainingSeconds: int, solvedCount: int) -> void:
 		"font_color",
 		Color(1, 0.5, 0.42, 1) if safeSeconds <= 10 else Color(0.45, 0.82, 1, 1)
 	)
+	progressLabel.text = tr("Random Questions")
+	scoreLabel.text = "%s %d" % [tr("Solved"), solvedCount]
+
+# Displays remaining lives and solved count during an untimed Survival run.
+func UpdateSurvivalStatus(remainingLives: int, solvedCount: int) -> void:
+	var filledLives := String.chr(9829).repeat(maxi(0, remainingLives))
+	var emptyLives := String.chr(9825).repeat(maxi(0, 3 - remainingLives))
+	survivalLivesLabel.text = "%s  %s%s" % [tr("Lives"), filledLives, emptyLives]
 	progressLabel.text = tr("Random Questions")
 	scoreLabel.text = "%s %d" % [tr("Solved"), solvedCount]
 
@@ -575,6 +589,9 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 	if summaryData.get("isZenSession", false):
 		ShowZenEndMenu(summaryData)
 		return
+	if summaryData.get("isSurvivalSession", false):
+		ShowSurvivalEndMenu(summaryData)
+		return
 
 	var levelScore: int = summaryData.get("score", 0)
 	var maxLevelScore: int = summaryData.get("maxScore", 0)
@@ -665,6 +682,28 @@ func ShowZenEndMenu(summaryData: Dictionary) -> void:
 	reviewMistakesButton.visible = false
 	endMenu.visible = true
 	AudioManager.PlayVictory()
+
+# Displays the non-star result used after all three Survival lives are lost.
+func ShowSurvivalEndMenu(summaryData: Dictionary) -> void:
+	completeLabel.text = tr("SURVIVAL OVER")
+	completeLabel.add_theme_color_override("font_color", Color(1, 0.58, 0.48, 1))
+	completeIcon.visible = false
+	starsLabel.visible = false
+	sessionMetaLabel.text = tr("Survival Mode")
+	resultLabel.text = "%s  %d" % [tr("Solved"), summaryData.get("solvedCount", 0)]
+	statsLabel.text = "%s  %d\n%s  %d" % [
+		tr("Incorrect Attempts"),
+		summaryData.get("incorrectAttempts", 0),
+		tr("Best"),
+		summaryData.get("bestSolvedCount", 0)
+	]
+	bestScoreLabel.visible = false
+	newBestLabel.text = tr("NEW BEST")
+	newBestLabel.visible = summaryData.get("isNewBest", false)
+	nextLevelButton.visible = false
+	retryButton.text = tr("Try Again")
+	reviewMistakesButton.visible = false
+	endMenu.visible = true
 
 # Hides the level completion overlay before gameplay restarts.
 func HideEndMenu() -> void:

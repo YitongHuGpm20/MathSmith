@@ -46,6 +46,8 @@ Solved,Solved,已解答
 Accuracy,Accuracy,正确率
 Best,Best,最佳
 TIME'S UP,TIME'S UP,时间到
+Lives,Lives,生命
+SURVIVAL OVER,SURVIVAL OVER,生存结束
 Solve random Questions from the full pool for 3 minutes.,Solve random Questions from the full pool for 3 minutes.,在 3 分钟内随机解答完整题库中的题目。
 Solve random Questions with three lives and no time limit.,Solve random Questions with three lives and no time limit.,使用三条命随机答题，不设时间限制。
 Review the reasoning behind Questions that need more practice.,Review the reasoning behind Questions that need more practice.,复习需要进一步练习的题目及其解题思路。

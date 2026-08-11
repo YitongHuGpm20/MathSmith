@@ -17,6 +17,7 @@ const FILL_PROCESS_LEVEL_TYPE_ID: String = "fill_in_process"
 const STANDARD_SESSION_TYPE: String = "level"
 const MISTAKE_PRACTICE_SESSION_TYPE: String = "mistake_practice"
 const ZEN_SESSION_TYPE: String = "zen"
+const SURVIVAL_SESSION_TYPE: String = "survival"
 const MISTAKE_PRACTICE_QUESTION_COUNT: int = 10
 const MAX_QUESTION_SCORE: int = 100
 const INCORRECT_ATTEMPT_PENALTY: int = 15
@@ -36,6 +37,7 @@ var choiceGenerator := preload("res://Scripts/Math/ChoiceGenerator.gd").new()
 var progressManager := preload("res://Scripts/Gameplay/ProgressManager.gd").new()
 var mistakeBookManager := preload("res://Scripts/Gameplay/MistakeBookManager.gd").new()
 var zenModeManager := preload("res://Scripts/Gameplay/ZenModeManager.gd").new()
+var survivalModeManager := preload("res://Scripts/Gameplay/SurvivalModeManager.gd").new()
 
 #endregion
 
@@ -367,6 +369,20 @@ func StartZenMode() -> bool:
 	OpenGame()
 	return true
 
+# Starts an untimed mixed-mode session with three shared lives.
+func StartSurvivalMode() -> bool:
+	if not survivalModeManager.Initialize(levels):
+		return false
+
+	set_process(false)
+	activeSessionType = SURVIVAL_SESSION_TYPE
+	SelectNextSurvivalQuestion()
+	ResetLevelScoring()
+	remainingHints = 0
+	levelHintBudget = 0
+	OpenGame()
+	return true
+
 # Selects a random Question and interaction mode without immediate repetition.
 func SelectNextZenQuestion() -> void:
 	var gameplayModeIds: Array[String] = [
@@ -393,6 +409,35 @@ func SelectNextZenQuestion() -> void:
 func EndZenMode() -> void:
 	set_process(false)
 	var summaryData := zenModeManager.Finish(currentLevelIncorrectAttempts)
+
+	if is_instance_valid(gameUI) and not summaryData.is_empty():
+		gameUI.ShowEndMenu(summaryData)
+
+# Selects a random Question and interaction mode for Survival play.
+func SelectNextSurvivalQuestion() -> void:
+	var gameplayModeIds: Array[String] = [
+		DEFAULT_LEVEL_TYPE_ID,
+		MULTIPLE_CHOICE_LEVEL_TYPE_ID,
+		FILL_PROCESS_LEVEL_TYPE_ID
+	]
+	var selectedQuestion := survivalModeManager.GetNextQuestion(gameplayModeIds)
+	selectedLevelTypeId = selectedQuestion.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
+	currentLevel = {
+		"id": SURVIVAL_SESSION_TYPE,
+		"title": "Survival Mode",
+		"skills": selectedQuestion.get("skills", []).duplicate(),
+		"questions": [{
+			"id": selectedQuestion.get("id", ""),
+			"expression": selectedQuestion.get("expression", ""),
+			"levelTypeId": selectedLevelTypeId,
+			"sourceLevelId": selectedQuestion.get("sourceLevelId", "")
+		}]
+	}
+	currentQuestionIndex = 0
+
+# Ends Survival after the third mistake and saves a new record when earned.
+func EndSurvivalMode() -> void:
+	var summaryData := survivalModeManager.Finish(currentLevelIncorrectAttempts)
 
 	if is_instance_valid(gameUI) and not summaryData.is_empty():
 		gameUI.ShowEndMenu(summaryData)
@@ -475,10 +520,10 @@ func LoadQuestion(questionIndex: int) -> void:
 	# A mixed Mistake Practice session restores each Question's original mode.
 	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
 		selectedLevelTypeId = currentQuestion.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
-	elif activeSessionType == ZEN_SESSION_TYPE:
+	elif activeSessionType in [ZEN_SESSION_TYPE, SURVIVAL_SESSION_TYPE]:
 		selectedLevelTypeId = currentQuestion.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
 
-	gameUI.SetZenModeActive(activeSessionType == ZEN_SESSION_TYPE)
+	gameUI.SetReplayMode(activeSessionType)
 
 	var expression: String = currentQuestion.get("expression", "")
 	currentExpression = expression
@@ -528,6 +573,11 @@ func LoadQuestion(questionIndex: int) -> void:
 		gameUI.UpdateZenStatus(
 			zenModeManager.GetRemainingSeconds(),
 			zenModeManager.GetSolvedCount()
+		)
+	elif activeSessionType == SURVIVAL_SESSION_TYPE:
+		gameUI.UpdateSurvivalStatus(
+			survivalModeManager.GetRemainingLives(),
+			survivalModeManager.GetSolvedCount()
 		)
 
 	if remainingHints <= 0:
@@ -737,6 +787,17 @@ func RegisterIncorrectAttempt() -> String:
 	incorrectAttempts += 1
 	currentLevelIncorrectAttempts += 1
 
+	# Survival consumes one life for each mode-specific incorrect attempt.
+	if activeSessionType == SURVIVAL_SESSION_TYPE:
+		var shouldEndSurvival := survivalModeManager.LoseLife()
+		gameUI.UpdateSurvivalStatus(
+			survivalModeManager.GetRemainingLives(),
+			survivalModeManager.GetSolvedCount()
+		)
+
+		if shouldEndSurvival:
+			call_deferred("EndSurvivalMode")
+
 	# The first mistake is penalty-free; repeated guessing has a stronger cost.
 	if incorrectAttempts >= 2:
 		currentQuestionScore = maxi(0, currentQuestionScore - INCORRECT_ATTEMPT_PENALTY)
@@ -883,6 +944,10 @@ func GoToNextQuestion() -> void:
 		SelectNextZenQuestion()
 		LoadQuestion(0)
 		return
+	if activeSessionType == SURVIVAL_SESSION_TYPE:
+		SelectNextSurvivalQuestion()
+		LoadQuestion(0)
+		return
 
 	var questions: Array = currentLevel.get("questions", [])
 	var nextQuestionIndex := currentQuestionIndex + 1
@@ -977,7 +1042,11 @@ func GetMistakeBookEntries() -> Array:
 # Adds or updates the current Question without duplicating its mode-specific entry.
 func UpdateMistakeBookEntry() -> void:
 	# Practice mistakes already exist and retain their original Level metadata.
-	if activeSessionType in [MISTAKE_PRACTICE_SESSION_TYPE, ZEN_SESSION_TYPE]:
+	if activeSessionType in [
+		MISTAKE_PRACTICE_SESSION_TYPE,
+		ZEN_SESSION_TYPE,
+		SURVIVAL_SESSION_TYPE
+	]:
 		return
 
 	var questions: Array = currentLevel.get("questions", [])
@@ -1009,7 +1078,7 @@ func RemoveMistakeBookEntry(entryKey: String) -> void:
 
 # Returns the fixed shared Hint budget for the selected Level range.
 func GetLevelHintBudget() -> int:
-	if activeSessionType == ZEN_SESSION_TYPE:
+	if activeSessionType in [ZEN_SESSION_TYPE, SURVIVAL_SESSION_TYPE]:
 		return 0
 
 	var selectedLevelIndex := 0
@@ -1043,6 +1112,8 @@ func CompleteQuestion() -> void:
 
 	if activeSessionType == ZEN_SESSION_TYPE:
 		zenModeManager.RecordSolvedQuestion()
+	elif activeSessionType == SURVIVAL_SESSION_TYPE:
+		survivalModeManager.RecordSolvedQuestion()
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
@@ -1066,6 +1137,9 @@ func CalculateStarRating(levelScore: int, maxLevelScore: int) -> int:
 func RestartLevel() -> void:
 	if activeSessionType == ZEN_SESSION_TYPE:
 		StartZenMode()
+		return
+	if activeSessionType == SURVIVAL_SESSION_TYPE:
+		StartSurvivalMode()
 		return
 
 	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:

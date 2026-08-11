@@ -8,7 +8,7 @@ extends Node
 #region ========== Constants ==========
 
 const SAVE_FILE_PATH: String = "user://mathsmith_save.json"
-const SAVE_SCHEMA_VERSION: int = 3
+const SAVE_SCHEMA_VERSION: int = 4
 
 #endregion
 
@@ -42,6 +42,7 @@ func GetDefaultSaveData() -> Dictionary:
 		"mistakeBook": [],
 		"skillProgress": {},
 		"zenMode": {"bestSolvedCount": 0},
+		"survivalMode": {"bestSolvedCount": 0},
 		"playerHistory": [],
 		"tutorialState": {}
 	}

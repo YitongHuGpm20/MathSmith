@@ -304,6 +304,8 @@ func _on_feature_card_selected(featureId: String) -> void:
 			levelCountLabel.text = tr("MISTAKE_PRACTICE_EMPTY")
 	elif featureId == "zen_mode":
 		GameManager.StartZenMode()
+	elif featureId == "survival_mode":
+		GameManager.StartSurvivalMode()
 
 # Returns to Home through GameManager's navigation entry point.
 func _on_home_button_pressed() -> void:
