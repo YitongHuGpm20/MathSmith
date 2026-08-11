@@ -13,9 +13,10 @@ Players rebuild mathematical reasoning through three interaction types, receive 
 
 ## Portfolio Presentation and Milestone Recordings
 
-The presentation and milestone recordings will be added to the following locations:
+The presentation and milestone recordings were added to the following locations:
 
 - [View MathSmith Portfolio Presentation](Docs/Presentation/MathSmith.pptx)
+- [View MathSmith Portfolio Presentation online](https://docs.google.com/presentation/d/1pEMtKXkR5GvK5Gaz90E30Xhha7ux3LYvIaGfRUnblSA/edit?usp=sharing)
 - [M1 — Core Foundation Recording](Docs/Recordings/MathSmith_Demo_M1.mp4)
 - [M2 — Content Expansion & UI Foundation Recording](Docs/Recordings/MathSmith_Demo_M2.mp4)
 - [M3 — Gameplay Expansion & Polish Recording](Docs/Recordings/MathSmith_Demo_M3.mp4)
