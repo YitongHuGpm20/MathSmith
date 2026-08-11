@@ -13,6 +13,8 @@ signal nextLevelRequested
 signal lobbyRequested
 signal orderChanged
 signal choiceSelected(choiceText: String)
+signal tutorialDismissed
+signal tutorialRequested
 
 #endregion
 
@@ -48,6 +50,7 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var hintButton: Button = $"../MainMargin/MainLayout/BottomBar/HintButton"
 @onready var checkButton: Button = $"../MainMargin/MainLayout/BottomBar/CheckButton"
 @onready var topLobbyButton: Button = $"../MainMargin/MainLayout/TopBar/LobbyButton"
+@onready var tutorialButton: Button = $"../MainMargin/MainLayout/TopBar/TutorialButton"
 @onready var endMenu: PanelContainer = $"../EndMenu"
 @onready var completeLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CompleteLabel"
 @onready var completeIcon: TextureRect = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CompleteIcon"
@@ -60,6 +63,10 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var nextLevelButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/NextLevelButton"
 @onready var retryButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RetryButton"
 @onready var lobbyButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/LobbyButton"
+@onready var tutorialOverlay: PanelContainer = $"../TutorialOverlay"
+@onready var tutorialTitleLabel: Label = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/TutorialTitleLabel"
+@onready var tutorialInstructionsLabel: Label = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/TutorialInstructionsLabel"
+@onready var closeTutorialButton: Button = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/Actions/CloseButton"
 
 #endregion
 
@@ -78,9 +85,11 @@ func _ready() -> void:
 	hintButton.pressed.connect(_on_hint_button_pressed)
 	checkButton.pressed.connect(_on_check_button_pressed)
 	topLobbyButton.pressed.connect(_on_lobby_button_pressed)
+	tutorialButton.pressed.connect(_on_tutorial_button_pressed)
 	retryButton.pressed.connect(_on_retry_button_pressed)
 	nextLevelButton.pressed.connect(_on_next_level_button_pressed)
 	lobbyButton.pressed.connect(_on_lobby_button_pressed)
+	closeTutorialButton.pressed.connect(_on_close_tutorial_button_pressed)
 	stepArea.orderChanged.connect(_on_step_order_changed)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
 	UpdateResponsiveLayout()
@@ -570,6 +579,17 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 func HideEndMenu() -> void:
 	endMenu.visible = false
 
+# Presents interaction-only guidance over the newly loaded gameplay screen.
+func ShowTutorial(tutorialTitle: String, instructions: String) -> void:
+	tutorialTitleLabel.text = tutorialTitle
+	tutorialInstructionsLabel.text = instructions
+	tutorialOverlay.visible = true
+	closeTutorialButton.grab_focus()
+
+# Closes the current tutorial before notifying its persistent state owner.
+func HideTutorial() -> void:
+	tutorialOverlay.visible = false
+
 #endregion
 
 #region ========== Signal Callbacks ==========
@@ -601,6 +621,15 @@ func _on_step_order_changed() -> void:
 # Forwards one visual candidate selection to GameManager for validation.
 func _on_choice_button_pressed(choiceText: String) -> void:
 	choiceSelected.emit(choiceText)
+
+# Closes either tutorial action and records that the mode has been viewed.
+func _on_close_tutorial_button_pressed() -> void:
+	HideTutorial()
+	tutorialDismissed.emit()
+
+# Requests the current Level Type tutorial independently of first-view state.
+func _on_tutorial_button_pressed() -> void:
+	tutorialRequested.emit()
 
 # Restricts Fill-in fields to whole-number input with one optional leading minus.
 func _on_fill_input_text_changed(newText: String, fillInput: LineEdit) -> void:

@@ -120,6 +120,8 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	gameUI.lobbyRequested.connect(BackToLobby)
 	gameUI.orderChanged.connect(UpdateHintAvailability)
 	gameUI.choiceSelected.connect(SelectMultipleChoice)
+	gameUI.tutorialDismissed.connect(RecordTutorialViewed)
+	gameUI.tutorialRequested.connect(ShowCurrentTutorial)
 
 	# Surface content errors only after a visual UI is available.
 	if levels.is_empty():
@@ -131,6 +133,7 @@ func RegisterGameUI(newGameUI: Node) -> void:
 
 	ResetLevelScoring()
 	LoadQuestion(0)
+	ShowTutorialIfNeeded()
 
 # Releases a departing Game Scene UI without changing persistent gameplay data.
 func UnregisterGameUI(departingGameUI: Node) -> void:
@@ -165,6 +168,12 @@ func DisconnectGameUISignals() -> void:
 
 	if gameUI.choiceSelected.is_connected(SelectMultipleChoice):
 		gameUI.choiceSelected.disconnect(SelectMultipleChoice)
+
+	if gameUI.tutorialDismissed.is_connected(RecordTutorialViewed):
+		gameUI.tutorialDismissed.disconnect(RecordTutorialViewed)
+
+	if gameUI.tutorialRequested.is_connected(ShowCurrentTutorial):
+		gameUI.tutorialRequested.disconnect(ShowCurrentTutorial)
 
 # Returns all Level Types that describe available gameplay interactions.
 func GetLevelTypes() -> Dictionary:
@@ -306,6 +315,65 @@ func SetLevelProgress(levelId: String, progressData: Dictionary) -> void:
 	var modeProgress: Dictionary = levelProgress.get(selectedLevelTypeId, {})
 	modeProgress[levelId] = progressData
 	levelProgress[selectedLevelTypeId] = modeProgress
+
+# Shows interaction guidance only for an enabled and unviewed Level Type.
+func ShowTutorialIfNeeded() -> void:
+	var settingsData: Dictionary = SaveManager.GetSection("settings")
+	var tutorialState: Dictionary = SaveManager.GetSection("tutorialState")
+
+	if not settingsData.get("tutorialEnabled", true):
+		return
+
+	if tutorialState.get(selectedLevelTypeId, false):
+		return
+
+	ShowCurrentTutorial()
+
+# Opens the active Level Type tutorial when requested from the Game UI.
+func ShowCurrentTutorial() -> void:
+	var tutorialData := GetTutorialData(selectedLevelTypeId)
+
+	if tutorialData.is_empty():
+		return
+
+	gameUI.ShowTutorial(tutorialData["title"], tutorialData["instructions"])
+
+# Returns deterministic interaction instructions without exposing any solution.
+func GetTutorialData(levelTypeId: String) -> Dictionary:
+	match levelTypeId:
+		DEFAULT_LEVEL_TYPE_ID:
+			return {
+				"title": "Step Ordering",
+				"instructions": (
+					"1. Drag the steps into the correct order.\n"
+					+ "2. Check your solution.\n"
+					+ "3. Use Hint if needed."
+				)
+			}
+		MULTIPLE_CHOICE_LEVEL_TYPE_ID:
+			return {
+				"title": "Multiple-Choice Ordering",
+				"instructions": (
+					"1. Choose the correct step from each option group.\n"
+					+ "2. Complete the solution sequence."
+				)
+			}
+		FILL_PROCESS_LEVEL_TYPE_ID:
+			return {
+				"title": "Fill in the Process",
+				"instructions": (
+					"1. Fill in the missing values.\n"
+					+ "2. Check the completed solution."
+				)
+			}
+
+	return {}
+
+# Persists that the current Level Type tutorial has been dismissed once.
+func RecordTutorialViewed() -> void:
+	var tutorialState: Dictionary = SaveManager.GetSection("tutorialState")
+	tutorialState[selectedLevelTypeId] = true
+	SaveManager.SetSection("tutorialState", tutorialState)
 
 # Loads the requested question and prepares its ordered and shuffled steps.
 func LoadQuestion(questionIndex: int) -> void:

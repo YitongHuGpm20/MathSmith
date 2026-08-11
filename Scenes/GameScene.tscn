@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://b8tycbj4qxcqq"]
+[gd_scene load_steps=18 format=3 uid="uid://b8tycbj4qxcqq"]
 
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="1_theme"]
 [ext_resource type="Script" path="res://Scripts/UI/StepArea.gd" id="2_step_area"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" path="res://Assets/Icons/correct.svg" id="9_correct"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/score.svg" id="10_score"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/next.svg" id="11_next"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/tutorial.svg" id="12_tutorial"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionPanelStyle"]
 bg_color = Color(0.045, 0.115, 0.19, 0.98)
@@ -160,6 +161,14 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.78, 0.28, 1)
 theme_override_font_sizes/font_size = 17
 text = "+100"
+
+[node name="TutorialButton" type="Button" parent="MainMargin/MainLayout/TopBar"]
+custom_minimum_size = Vector2(48, 40)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+tooltip_text = "Show tutorial"
+icon = ExtResource("12_tutorial")
+icon_max_width = 19
 
 [node name="SettingsButton" type="Button" parent="MainMargin/MainLayout/TopBar"]
 custom_minimum_size = Vector2(96, 40)
@@ -405,4 +414,72 @@ custom_minimum_size = Vector2(250, 46)
 layout_mode = 2
 text = "Back to Lobby"
 icon = ExtResource("5_back")
+icon_max_width = 18
+
+[node name="TutorialOverlay" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("OverlayStyle")
+
+[node name="CenterContainer" type="CenterContainer" parent="TutorialOverlay"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="TutorialOverlay/CenterContainer"]
+custom_minimum_size = Vector2(590, 420)
+layout_mode = 2
+theme_override_styles/panel = SubResource("ModalStyle")
+
+[node name="MarginContainer" type="MarginContainer" parent="TutorialOverlay/CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 40
+
+[node name="Content" type="VBoxContainer" parent="TutorialOverlay/CenterContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="EyebrowLabel" type="Label" parent="TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.78, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "HOW TO PLAY"
+horizontal_alignment = 1
+
+[node name="TutorialTitleLabel" type="Label" parent="TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Step Ordering"
+horizontal_alignment = 1
+
+[node name="Divider" type="HSeparator" parent="TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content"]
+layout_mode = 2
+
+[node name="TutorialInstructionsLabel" type="Label" parent="TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "1. Drag the steps into the correct order.\n2. Check your solution.\n3. Use Hint if needed."
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="CloseButton" type="Button" parent="TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/Actions"]
+custom_minimum_size = Vector2(170, 46)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Got It"
+icon = ExtResource("7_check")
 icon_max_width = 18
