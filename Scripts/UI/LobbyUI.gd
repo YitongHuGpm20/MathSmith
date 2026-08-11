@@ -44,6 +44,7 @@ func _ready() -> void:
 	fillProcessButton.pressed.connect(_on_fill_process_button_pressed)
 	searchInput.text_changed.connect(_on_search_input_text_changed)
 	filterButton.item_selected.connect(_on_filter_button_item_selected)
+	LocalizationManager.languageChanged.connect(_on_language_changed)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
 	ShowSelectedLevelType()
 	allLevels = GameManager.GetLevels()
@@ -60,9 +61,9 @@ func ShowSelectedLevelType() -> void:
 	var stepOrderingData := GameManager.GetLevelTypeById("step_ordering")
 	var choiceOrderingData := GameManager.GetLevelTypeById("multiple_choice_ordering")
 	var fillProcessData := GameManager.GetLevelTypeById("fill_in_process")
-	stepOrderingButton.text = stepOrderingData.get("title", "Step Ordering")
-	choiceOrderingButton.text = choiceOrderingData.get("title", "Multiple-Choice Ordering")
-	fillProcessButton.text = fillProcessData.get("title", "Fill in the Process")
+	stepOrderingButton.text = tr(stepOrderingData.get("title", "Step Ordering"))
+	choiceOrderingButton.text = tr(choiceOrderingData.get("title", "Multiple-Choice Ordering"))
+	fillProcessButton.text = tr(fillProcessData.get("title", "Fill in the Process"))
 	stepOrderingButton.set_pressed_no_signal(GameManager.selectedLevelTypeId == "step_ordering")
 	choiceOrderingButton.set_pressed_no_signal(
 		GameManager.selectedLevelTypeId == "multiple_choice_ordering"
@@ -85,11 +86,11 @@ func SetupFilters() -> void:
 	var skills: Array[String] = []
 	filterButton.clear()
 	filterValues.clear()
-	AddFilterOption("All Levels", "all")
-	AddFilterOption("Not Started", "status:not_started")
-	AddFilterOption("In Progress", "status:in_progress")
-	AddFilterOption("Needs Practice", "status:needs_practice")
-	AddFilterOption("Completed", "status:completed")
+	AddFilterOption(tr("All Levels"), "all")
+	AddFilterOption(tr("Not Started"), "status:not_started")
+	AddFilterOption(tr("In Progress"), "status:in_progress")
+	AddFilterOption(tr("Needs Practice"), "status:needs_practice")
+	AddFilterOption(tr("Completed"), "status:completed")
 
 	# Collect each Skill once so content changes automatically update the filter.
 	for level in allLevels:
@@ -100,7 +101,7 @@ func SetupFilters() -> void:
 
 	skills.sort()
 	for skill in skills:
-		AddFilterOption(str(skill).replace("_", " ").capitalize(), "skill:" + skill)
+		AddFilterOption(tr(str(skill).replace("_", " ").capitalize()), "skill:" + skill)
 
 # Adds one display label and its internal deterministic filter value.
 func AddFilterOption(displayText: String, filterValue: String) -> void:
@@ -121,7 +122,7 @@ func RefreshLevelCards() -> void:
 		if MatchesSearch(level, levelIndex, searchText) and MatchesFilter(level, selectedFilter):
 			filteredLevels.append({"data": level, "number": levelIndex + 1})
 
-	levelCountLabel.text = "%d of %d Levels" % [filteredLevels.size(), allLevels.size()]
+	levelCountLabel.text = tr("LEVEL_COUNT_FORMAT") % [filteredLevels.size(), allLevels.size()]
 	CreateLevelCards(filteredLevels)
 
 # Matches searchable Level metadata and every Question expression or ID.
@@ -133,8 +134,12 @@ func MatchesSearch(level: Dictionary, levelIndex: int, searchText: String) -> bo
 		str(levelIndex + 1),
 		str(level.get("id", "")),
 		str(level.get("title", "")),
+		tr(str(level.get("title", ""))),
 		" ".join(PackedStringArray(level.get("skills", [])))
 	]
+
+	for skill in level.get("skills", []):
+		searchableParts.append(tr(str(skill).replace("_", " ").capitalize()))
 
 	for question in level.get("questions", []):
 		searchableParts.append(str(question.get("id", "")))
@@ -235,6 +240,12 @@ func _on_search_input_text_changed(_newText: String) -> void:
 
 # Applies the selected progress or Skill filter.
 func _on_filter_button_item_selected(_index: int) -> void:
+	RefreshLevelCards()
+
+# Rebuilds translated mode controls, filters, and cards after locale changes.
+func _on_language_changed(_localeCode: String) -> void:
+	ShowSelectedLevelType()
+	SetupFilters()
 	RefreshLevelCards()
 
 #endregion

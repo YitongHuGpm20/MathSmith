@@ -119,11 +119,11 @@ func ShowQuestion(
 ) -> void:
 	ConfigureGameplayMode("step_ordering")
 	SetupQuestionHeader(levelTitle, ruleText, expression, questionNumber, questionCount)
-	feedbackLabel.text = "Arrange the solution steps in the correct order."
+	feedbackLabel.text = tr("Arrange the solution steps in the correct order.")
 	hintButton.disabled = false
 	checkButton.visible = true
 	checkButton.disabled = false
-	checkButton.text = "Check"
+	checkButton.text = tr("Check")
 	CreateStepCards(steps)
 
 # Displays a newly loaded Multiple-Choice question and clears prior stages.
@@ -136,11 +136,11 @@ func ShowMultipleChoiceQuestion(
 ) -> void:
 	ConfigureGameplayMode("multiple_choice_ordering")
 	SetupQuestionHeader(levelTitle, ruleText, expression, questionNumber, questionCount)
-	feedbackLabel.text = "Choose the next correct solution step."
+	feedbackLabel.text = tr("Choose the next correct solution step.")
 	hintButton.disabled = false
 	checkButton.visible = false
 	checkButton.disabled = true
-	checkButton.text = "Check"
+	checkButton.text = tr("Check")
 	ClearResolvedSteps()
 	ClearChoiceButtons()
 
@@ -155,11 +155,11 @@ func ShowFillProcessQuestion(
 ) -> void:
 	ConfigureGameplayMode("fill_in_process")
 	SetupQuestionHeader(levelTitle, ruleText, expression, questionNumber, questionCount)
-	feedbackLabel.text = "Complete the missing values in the solution process."
+	feedbackLabel.text = tr("Complete the missing values in the solution process.")
 	hintButton.disabled = false
 	checkButton.visible = true
 	checkButton.disabled = false
-	checkButton.text = "Check"
+	checkButton.text = tr("Check")
 	CreateFillProcess(fillStepData)
 
 # Applies header content shared by every gameplay interaction mode.
@@ -170,8 +170,8 @@ func SetupQuestionHeader(
 	questionNumber: int,
 	questionCount: int
 ) -> void:
-	levelTitleLabel.text = levelTitle
-	ruleLabel.text = ruleText
+	levelTitleLabel.text = tr(levelTitle)
+	ruleLabel.text = tr(ruleText)
 	equationLabel.text = expression
 	progressLabel.text = "%d/%d" % [questionNumber, questionCount]
 	progressBar.max_value = questionCount
@@ -181,7 +181,7 @@ func SetupQuestionHeader(
 func UpdateScore(_currentScore: int, levelScore: int) -> void:
 	var earnedScore := levelScore - displayedLevelScore
 	displayedLevelScore = levelScore
-	scoreLabel.text = "Score %d" % levelScore
+	scoreLabel.text = "%s %d" % [tr("Score"), levelScore]
 
 	if earnedScore > 0:
 		PlayScoreGainAnimation(earnedScore)
@@ -239,7 +239,7 @@ func ClearStepCards() -> void:
 
 # Displays the candidates for one solution stage in randomized order.
 func ShowChoiceStage(stageIndex: int, stageCount: int, choices: Array[String]) -> void:
-	stageLabel.text = "Choose step %d of %d" % [stageIndex + 1, stageCount]
+	stageLabel.text = tr("CHOOSE_STEP_FORMAT") % [stageIndex + 1, stageCount]
 	choiceSeparator.visible = true
 	ClearChoiceButtons()
 
@@ -278,7 +278,7 @@ func ShowIncorrectChoice(choiceText: String, feedbackMessage: String) -> void:
 			choiceButton.modulate = Color(1, 0.48, 0.48, 0.78)
 			break
 
-	feedbackLabel.text = feedbackMessage
+	feedbackLabel.text = tr(feedbackMessage)
 	AudioManager.PlayWrong()
 
 # Removes one incorrect candidate as the Multiple-Choice Hint action.
@@ -378,7 +378,7 @@ func ShowFillValidation(
 		else:
 			ApplyFillInputState(fillInput, "empty")
 
-	feedbackLabel.text = feedbackMessage
+	feedbackLabel.text = tr(feedbackMessage)
 	AudioManager.PlayWrong()
 
 # Locks every input in its correct state when the full process is complete.
@@ -402,7 +402,7 @@ func RevealFillBlank(blankId: String, answer: String) -> void:
 	fillInput.editable = false
 	fillInput.set_meta("revealedByHint", true)
 	ApplyFillInputState(fillInput, "revealed")
-	feedbackLabel.text = "Hint: One missing value was revealed."
+	feedbackLabel.text = tr("Hint: One missing value was revealed.")
 	AudioManager.PlayHint()
 
 # Clears all generated rows and input references before the next question.
@@ -486,12 +486,12 @@ func UpdateResponsiveLayout() -> void:
 
 # Displays the visual state for a correct answer.
 func ShowCorrectAnswer(playAudio: bool = true) -> void:
-	feedbackLabel.text = "Correct!"
+	feedbackLabel.text = tr("Correct!")
 	SetStepCardsLocked(true)
 	hintButton.disabled = true
 	checkButton.visible = true
 	checkButton.disabled = false
-	checkButton.text = "Next"
+	checkButton.text = tr("Next")
 
 	if playAudio:
 		AudioManager.PlayCorrect()
@@ -503,22 +503,22 @@ func SetStepCardsLocked(isLocked: bool) -> void:
 
 # Displays the visual state for an incorrect answer.
 func ShowIncorrectAnswer(feedbackMessage: String) -> void:
-	feedbackLabel.text = feedbackMessage
+	feedbackLabel.text = tr(feedbackMessage)
 	AudioManager.PlayWrong()
 
 # Displays feedback after a hint places one correct step.
 func ShowHintUsed(revealedHintCount: int) -> void:
-	feedbackLabel.text = "Hint: Step %d has been placed correctly." % revealedHintCount
+	feedbackLabel.text = tr("Hint: Step %d has been placed correctly.") % revealedHintCount
 	AudioManager.PlayHint()
 
 # Gives general ordering guidance without confirming the current answer state.
 func ShowOrderingReviewHint() -> void:
-	feedbackLabel.text = "Hint: Compare each step with the transformation before it."
+	feedbackLabel.text = tr("Hint: Compare each step with the transformation before it.")
 	AudioManager.PlayHint()
 
 # Displays feedback after a Multiple-Choice Hint removes one distractor.
 func ShowMultipleChoiceHintUsed() -> void:
-	feedbackLabel.text = "Hint: One incorrect option was removed."
+	feedbackLabel.text = tr("Hint: One incorrect option was removed.")
 	AudioManager.PlayHint()
 
 # Enables or disables the hint control without changing gameplay state.
@@ -527,7 +527,7 @@ func SetHintAvailable(isAvailable: bool) -> void:
 
 # Displays the number of shared Hints remaining in the active Level.
 func UpdateHintCount(remainingHintCount: int) -> void:
-	hintButton.text = "Hint (%d)" % remainingHintCount
+	hintButton.text = "%s (%d)" % [tr("Hint"), remainingHintCount]
 
 # Displays a safe visual error state when gameplay data cannot be used.
 func ShowDataError(message: String) -> void:
@@ -542,7 +542,7 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 	var scorePercentage: int = summaryData.get("percentage", 0)
 	var starCount: int = summaryData.get("stars", 0)
 	var levelCompleted := starCount >= 1
-	completeLabel.text = "LEVEL COMPLETE" if levelCompleted else "NEEDS PRACTICE"
+	completeLabel.text = tr("LEVEL COMPLETE") if levelCompleted else tr("NEEDS PRACTICE")
 	completeLabel.add_theme_color_override(
 		"font_color",
 		Color(0.45, 0.82, 1, 1) if levelCompleted else Color(1, 0.68, 0.34, 1)
@@ -553,26 +553,31 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 	completeIcon.visible = levelCompleted
 	starsLabel.text = "★".repeat(starCount) + "☆".repeat(3 - starCount)
 	sessionMetaLabel.text = "%s\n%s" % [
-		summaryData.get("levelTitle", "Untitled Level"),
-		summaryData.get("levelTypeTitle", "Unknown Mode")
+		tr(summaryData.get("levelTitle", "Untitled Level")),
+		tr(summaryData.get("levelTypeTitle", "Unknown Mode"))
 	]
-	resultLabel.text = "Score %d / %d  •  %d%%" % [levelScore, maxLevelScore, scorePercentage]
+	resultLabel.text = "%s %d / %d  •  %d%%" % [tr("Score"), levelScore, maxLevelScore, scorePercentage]
 	statsLabel.text = (
-		"Questions Completed     %d / %d\nIncorrect Attempts       %d\nHints Used               %d"
+		"%s     %d / %d\n%s       %d\n%s               %d"
 		% [
+			tr("Questions Completed"),
 			summaryData.get("questionsCompleted", 0),
 			summaryData.get("questionCount", 0),
+			tr("Incorrect Attempts"),
 			summaryData.get("incorrectAttempts", 0),
+			tr("Hints Used"),
 			summaryData.get("hintsUsed", 0)
 		]
 	)
-	bestScoreLabel.text = "Best Score  %d / %d" % [
+	bestScoreLabel.text = "%s  %d / %d" % [
+		tr("Best Score"),
 		summaryData.get("bestScore", levelScore),
 		maxLevelScore
 	]
+	newBestLabel.text = tr("NEW BEST")
 	newBestLabel.visible = summaryData.get("isNewBest", false)
 	nextLevelButton.visible = levelCompleted and summaryData.get("hasNextLevel", false)
-	retryButton.text = "Play Again" if levelCompleted else "Try Again"
+	retryButton.text = tr("Play Again") if levelCompleted else tr("Try Again")
 	endMenu.visible = true
 
 	if levelCompleted:
@@ -584,8 +589,8 @@ func HideEndMenu() -> void:
 
 # Presents interaction-only guidance over the newly loaded gameplay screen.
 func ShowTutorial(tutorialTitle: String, instructions: String) -> void:
-	tutorialTitleLabel.text = tutorialTitle
-	tutorialInstructionsLabel.text = instructions
+	tutorialTitleLabel.text = tr(tutorialTitle)
+	tutorialInstructionsLabel.text = tr(instructions).replace("\\n", "\n")
 	tutorialOverlay.visible = true
 	closeTutorialButton.grab_focus()
 

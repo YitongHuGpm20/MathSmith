@@ -60,9 +60,9 @@ func Setup(levelData: Dictionary, displayLevelNumber: int, progressData: Diction
 
 # Updates all card text from its stored Level data.
 func UpdateDisplay() -> void:
-	levelNumberLabel.text = "LEVEL %02d" % levelNumber
-	questionCountLabel.text = "%d QUESTIONS" % questionCount
-	titleLabel.text = levelTitle
+	levelNumberLabel.text = tr("LEVEL_NUMBER_FORMAT") % levelNumber
+	questionCountLabel.text = tr("QUESTION_COUNT_FORMAT") % questionCount
+	titleLabel.text = tr(levelTitle)
 	skillsLabel.text = FormatSkills(levelSkills)
 	progressLabel.text = GetProgressText()
 	tooltip_text = "Select " + levelTitle
@@ -72,22 +72,22 @@ func FormatSkills(skills: Array) -> String:
 	var displaySkills: PackedStringArray = []
 
 	for skill in skills:
-		displaySkills.append(str(skill).replace("_", " ").capitalize())
+		displaySkills.append(tr(str(skill).replace("_", " ").capitalize()))
 
 	return "  |  ".join(displaySkills)
 
 # Returns a concise current-session progress label for this Level.
 func GetProgressText() -> String:
 	if levelCompleted:
-		return "COMPLETED"
+		return tr("Completed").to_upper()
 
 	if levelNeedsPractice:
-		return "NEEDS PRACTICE"
+		return tr("Needs Practice").to_upper()
 
 	if completedQuestions > 0:
-		return "IN PROGRESS  %d/%d" % [completedQuestions, questionCount]
+		return "%s  %d/%d" % [tr("In Progress").to_upper(), completedQuestions, questionCount]
 
-	return "NOT STARTED"
+	return tr("Not Started").to_upper()
 
 # Updates the card's visual toggle state without changing gameplay state.
 func SetSelectedState(isSelected: bool) -> void:

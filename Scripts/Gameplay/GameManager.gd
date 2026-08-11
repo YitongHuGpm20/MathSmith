@@ -344,27 +344,17 @@ func GetTutorialData(levelTypeId: String) -> Dictionary:
 		DEFAULT_LEVEL_TYPE_ID:
 			return {
 				"title": "Step Ordering",
-				"instructions": (
-					"1. Drag the steps into the correct order.\n"
-					+ "2. Check your solution.\n"
-					+ "3. Use Hint if needed."
-				)
+				"instructions": "TUTORIAL_STEP_ORDERING"
 			}
 		MULTIPLE_CHOICE_LEVEL_TYPE_ID:
 			return {
 				"title": "Multiple-Choice Ordering",
-				"instructions": (
-					"1. Choose the correct step from each option group.\n"
-					+ "2. Complete the solution sequence."
-				)
+				"instructions": "TUTORIAL_MULTIPLE_CHOICE"
 			}
 		FILL_PROCESS_LEVEL_TYPE_ID:
 			return {
 				"title": "Fill in the Process",
-				"instructions": (
-					"1. Fill in the missing values.\n"
-					+ "2. Check the completed solution."
-				)
+				"instructions": "TUTORIAL_FILL_PROCESS"
 			}
 
 	return {}

@@ -1,0 +1,116 @@
+keys,en,zh_CN
+LEARN THE PROCESS,LEARN THE PROCESS,学习解题过程
+"Build stronger math skills, one step at a time.","Build stronger math skills, one step at a time.",一步一步建立更扎实的数学能力。
+Learn how calculations work by rebuilding the reasoning behind them.,Learn how calculations work by rebuilding the reasoning behind them.,通过重建推理过程理解计算原理。
+PLAY,PLAY,开始游戏
+Step-by-Step Learning,Step-by-Step Learning,分步学习
+Understand the reasoning behind each calculation.,Understand the reasoning behind each calculation.,理解每一次计算背后的推理。
+Multiple Challenge Modes,Multiple Challenge Modes,多种挑战模式
+Practice the same math in different ways.,Practice the same math in different ways.,用不同方式练习相同的数学内容。
+Track Your Progress,Track Your Progress,追踪学习进度
+Build skills across increasingly complex levels.,Build skills across increasingly complex levels.,通过难度递增的关卡培养技能。
+Credits,Credits,制作人员
+Settings,Settings,设置
+Exit,Exit,退出
+Close,Close,关闭
+GAME DESIGN • TECHNICAL DESIGN • DEVELOPMENT,GAME DESIGN • TECHNICAL DESIGN • DEVELOPMENT,游戏设计 • 技术设计 • 开发
+SOUND EFFECTS,SOUND EFFECTS,音效
+ICONS,ICONS,图标
+MathSmith Lobby,MathSmith Lobby,MathSmith 关卡大厅
+Choose what to practice and how to solve it.,Choose what to practice and how to solve it.,选择练习内容和解题方式。
+Home,Home,主页
+Step Ordering,Step Ordering,步骤排序
+Multiple-Choice Ordering,Multiple-Choice Ordering,多项选择排序
+Fill in the Process,Fill in the Process,过程填空
+Choose a Level,Choose a Level,选择关卡
+LEVEL_COUNT_FORMAT,%d of %d Levels,显示 %d / %d 个关卡
+LEVEL_NUMBER_FORMAT,LEVEL %02d,关卡 %02d
+QUESTION_COUNT_FORMAT,%d QUESTIONS,%d 道题
+CHOOSE_STEP_FORMAT,Choose step %d of %d,选择第 %d / %d 步
+"Search levels, skills, questions, or expressions...","Search levels, skills, questions, or expressions...",搜索关卡、技能、题目或表达式……
+All Levels,All Levels,全部关卡
+Not Started,Not Started,尚未开始
+In Progress,In Progress,进行中
+Needs Practice,Needs Practice,需要练习
+Completed,Completed,已完成
+Back to Lobby,Back to Lobby,返回大厅
+"Arrange the solution steps in the correct order.","Arrange the solution steps in the correct order.",按正确顺序排列解题步骤。
+"Choose the correct solution steps and arrange them in the correct order.","Choose the correct solution steps and arrange them in the correct order.",选择正确的解题步骤并按顺序完成过程。
+Complete the missing values in the solution process.,Complete the missing values in the solution process.,填写解题过程中的缺失数值。
+Choose the next correct solution step.,Choose the next correct solution step.,选择下一个正确的解题步骤。
+Check,Check,检查
+Next,Next,下一题
+Hint,Hint,提示
+Correct!,Correct!,正确！
+Not quite. Review your work and try again.,Not quite. Review your work and try again.,还不对。检查你的解题过程后再试一次。
+Check the arithmetic in the highlighted missing values.,Check the arithmetic in the highlighted missing values.,检查高亮缺失值的计算。
+Check how the grouped parts of the expression are being handled.,Check how the grouped parts of the expression are being handled.,检查表达式中分组部分的处理方式。
+Check the order in which the operations are being solved.,Check the order in which the operations are being solved.,检查各项运算的计算顺序。
+Check how the dividend is being divided into equal groups.,Check how the dividend is being divided into equal groups.,检查被除数如何被分成相等的组。
+Check the multiplication strategy used in each step.,Check the multiplication strategy used in each step.,检查每一步使用的乘法策略。
+Check how the subtraction is decomposed between steps.,Check how the subtraction is decomposed between steps.,检查减法在步骤之间的拆分方式。
+Check how the addends are decomposed and regrouped.,Check how the addends are decomposed and regrouped.,检查加数的拆分与重组方式。
+Operations inside parentheses must be resolved before the surrounding operation.,Operations inside parentheses must be resolved before the surrounding operation.,必须先计算括号内的运算，再处理括号外的运算。
+Multiplication and division must be resolved before addition and subtraction.,Multiplication and division must be resolved before addition and subtraction.,乘除法必须先于加减法计算。
+A division decomposition must split the dividend into parts divisible by the divisor.,A division decomposition must split the dividend into parts divisible by the divisor.,除法拆分必须把被除数分成能够被除数整除的部分。
+Partial products must represent the same factors as the original multiplication.,Partial products must represent the same factors as the original multiplication.,部分积必须保持原乘法中相同的因数关系。
+Each subtraction transformation must preserve the value of the original difference.,Each subtraction transformation must preserve the value of the original difference.,每次减法变换都必须保持原差值不变。
+"Regrouping addends may change their grouping, but it must preserve the same total.","Regrouping addends may change their grouping, but it must preserve the same total.",加数可以重新分组，但总和必须保持不变。
+Hint: One missing value was revealed.,Hint: One missing value was revealed.,提示：已显示一个缺失值。
+Hint: Step %d has been placed correctly.,Hint: Step %d has been placed correctly.,提示：已将第 %d 步放到正确位置。
+Hint: Compare each step with the transformation before it.,Hint: Compare each step with the transformation before it.,提示：将每一步与前一步的变换进行比较。
+Hint: One incorrect option was removed.,Hint: One incorrect option was removed.,提示：已移除一个错误选项。
+Play Again,Play Again,再次挑战
+Try Again,Try Again,再试一次
+Next Level,Next Level,下一关
+Review Mistakes,Review Mistakes,复习错题
+LEVEL COMPLETE,LEVEL COMPLETE,关卡完成
+NEEDS PRACTICE,NEEDS PRACTICE,需要练习
+NEW BEST,NEW BEST,新的最佳成绩
+Best Score,Best Score,最佳分数
+Score,Score,分数
+Questions Completed,Questions Completed,完成题目
+Incorrect Attempts,Incorrect Attempts,错误次数
+Hints Used,Hints Used,使用提示
+HOW TO PLAY,HOW TO PLAY,玩法说明
+Got It,Got It,知道了
+Show tutorial,Show tutorial,查看教程
+TUTORIAL_STEP_ORDERING,"1. Drag the steps into the correct order.\n2. Check your solution.\n3. Use Hint if needed.","1. 拖动步骤并按正确顺序排列。\n2. 检查你的答案。\n3. 需要时使用提示。"
+TUTORIAL_MULTIPLE_CHOICE,"1. Choose the correct step from each option group.\n2. Complete the solution sequence.","1. 从每组选项中选择正确步骤。\n2. 完成整个解题过程。"
+TUTORIAL_FILL_PROCESS,"1. Fill in the missing values.\n2. Check the completed solution.","1. 填写缺失的数值。\n2. 检查完整的解题过程。"
+Master Volume,Master Volume,主音量
+SFX Volume,SFX Volume,音效音量
+Mute All Audio,Mute All Audio,静音所有音频
+Language,Language,语言
+English,English,English
+简体中文,简体中文,简体中文
+Reset Progress,Reset Progress,重置进度
+Reset Progress?,Reset Progress?,确认重置进度？
+Cancel,Cancel,取消
+THIS ACTION CANNOT BE UNDONE.,THIS ACTION CANNOT BE UNDONE.,此操作无法撤销。
+Audio and Language preferences will be kept.,Audio and Language preferences will be kept.,音频和语言设置将被保留。
+RESET_PROGRESS_WARNING,"THIS ACTION CANNOT BE UNDONE.\n\nThis will permanently remove Level progress, scores, stars,\ntutorial history, mistakes, mastery, history, and Zen records.\n\nAudio and Language preferences will be kept.","此操作无法撤销。\n\n这将永久删除关卡进度、分数、星级、\n教程记录、错题、技能掌握度、历史和禅模式记录。\n\n音频和语言设置将被保留。"
+Addition Basics,Addition Basics,加法基础
+Subtraction Basics,Subtraction Basics,减法基础
+Multiplication Basics,Multiplication Basics,乘法基础
+Division Basics,Division Basics,除法基础
+Larger Numbers,Larger Numbers,较大数运算
+Three-Number Expressions,Three-Number Expressions,三数表达式
+Four-Number Expressions,Four-Number Expressions,四数表达式
+Mixed Operations,Mixed Operations,混合运算
+Parentheses,Parentheses,括号运算
+Complex Parentheses,Complex Parentheses,复杂括号
+Advanced Expressions,Advanced Expressions,进阶表达式
+MathSmith Challenge,MathSmith Challenge,MathSmith 挑战
+Addition,Addition,加法
+Subtraction,Subtraction,减法
+Multiplication,Multiplication,乘法
+Division,Division,除法
+Basic Arithmetic,Basic Arithmetic,基础运算
+Decomposition,Decomposition,拆分
+Multi Digit,Multi Digit,多位数
+Regrouping,Regrouping,重组
+Multi Operand,Multi Operand,多操作数
+Multi Step,Multi Step,多步骤
+Precedence,Precedence,运算顺序
+Challenge,Challenge,挑战

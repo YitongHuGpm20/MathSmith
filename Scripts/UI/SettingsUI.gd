@@ -128,7 +128,12 @@ func _on_mute_toggle_toggled(isMuted: bool) -> void:
 
 # Persists the selected future localization language.
 func _on_language_button_item_selected(_index: int) -> void:
-	SaveSettings()
+	var localeCode := (
+		"zh_CN"
+		if languageButton.selected == SIMPLIFIED_CHINESE_LANGUAGE_INDEX
+		else "en"
+	)
+	LocalizationManager.SetLanguage(localeCode)
 
 # Replaces Settings controls with an in-style destructive confirmation.
 func _on_reset_progress_button_pressed() -> void:

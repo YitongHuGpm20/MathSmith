@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cedb46ghvyt7m"
+
+[deps]
+
+files=["res://Localization/MathSmith.en.translation", "res://Localization/MathSmith.zh_CN.translation"]
+
+source_file="res://Localization/MathSmith.csv"
+dest_files=["res://Localization/MathSmith.en.translation", "res://Localization/MathSmith.zh_CN.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true
