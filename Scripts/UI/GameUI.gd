@@ -15,6 +15,7 @@ signal orderChanged
 signal choiceSelected(choiceText: String)
 signal tutorialDismissed
 signal tutorialRequested
+signal reviewMistakesRequested
 
 #endregion
 
@@ -63,6 +64,7 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var newBestLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/NewBestLabel"
 @onready var nextLevelButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/NextLevelButton"
 @onready var retryButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RetryButton"
+@onready var reviewMistakesButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ReviewMistakesButton"
 @onready var lobbyButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/LobbyButton"
 @onready var tutorialOverlay: PanelContainer = $"../TutorialOverlay"
 @onready var tutorialTitleLabel: Label = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/TutorialTitleLabel"
@@ -91,6 +93,7 @@ func _ready() -> void:
 	settingsButton.pressed.connect(settingsPanel.Open)
 	retryButton.pressed.connect(_on_retry_button_pressed)
 	nextLevelButton.pressed.connect(_on_next_level_button_pressed)
+	reviewMistakesButton.pressed.connect(_on_review_mistakes_button_pressed)
 	lobbyButton.pressed.connect(_on_lobby_button_pressed)
 	closeTutorialButton.pressed.connect(_on_close_tutorial_button_pressed)
 	stepArea.orderChanged.connect(_on_step_order_changed)
@@ -617,6 +620,10 @@ func _on_retry_button_pressed() -> void:
 # Forwards the next-Level request to the gameplay owner.
 func _on_next_level_button_pressed() -> void:
 	nextLevelRequested.emit()
+
+# Opens the persistent Mistake Book from the completed-session summary.
+func _on_review_mistakes_button_pressed() -> void:
+	reviewMistakesRequested.emit()
 
 # Forwards the Lobby request to GameManager.
 func _on_lobby_button_pressed() -> void:

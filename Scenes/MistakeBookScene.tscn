@@ -1,0 +1,98 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/MistakeBookUI.gd" id="1_script"]
+[ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/back.svg" id="3_back"]
+
+[node name="MistakeBookScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.018, 0.027, 0.055, 1)
+mouse_filter = 2
+
+[node name="MainMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 72.0
+offset_top = 48.0
+offset_right = -72.0
+offset_bottom = -48.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainLayout" type="VBoxContainer" parent="MainMargin"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Header" type="HBoxContainer" parent="MainMargin/MainLayout"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="TitleLabel" type="Label" parent="MainMargin/MainLayout/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Mistake Book"
+
+[node name="SubtitleLabel" type="Label" parent="MainMargin/MainLayout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.55, 0.64, 0.75, 1)
+theme_override_font_sizes/font_size = 15
+text = "Review the reasoning behind Questions that need more practice."
+vertical_alignment = 1
+
+[node name="CountLabel" type="Label" parent="MainMargin/MainLayout/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.8, 1, 1)
+text = "0 SAVED"
+vertical_alignment = 1
+
+[node name="BackButton" type="Button" parent="MainMargin/MainLayout/Header"]
+custom_minimum_size = Vector2(150, 44)
+layout_mode = 2
+text = "Back to Lobby"
+icon = ExtResource("3_back")
+icon_max_width = 18
+
+[node name="Divider" type="HSeparator" parent="MainMargin/MainLayout"]
+layout_mode = 2
+
+[node name="MistakeScroll" type="ScrollContainer" parent="MainMargin/MainLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="MainMargin/MainLayout/MistakeScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 18
+
+[node name="EmptyLabel" type="Label" parent="MainMargin/MainLayout/MistakeScroll/Content"]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.64, 0.75, 1)
+theme_override_font_sizes/font_size = 20
+text = "No saved mistakes yet. Questions will appear here after repeated incorrect attempts or a Hint."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="EntryContainer" type="VBoxContainer" parent="MainMargin/MainLayout/MistakeScroll/Content"]
+layout_mode = 2
+theme_override_constants/separation = 18

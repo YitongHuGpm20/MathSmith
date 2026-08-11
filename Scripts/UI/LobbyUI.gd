@@ -273,6 +273,7 @@ func CreateOtherCards(featureEntries: Array[Dictionary]) -> void:
 		var featureCard := LEVEL_CARD_SCENE.instantiate()
 		levelCardContainer.add_child(featureCard)
 		featureCard.SetupFeature(feature)
+		featureCard.featureSelected.connect(_on_feature_card_selected)
 
 # Removes existing cards before the Lobby grid is regenerated.
 func ClearLevelCards() -> void:
@@ -293,6 +294,11 @@ func _on_level_card_selected(levelId: String) -> void:
 		levelCard.SetSelectedState(levelCard.levelId == levelId)
 
 	GameManager.OpenGame()
+
+# Opens implemented secondary features while preserving future card IDs.
+func _on_feature_card_selected(featureId: String) -> void:
+	if featureId == "mistake_book":
+		GameManager.OpenMistakeBook()
 
 # Returns to Home through GameManager's navigation entry point.
 func _on_home_button_pressed() -> void:

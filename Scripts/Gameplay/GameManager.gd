@@ -10,6 +10,7 @@ extends Node
 const HOME_SCENE_PATH: String = "res://Scenes/HomeScene.tscn"
 const LOBBY_SCENE_PATH: String = "res://Scenes/LobbyScene.tscn"
 const GAME_SCENE_PATH: String = "res://Scenes/GameScene.tscn"
+const MISTAKE_BOOK_SCENE_PATH: String = "res://Scenes/MistakeBookScene.tscn"
 const DEFAULT_LEVEL_TYPE_ID: String = "step_ordering"
 const MULTIPLE_CHOICE_LEVEL_TYPE_ID: String = "multiple_choice_ordering"
 const FILL_PROCESS_LEVEL_TYPE_ID: String = "fill_in_process"
@@ -88,6 +89,10 @@ func OpenHome() -> void:
 func OpenLobby() -> void:
 	ChangeScene(LOBBY_SCENE_PATH)
 
+# Opens the saved deterministic Question review collection.
+func OpenMistakeBook() -> void:
+	ChangeScene(MISTAKE_BOOK_SCENE_PATH)
+
 # Opens the Game Scene for the currently selected Level.
 func OpenGame() -> void:
 	if currentLevel.is_empty():
@@ -122,6 +127,7 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	gameUI.choiceSelected.connect(SelectMultipleChoice)
 	gameUI.tutorialDismissed.connect(RecordTutorialViewed)
 	gameUI.tutorialRequested.connect(ShowCurrentTutorial)
+	gameUI.reviewMistakesRequested.connect(OpenMistakeBook)
 
 	# Surface content errors only after a visual UI is available.
 	if levels.is_empty():
@@ -174,6 +180,9 @@ func DisconnectGameUISignals() -> void:
 
 	if gameUI.tutorialRequested.is_connected(ShowCurrentTutorial):
 		gameUI.tutorialRequested.disconnect(ShowCurrentTutorial)
+
+	if gameUI.reviewMistakesRequested.is_connected(OpenMistakeBook):
+		gameUI.reviewMistakesRequested.disconnect(OpenMistakeBook)
 
 # Returns all Level Types that describe available gameplay interactions.
 func GetLevelTypes() -> Dictionary:
@@ -251,21 +260,6 @@ func GetLevelProgress(levelId: String) -> Dictionary:
 		}
 	)
 
-# Records the highest completed Question reached in the selected Level.
-func RecordQuestionCompletion() -> void:
-	var levelId: String = GetSelectedLevelId()
-
-	if levelId.is_empty():
-		return
-
-	var progressData := GetLevelProgress(levelId)
-	progressData["completedQuestions"] = maxi(
-		progressData["completedQuestions"],
-		currentQuestionIndex + 1
-	)
-	SetLevelProgress(levelId, progressData)
-	SaveLevelProgress()
-
 # Records the completed session as Level Complete or Needs Practice.
 func RecordLevelResult(starCount: int) -> Dictionary:
 	var levelId: String = GetSelectedLevelId()
@@ -309,10 +303,36 @@ func LoadLevelProgress() -> void:
 			legacyProgress[progressKey] = levelProgress[progressKey]
 
 	if legacyProgress.is_empty():
+		ClearIncompleteSavedProgress()
 		return
 
 	levelProgress = {DEFAULT_LEVEL_TYPE_ID: legacyProgress}
+	ClearIncompleteSavedProgress()
 	SaveLevelProgress()
+
+# Removes obsolete per-Question progress so interrupted Levels always restart.
+func ClearIncompleteSavedProgress() -> void:
+	var progressWasChanged := false
+
+	for levelTypeId in levelProgress:
+		var modeProgress: Dictionary = levelProgress.get(levelTypeId, {})
+
+		for levelId in modeProgress:
+			var progressData: Dictionary = modeProgress.get(levelId, {})
+			var hasFinalResult: bool = (
+				progressData.get("completed", false)
+				or progressData.get("needsPractice", false)
+			)
+
+			if not hasFinalResult and progressData.get("completedQuestions", 0) > 0:
+				progressData["completedQuestions"] = 0
+				modeProgress[levelId] = progressData
+				progressWasChanged = true
+
+		levelProgress[levelTypeId] = modeProgress
+
+	if progressWasChanged:
+		SaveLevelProgress()
 
 # Stores one Level result beneath the currently selected Level Type.
 func SetLevelProgress(levelId: String, progressData: Dictionary) -> void:
@@ -631,6 +651,10 @@ func RegisterIncorrectAttempt() -> String:
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
+	# Repeated mistakes qualify this Question for persistent review.
+	if incorrectAttempts >= 2:
+		UpdateMistakeBookEntry()
+
 	if consecutiveIncorrectAttempts == 1:
 		return "Not quite. Review your work and try again."
 
@@ -914,6 +938,109 @@ func RegisterHintUsed() -> void:
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 	gameUI.UpdateHintCount(remainingHints)
 
+	# Any requested Hint qualifies this Question for persistent review.
+	UpdateMistakeBookEntry()
+
+# Returns an isolated copy of every saved mistake entry.
+func GetMistakeBookEntries() -> Array:
+	var savedEntries = SaveManager.GetSection("mistakeBook")
+	return savedEntries if savedEntries is Array else []
+
+# Adds or updates the current Question without duplicating its mode-specific entry.
+func UpdateMistakeBookEntry() -> void:
+	var questions: Array = currentLevel.get("questions", [])
+
+	if currentQuestionIndex < 0 or currentQuestionIndex >= questions.size():
+		return
+
+	var question: Dictionary = questions[currentQuestionIndex]
+	var entryKey := "%s:%s:%s" % [
+		selectedLevelTypeId,
+		currentLevel.get("id", ""),
+		question.get("id", "")
+	]
+	var mistakeEntries := GetMistakeBookEntries()
+	var entryIndex := -1
+
+	for savedIndex in range(mistakeEntries.size()):
+		if mistakeEntries[savedIndex].get("entryKey", "") == entryKey:
+			entryIndex = savedIndex
+			break
+
+	var existingEntry: Dictionary = (
+		mistakeEntries[entryIndex] if entryIndex >= 0 else {}
+	)
+	var mistakeEntry := {
+		"entryKey": entryKey,
+		"questionId": question.get("id", ""),
+		"levelId": currentLevel.get("id", ""),
+		"levelTitle": currentLevel.get("title", "Untitled Level"),
+		"levelTypeId": selectedLevelTypeId,
+		"levelTypeTitle": GetLevelTypeById(selectedLevelTypeId).get("title", "Unknown Mode"),
+		"expression": currentExpression,
+		"skills": currentLevel.get("skills", []).duplicate(),
+		"incorrectAttempts": maxi(
+			existingEntry.get("incorrectAttempts", 0),
+			incorrectAttempts
+		),
+		"hintUsed": existingEntry.get("hintUsed", false) or hintsUsed > 0,
+		"errorCategory": GetMistakeCategory(currentExpression),
+		"explanation": GetMistakeExplanation(currentExpression),
+		"answerSteps": correctSteps.duplicate(),
+		"updatedAt": int(Time.get_unix_time_from_system())
+	}
+
+	if entryIndex >= 0:
+		mistakeEntries[entryIndex] = mistakeEntry
+	else:
+		mistakeEntries.push_front(mistakeEntry)
+
+	SaveManager.SetSection("mistakeBook", mistakeEntries)
+
+# Removes one saved mistake by its stable mode, Level, and Question key.
+func RemoveMistakeBookEntry(entryKey: String) -> void:
+	var mistakeEntries := GetMistakeBookEntries()
+
+	for entryIndex in range(mistakeEntries.size() - 1, -1, -1):
+		if mistakeEntries[entryIndex].get("entryKey", "") == entryKey:
+			mistakeEntries.remove_at(entryIndex)
+
+	SaveManager.SetSection("mistakeBook", mistakeEntries)
+
+# Classifies the mathematical rule used by a saved deterministic explanation.
+func GetMistakeCategory(expression: String) -> String:
+	if "(" in expression:
+		return "Parentheses"
+	if ExpressionHasMixedPrecedence(expression):
+		return "Order of Operations"
+	if "/" in expression:
+		return "Division"
+	if "*" in expression:
+		return "Multiplication"
+	if "-" in expression:
+		return "Subtraction"
+	return "Addition and Regrouping"
+
+# Returns a rule explanation without generating any new answer content.
+func GetMistakeExplanation(expression: String) -> String:
+	if "(" in expression:
+		return "Resolve the operations inside parentheses before the surrounding operation. Each transformation must preserve the expression's value."
+	if ExpressionHasMixedPrecedence(expression):
+		return "Resolve multiplication and division before addition and subtraction, working from left to right within the same priority."
+	if "/" in expression:
+		return "When decomposing division, split the dividend into parts that are each divisible by the divisor."
+	if "*" in expression:
+		return "Decompose a factor into useful parts, calculate each partial product, and then combine the partial products."
+	if "-" in expression:
+		return "Decompose the amount being subtracted into manageable parts while preserving the original difference."
+	return "Decompose and regroup the addends to make friendly totals while preserving the original sum."
+
+# Detects whether precedence between high- and low-priority operations applies.
+func ExpressionHasMixedPrecedence(expression: String) -> bool:
+	var hasHigherPriorityOperation := "*" in expression or "/" in expression
+	var hasLowerPriorityOperation := "+" in expression or "-" in expression
+	return hasHigherPriorityOperation and hasLowerPriorityOperation
+
 # Returns the fixed shared Hint budget for the selected Level range.
 func GetLevelHintBudget() -> int:
 	var selectedLevelIndex := 0
@@ -944,7 +1071,6 @@ func CompleteQuestion() -> void:
 	consecutiveIncorrectAttempts = 0
 	questionScoreCommitted = true
 	currentLevelScore += currentQuestionScore
-	RecordQuestionCompletion()
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
 # Calculates a Level rating using score percentage as its only input.

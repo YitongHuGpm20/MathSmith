@@ -404,8 +404,6 @@ icon_max_width = 19
 [node name="ReviewMistakesButton" type="Button" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(250, 46)
 layout_mode = 2
-disabled = true
-tooltip_text = "Mistake Book will be available later in M4."
 text = "Review Mistakes"
 
 [node name="LobbyButton" type="Button" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=837141509]

@@ -39,6 +39,25 @@ Review saved mistakes and their solution process.,Review saved mistakes and thei
 Practice 10 random Questions from all saved mistakes.,Practice 10 random Questions from all saved mistakes.,从全部错题中随机练习 10 道题。
 Solve random Questions from the full pool for 3 minutes.,Solve random Questions from the full pool for 3 minutes.,在 3 分钟内随机解答完整题库中的题目。
 Solve random Questions with three lives and no time limit.,Solve random Questions with three lives and no time limit.,使用三条命随机答题，不设时间限制。
+Review the reasoning behind Questions that need more practice.,Review the reasoning behind Questions that need more practice.,复习需要进一步练习的题目及其解题思路。
+MISTAKE_COUNT_FORMAT,%d SAVED,已保存 %d 道
+No saved mistakes yet. Questions will appear here after repeated incorrect attempts or a Hint.,No saved mistakes yet. Questions will appear here after repeated incorrect attempts or a Hint.,目前还没有保存的错题。连续答错或使用提示后，题目会出现在这里。
+Remove,Remove,移除
+Remove this Question from the Mistake Book.,Remove this Question from the Mistake Book.,从错题本中移除这道题。
+Why Saved,Why Saved,收录原因
+Focus,Focus,重点
+Explanation,Explanation,讲解
+Correct Answer,Correct Answer,正确答案
+INCORRECT_ATTEMPT_COUNT_FORMAT,%d incorrect attempts,错误尝试 %d 次
+Hint used,Hint used,使用过提示
+Order of Operations,Order of Operations,运算顺序
+Addition and Regrouping,Addition and Regrouping,加法与重组
+"Resolve the operations inside parentheses before the surrounding operation. Each transformation must preserve the expression's value.","Resolve the operations inside parentheses before the surrounding operation. Each transformation must preserve the expression's value.",先计算括号内的运算，再处理括号外的运算。每一步变换都必须保持原表达式的值不变。
+"Resolve multiplication and division before addition and subtraction, working from left to right within the same priority.","Resolve multiplication and division before addition and subtraction, working from left to right within the same priority.",先算乘除，再算加减；同一优先级的运算按照从左到右的顺序进行。
+"When decomposing division, split the dividend into parts that are each divisible by the divisor.","When decomposing division, split the dividend into parts that are each divisible by the divisor.",分解除法时，应将被除数拆成若干个都能被除数整除的部分。
+"Decompose a factor into useful parts, calculate each partial product, and then combine the partial products.","Decompose a factor into useful parts, calculate each partial product, and then combine the partial products.",将一个因数拆成便于计算的部分，分别求出部分积，再把部分积相加。
+Decompose the amount being subtracted into manageable parts while preserving the original difference.,Decompose the amount being subtracted into manageable parts while preserving the original difference.,将减数拆成便于计算的部分，同时保持原来的差不变。
+Decompose and regroup the addends to make friendly totals while preserving the original sum.,Decompose and regroup the addends to make friendly totals while preserving the original sum.,拆分并重新组合加数，凑成便于计算的整十数，同时保持原来的和不变。
 Choose a Level,Choose a Level,选择关卡
 LEVEL_COUNT_FORMAT,%d of %d Levels,显示 %d / %d 个关卡
 LEVEL_NUMBER_FORMAT,LEVEL %02d,关卡 %02d

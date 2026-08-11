@@ -7,6 +7,7 @@ extends Button
 #region ========== Signals ==========
 
 signal levelSelected(levelId: String)
+signal featureSelected(featureId: String)
 
 #endregion
 
@@ -30,6 +31,7 @@ var levelNumber: int = 1
 var completedQuestions: int = 0
 var levelCompleted: bool = false
 var levelNeedsPractice: bool = false
+var bestStars: int = 0
 var isFeatureCard: bool = false
 var featureBadge: String = ""
 var featureDescription: String = ""
@@ -58,6 +60,7 @@ func Setup(levelData: Dictionary, displayLevelNumber: int, progressData: Diction
 	completedQuestions = progressData.get("completedQuestions", 0)
 	levelCompleted = progressData.get("completed", false)
 	levelNeedsPractice = progressData.get("needsPractice", false)
+	bestStars = clampi(progressData.get("bestStars", 0), 0, 3)
 
 	if is_node_ready():
 		UpdateDisplay()
@@ -85,6 +88,10 @@ func UpdateDisplay() -> void:
 	titleLabel.text = tr(levelTitle)
 	skillsLabel.text = FormatSkills(levelSkills)
 	progressLabel.text = GetProgressText()
+	progressLabel.add_theme_color_override(
+		"font_color",
+		Color(0.98, 0.78, 0.28, 1) if bestStars > 0 else Color(0.45, 0.82, 1, 1)
+	)
 	tooltip_text = "Select " + levelTitle
 
 # Presents a secondary feature using the Level Card's established visual language.
@@ -107,16 +114,19 @@ func FormatSkills(skills: Array) -> String:
 
 # Returns a concise current-session progress label for this Level.
 func GetProgressText() -> String:
+	var starText := GetStarText()
+
 	if levelCompleted:
-		return tr("Completed").to_upper()
+		return "%s  %s" % [starText, tr("Completed").to_upper()]
 
 	if levelNeedsPractice:
-		return tr("Needs Practice").to_upper()
+		return "%s  %s" % [starText, tr("Needs Practice").to_upper()]
 
-	if completedQuestions > 0:
-		return "%s  %d/%d" % [tr("In Progress").to_upper(), completedQuestions, questionCount]
+	return "%s  %s" % [starText, tr("Not Started").to_upper()]
 
-	return tr("Not Started").to_upper()
+# Formats the best historical rating as three stable star characters.
+func GetStarText() -> String:
+	return String.chr(9733).repeat(bestStars) + String.chr(9734).repeat(3 - bestStars)
 
 # Updates the card's visual toggle state without changing gameplay state.
 func SetSelectedState(isSelected: bool) -> void:
@@ -128,6 +138,10 @@ func SetSelectedState(isSelected: bool) -> void:
 
 # Emits the stored Level ID for the Lobby to forward to GameManager.
 func _on_pressed() -> void:
+	if isFeatureCard:
+		featureSelected.emit(levelId)
+		return
+
 	levelSelected.emit(levelId)
 
 #endregion
