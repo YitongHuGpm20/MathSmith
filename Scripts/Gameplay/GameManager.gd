@@ -115,6 +115,7 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	gameUI.checkRequested.connect(CheckAnswer)
 	gameUI.hintRequested.connect(UseHint)
 	gameUI.retryRequested.connect(RestartLevel)
+	gameUI.nextLevelRequested.connect(OpenNextLevel)
 	gameUI.lobbyRequested.connect(BackToLobby)
 	gameUI.orderChanged.connect(UpdateHintAvailability)
 	gameUI.choiceSelected.connect(SelectMultipleChoice)
@@ -151,6 +152,9 @@ func DisconnectGameUISignals() -> void:
 
 	if gameUI.retryRequested.is_connected(RestartLevel):
 		gameUI.retryRequested.disconnect(RestartLevel)
+
+	if gameUI.nextLevelRequested.is_connected(OpenNextLevel):
+		gameUI.nextLevelRequested.disconnect(OpenNextLevel)
 
 	if gameUI.lobbyRequested.is_connected(BackToLobby):
 		gameUI.lobbyRequested.disconnect(BackToLobby)
@@ -230,7 +234,9 @@ func GetLevelProgress(levelId: String) -> Dictionary:
 		{
 			"completedQuestions": 0,
 			"completed": false,
-			"needsPractice": false
+			"needsPractice": false,
+			"bestScore": -1,
+			"bestStars": 0
 		}
 	)
 
@@ -249,18 +255,26 @@ func RecordQuestionCompletion() -> void:
 	levelProgress[levelId] = progressData
 
 # Records the completed session as Level Complete or Needs Practice.
-func RecordLevelResult(starCount: int) -> void:
+func RecordLevelResult(starCount: int) -> Dictionary:
 	var levelId: String = GetSelectedLevelId()
 
 	if levelId.is_empty():
-		return
+		return {}
 
 	var progressData := GetLevelProgress(levelId)
 	var wasCompleted: bool = progressData.get("completed", false)
+	var previousBestScore: int = progressData.get("bestScore", -1)
+	var isNewBest := currentLevelScore > previousBestScore
 	progressData["completedQuestions"] = currentLevel.get("questions", []).size()
 	progressData["completed"] = wasCompleted or starCount >= 1
 	progressData["needsPractice"] = not progressData["completed"] and starCount == 0
+	progressData["bestScore"] = maxi(previousBestScore, currentLevelScore)
+	progressData["bestStars"] = maxi(progressData.get("bestStars", 0), starCount)
 	levelProgress[levelId] = progressData
+	return {
+		"bestScore": progressData["bestScore"],
+		"isNewBest": isNewBest
+	}
 
 # Loads the requested question and prepares its ordered and shuffled steps.
 func LoadQuestion(questionIndex: int) -> void:
@@ -765,8 +779,23 @@ func GoToNextQuestion() -> void:
 		var maxLevelScore: int = questions.size() * MAX_QUESTION_SCORE
 		var starCount := CalculateStarRating(currentLevelScore, maxLevelScore)
 		var scorePercentage := roundi(float(currentLevelScore) / float(maxLevelScore) * 100.0)
-		RecordLevelResult(starCount)
-		gameUI.ShowEndMenu(currentLevelScore, maxLevelScore, scorePercentage, starCount)
+		var resultData := RecordLevelResult(starCount)
+		var currentLevelIndex := levels.find(currentLevel)
+		gameUI.ShowEndMenu({
+			"levelTitle": currentLevel.get("title", "Untitled Level"),
+			"levelTypeTitle": GetLevelTypeById(selectedLevelTypeId).get("title", "Unknown Mode"),
+			"score": currentLevelScore,
+			"maxScore": maxLevelScore,
+			"percentage": scorePercentage,
+			"stars": starCount,
+			"questionsCompleted": questions.size(),
+			"questionCount": questions.size(),
+			"incorrectAttempts": currentLevelIncorrectAttempts,
+			"hintsUsed": currentLevelHintsUsed,
+			"bestScore": resultData.get("bestScore", currentLevelScore),
+			"isNewBest": resultData.get("isNewBest", false),
+			"hasNextLevel": currentLevelIndex >= 0 and currentLevelIndex < levels.size() - 1
+		})
 		return
 
 	LoadQuestion(nextQuestionIndex)
@@ -850,6 +879,17 @@ func RestartLevel() -> void:
 	gameUI.HideEndMenu()
 	ResetLevelScoring()
 	LoadQuestion(0)
+
+# Starts the next data-driven Level while preserving the selected Level Type.
+func OpenNextLevel() -> void:
+	var currentLevelIndex := levels.find(currentLevel)
+
+	if currentLevelIndex < 0 or currentLevelIndex >= levels.size() - 1:
+		OpenLobby()
+		return
+
+	if SelectLevel(levels[currentLevelIndex + 1].get("id", "")):
+		OpenGame()
 
 # Returns to the Lobby while preserving current-session Level progress.
 func BackToLobby() -> void:

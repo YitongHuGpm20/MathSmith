@@ -9,6 +9,7 @@ extends Node
 signal checkRequested
 signal hintRequested
 signal retryRequested
+signal nextLevelRequested
 signal lobbyRequested
 signal orderChanged
 signal choiceSelected(choiceText: String)
@@ -52,6 +53,11 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var completeIcon: TextureRect = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CompleteIcon"
 @onready var starsLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsLabel"
 @onready var resultLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ResultLabel"
+@onready var sessionMetaLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/SessionMetaLabel"
+@onready var statsLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StatsLabel"
+@onready var bestScoreLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/BestScoreLabel"
+@onready var newBestLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/NewBestLabel"
+@onready var nextLevelButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/NextLevelButton"
 @onready var retryButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RetryButton"
 @onready var lobbyButton: Button = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/LobbyButton"
 
@@ -73,6 +79,7 @@ func _ready() -> void:
 	checkButton.pressed.connect(_on_check_button_pressed)
 	topLobbyButton.pressed.connect(_on_lobby_button_pressed)
 	retryButton.pressed.connect(_on_retry_button_pressed)
+	nextLevelButton.pressed.connect(_on_next_level_button_pressed)
 	lobbyButton.pressed.connect(_on_lobby_button_pressed)
 	stepArea.orderChanged.connect(_on_step_order_changed)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
@@ -510,7 +517,11 @@ func ShowDataError(message: String) -> void:
 	checkButton.disabled = true
 
 # Displays the level completion overlay and result text.
-func ShowEndMenu(levelScore: int, maxLevelScore: int, scorePercentage: int, starCount: int) -> void:
+func ShowEndMenu(summaryData: Dictionary) -> void:
+	var levelScore: int = summaryData.get("score", 0)
+	var maxLevelScore: int = summaryData.get("maxScore", 0)
+	var scorePercentage: int = summaryData.get("percentage", 0)
+	var starCount: int = summaryData.get("stars", 0)
 	var levelCompleted := starCount >= 1
 	completeLabel.text = "LEVEL COMPLETE" if levelCompleted else "NEEDS PRACTICE"
 	completeLabel.add_theme_color_override(
@@ -522,7 +533,26 @@ func ShowEndMenu(levelScore: int, maxLevelScore: int, scorePercentage: int, star
 	)
 	completeIcon.visible = levelCompleted
 	starsLabel.text = "★".repeat(starCount) + "☆".repeat(3 - starCount)
+	sessionMetaLabel.text = "%s\n%s" % [
+		summaryData.get("levelTitle", "Untitled Level"),
+		summaryData.get("levelTypeTitle", "Unknown Mode")
+	]
 	resultLabel.text = "Score %d / %d  •  %d%%" % [levelScore, maxLevelScore, scorePercentage]
+	statsLabel.text = (
+		"Questions Completed     %d / %d\nIncorrect Attempts       %d\nHints Used               %d"
+		% [
+			summaryData.get("questionsCompleted", 0),
+			summaryData.get("questionCount", 0),
+			summaryData.get("incorrectAttempts", 0),
+			summaryData.get("hintsUsed", 0)
+		]
+	)
+	bestScoreLabel.text = "Best Score  %d / %d" % [
+		summaryData.get("bestScore", levelScore),
+		maxLevelScore
+	]
+	newBestLabel.visible = summaryData.get("isNewBest", false)
+	nextLevelButton.visible = levelCompleted and summaryData.get("hasNextLevel", false)
 	retryButton.text = "Play Again" if levelCompleted else "Try Again"
 	endMenu.visible = true
 
@@ -548,6 +578,10 @@ func _on_hint_button_pressed() -> void:
 # Forwards the retry request to GameManager.
 func _on_retry_button_pressed() -> void:
 	retryRequested.emit()
+
+# Forwards the next-Level request to the gameplay owner.
+func _on_next_level_button_pressed() -> void:
+	nextLevelRequested.emit()
 
 # Forwards the Lobby request to GameManager.
 func _on_lobby_button_pressed() -> void:

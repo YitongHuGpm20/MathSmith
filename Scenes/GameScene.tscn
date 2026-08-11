@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://b8tycbj4qxcqq"]
+[gd_scene load_steps=17 format=3 uid="uid://b8tycbj4qxcqq"]
 
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="1_theme"]
 [ext_resource type="Script" path="res://Scripts/UI/StepArea.gd" id="2_step_area"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" path="res://Assets/Icons/replay.svg" id="8_replay"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/correct.svg" id="9_correct"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/score.svg" id="10_score"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/next.svg" id="11_next"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionPanelStyle"]
 bg_color = Color(0.045, 0.115, 0.19, 0.98)
@@ -301,7 +302,7 @@ theme_override_styles/panel = SubResource("OverlayStyle")
 layout_mode = 2
 
 [node name="PanelContainer" type="PanelContainer" parent="EndMenu/CenterContainer" unique_id=522565460]
-custom_minimum_size = Vector2(440, 300)
+custom_minimum_size = Vector2(620, 680)
 layout_mode = 2
 theme_override_styles/panel = SubResource("ModalStyle")
 
@@ -339,6 +340,13 @@ theme_override_font_sizes/font_size = 34
 text = "★★★"
 horizontal_alignment = 1
 
+[node name="SessionMetaLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.79, 0.9, 1)
+theme_override_font_sizes/font_size = 17
+text = "Addition Basics\nStep Ordering"
+horizontal_alignment = 1
+
 [node name="ResultLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=466808595]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.77, 0.85, 1)
@@ -346,12 +354,51 @@ theme_override_font_sizes/font_size = 17
 text = "Score 500 / 500  •  100%"
 horizontal_alignment = 1
 
+[node name="SummaryDivider" type="HSeparator" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="StatsLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.77, 0.85, 1)
+theme_override_font_sizes/font_size = 16
+text = "Questions Completed     5 / 5\nIncorrect Attempts       0\nHints Used               0"
+horizontal_alignment = 1
+line_spacing = 8
+
+[node name="BestScoreLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 17
+text = "Best Score  500"
+horizontal_alignment = 1
+
+[node name="NewBestLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.78, 0.28, 1)
+theme_override_font_sizes/font_size = 16
+text = "NEW BEST"
+horizontal_alignment = 1
+
+[node name="NextLevelButton" type="Button" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(250, 46)
+layout_mode = 2
+text = "Next Level"
+icon = ExtResource("11_next")
+icon_max_width = 19
+
 [node name="RetryButton" type="Button" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1508312665]
 custom_minimum_size = Vector2(250, 46)
 layout_mode = 2
 text = "Play Again"
 icon = ExtResource("8_replay")
 icon_max_width = 19
+
+[node name="ReviewMistakesButton" type="Button" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(250, 46)
+layout_mode = 2
+disabled = true
+tooltip_text = "Mistake Book will be available later in M4."
+text = "Review Mistakes"
 
 [node name="LobbyButton" type="Button" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=837141509]
 custom_minimum_size = Vector2(250, 46)
