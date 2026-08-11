@@ -22,6 +22,23 @@ Home,Home,主页
 Step Ordering,Step Ordering,步骤排序
 Multiple-Choice Ordering,Multiple-Choice Ordering,多项选择排序
 Fill in the Process,Fill in the Process,过程填空
+Other,Other,其他
+Open additional practice and replay modes.,Open additional practice and replay modes.,打开更多练习与重复游玩模式。
+All Features,All Features,所有功能
+FEATURE_COUNT_FORMAT,%d of %d Features,显示 %d / %d 个功能
+OTHER_FEATURE,OTHER,其他
+Mistake Book,Mistake Book,错题本
+Mistake Practice,Mistake Practice,错题练习
+Zen Mode,Zen Mode,禅模式
+Survival Mode,Survival Mode,生存模式
+REVIEW,REVIEW,复习
+10 QUESTIONS,10 QUESTIONS,10 道题
+3 MINUTES,3 MINUTES,3 分钟
+3 LIVES,3 LIVES,3 条命
+Review saved mistakes and their solution process.,Review saved mistakes and their solution process.,复习已保存的错题及其解题过程。
+Practice 10 random Questions from all saved mistakes.,Practice 10 random Questions from all saved mistakes.,从全部错题中随机练习 10 道题。
+Solve random Questions from the full pool for 3 minutes.,Solve random Questions from the full pool for 3 minutes.,在 3 分钟内随机解答完整题库中的题目。
+Solve random Questions with three lives and no time limit.,Solve random Questions with three lives and no time limit.,使用三条命随机答题，不设时间限制。
 Choose a Level,Choose a Level,选择关卡
 LEVEL_COUNT_FORMAT,%d of %d Levels,显示 %d / %d 个关卡
 LEVEL_NUMBER_FORMAT,LEVEL %02d,关卡 %02d

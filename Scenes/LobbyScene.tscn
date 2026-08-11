@@ -1,14 +1,16 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/LobbyUI.gd" id="1_lobby_ui"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/home.svg" id="3_home"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]
-[ext_resource type="Texture2D" path="res://Assets/Icons/check.svg" id="5_check"]
-[ext_resource type="Texture2D" path="res://Assets/Icons/lock.svg" id="6_lock"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/steps.svg" id="5_steps"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/choice.svg" id="6_choice"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/search.svg" id="7_search"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/filter.svg" id="8_filter"]
 [ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="9_settings_panel"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/fill.svg" id="10_fill"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/other.svg" id="11_other"]
 
 [node name="LobbyScene" type="Control"]
 layout_mode = 3
@@ -97,7 +99,7 @@ layout_mode = 2
 toggle_mode = true
 button_pressed = true
 text = "Step Ordering"
-icon = ExtResource("5_check")
+icon = ExtResource("5_steps")
 icon_max_width = 18
 
 [node name="ChoiceOrderingButton" type="Button" parent="MainMargin/MainLayout/LevelTypeRow"]
@@ -105,7 +107,7 @@ custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 toggle_mode = true
 text = "Multiple-Choice Ordering"
-icon = ExtResource("5_check")
+icon = ExtResource("6_choice")
 icon_max_width = 18
 
 [node name="FillProcessButton" type="Button" parent="MainMargin/MainLayout/LevelTypeRow"]
@@ -113,7 +115,16 @@ custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 toggle_mode = true
 text = "Fill in the Process"
-icon = ExtResource("5_check")
+icon = ExtResource("10_fill")
+icon_max_width = 18
+
+[node name="OtherButton" type="Button" parent="MainMargin/MainLayout/LevelTypeRow"]
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+toggle_mode = true
+tooltip_text = "Open additional practice and replay modes."
+text = "Other"
+icon = ExtResource("11_other")
 icon_max_width = 18
 
 [node name="SearchRow" type="HBoxContainer" parent="MainMargin/MainLayout"]

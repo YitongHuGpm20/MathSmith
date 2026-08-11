@@ -30,6 +30,9 @@ var levelNumber: int = 1
 var completedQuestions: int = 0
 var levelCompleted: bool = false
 var levelNeedsPractice: bool = false
+var isFeatureCard: bool = false
+var featureBadge: String = ""
+var featureDescription: String = ""
 
 #endregion
 
@@ -46,6 +49,7 @@ func _ready() -> void:
 
 # Stores one Level definition and refreshes this reusable card.
 func Setup(levelData: Dictionary, displayLevelNumber: int, progressData: Dictionary) -> void:
+	isFeatureCard = false
 	levelId = levelData.get("id", "")
 	levelTitle = levelData.get("title", "Untitled Level")
 	levelSkills = levelData.get("skills", [])
@@ -58,14 +62,39 @@ func Setup(levelData: Dictionary, displayLevelNumber: int, progressData: Diction
 	if is_node_ready():
 		UpdateDisplay()
 
+# Stores one secondary feature definition in the existing reusable card layout.
+func SetupFeature(featureData: Dictionary) -> void:
+	isFeatureCard = true
+	levelId = featureData.get("id", "")
+	levelTitle = featureData.get("title", "Other")
+	featureBadge = featureData.get("badge", "")
+	featureDescription = featureData.get("description", "")
+	set_pressed_no_signal(false)
+
+	if is_node_ready():
+		UpdateDisplay()
+
 # Updates all card text from its stored Level data.
 func UpdateDisplay() -> void:
+	if isFeatureCard:
+		UpdateFeatureDisplay()
+		return
+
 	levelNumberLabel.text = tr("LEVEL_NUMBER_FORMAT") % levelNumber
 	questionCountLabel.text = tr("QUESTION_COUNT_FORMAT") % questionCount
 	titleLabel.text = tr(levelTitle)
 	skillsLabel.text = FormatSkills(levelSkills)
 	progressLabel.text = GetProgressText()
 	tooltip_text = "Select " + levelTitle
+
+# Presents a secondary feature using the Level Card's established visual language.
+func UpdateFeatureDisplay() -> void:
+	levelNumberLabel.text = tr("OTHER_FEATURE")
+	questionCountLabel.text = tr(featureBadge)
+	titleLabel.text = tr(levelTitle)
+	skillsLabel.text = tr(featureDescription)
+	progressLabel.text = ""
+	tooltip_text = tr(featureDescription)
 
 # Converts snake_case Skill IDs into readable display labels.
 func FormatSkills(skills: Array) -> String:
