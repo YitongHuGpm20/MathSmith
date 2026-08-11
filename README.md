@@ -15,11 +15,11 @@ Players rebuild mathematical reasoning through three interaction types, receive 
 
 The presentation and milestone recordings will be added to the following locations:
 
-- [View MathSmith Portfolio Presentation](Docs/Presentation/MathSmith_Portfolio.pdf)
-- [M1 — Core Foundation Recording](Docs/Recordings/MathSmith_M1.mp4)
-- [M2 — Content Expansion & UI Foundation Recording](Docs/Recordings/MathSmith_M2.mp4)
-- [M3 — Gameplay Expansion & Polish Recording](Docs/Recordings/MathSmith_M3.mp4)
-- [M4 — Learning Loop & Replayability Recording](Docs/Recordings/MathSmith_M4.mp4)
+- [View MathSmith Portfolio Presentation](Docs/Presentation/MathSmith.pptx)
+- [M1 — Core Foundation Recording](Docs/Recordings/MathSmith_Demo_M1.mp4)
+- [M2 — Content Expansion & UI Foundation Recording](Docs/Recordings/MathSmith_Demo_M2.mp4)
+- [M3 — Gameplay Expansion & Polish Recording](Docs/Recordings/MathSmith_Demo_M3.mp4)
+- [M4 — Learning Loop & Replayability Recording](Docs/Recordings/MathSmith_Demo_M4.mp4)
 
 > These links are reserved for the final media files and will become active once the presentation and recordings are added.
 
