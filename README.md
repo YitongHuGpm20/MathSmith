@@ -1,358 +1,553 @@
-# MathSmith
+# Future Development Roadmap
 
-**A data-driven educational math game about understanding the process—not just entering the answer.**
+M1–M4 establish the core gameplay, content architecture, learning loop, progression, persistence, and replay systems.
 
-MathSmith is a Godot-based portfolio project created by **Yitong Hu** to demonstrate educational game technical design, gameplay design, UI/UX implementation, data-driven content development, and milestone-based project planning.
-
-Players rebuild mathematical reasoning through three interaction types, receive progressively more useful feedback, review saved mistakes, and replay the full question pool through focused challenge modes.
-
-> Project status: **M1–M4 complete**  
-> Engine: **Godot 4.7.1**  
-> Target resolution: **1920 × 1080**  
-> Languages: **English and Simplified Chinese**
-
-## Portfolio Presentation and Milestone Recordings
-
-The presentation and milestone recordings were added to the following locations:
-
-- [View MathSmith Portfolio Presentation](Docs/Presentation/MathSmith.pptx)
-- [View MathSmith Portfolio Presentation online](https://docs.google.com/presentation/d/1pEMtKXkR5GvK5Gaz90E30Xhha7ux3LYvIaGfRUnblSA/edit?usp=sharing)
-- [M1 — Core Foundation Recording](Docs/Recordings/MathSmith_Demo_M1.mp4)
-- [M2 — Content Expansion & UI Foundation Recording](Docs/Recordings/MathSmith_Demo_M2.mp4)
-- [M3 — Gameplay Expansion & Polish Recording](Docs/Recordings/MathSmith_Demo_M3.mp4)
-- [M4 — Learning Loop & Replayability Recording](Docs/Recordings/MathSmith_Demo_M4.mp4)
-
-> These links are reserved for the final media files and will become active once the presentation and recordings are added.
-
-## Project Goals
-
-MathSmith was designed around four goals:
-
-- Teach the reasoning between a question and its answer.
-- Present mathematical transformations in school-appropriate steps.
-- Reuse one content source across multiple gameplay interactions.
-- Build a complete learning loop with feedback, review, progress, and replayability.
-
-## My Role
-
-**Educational Game Technical Designer / Game Designer / Project Planner**
-
-I designed and implemented:
-
-- Core gameplay rules and interaction flows
-- Data-driven Level and Question architecture
-- Mathematical expression parsing and Step generation
-- Educational feedback, Hint, scoring, and review systems
-- Home, Lobby, gameplay, Settings, and review UI/UX
-- Local Save and bilingual localization systems
-- Milestone scope, development order, testing priorities, and iteration plans
-
-## Core Experience
-
-MathSmith uses the following learning loop:
+The remaining milestones intentionally move outward from the player experience:
 
 ```text
-Choose Content
-→ Rebuild the Solution Process
-→ Receive Progressive Feedback
-→ Earn Score and Stars
-→ Save Progress
-→ Review Mistakes
-→ Replay Through Practice Modes
+M5
+Understand the Learner
+		↓
+M6
+Enable Content Authors
+		↓
+M7
+Connect the Systems Through Guided Support
 ```
 
-The project currently contains:
-
-- **12 Levels**
-- **90 Questions**
-- **3 core gameplay interactions**
-- **4 secondary learning and replay features**
-- **English and Simplified Chinese localization**
-- **Versioned Local Save data**
-
-## Core Gameplay Interactions
-
-### Step Ordering
-
-Players drag complete solution steps into the correct order. The interaction emphasizes the structure and sequence of a mathematical process.
-
-### Multiple-Choice Ordering
-
-Players select the correct next step from a set of plausible alternatives. Incorrect options are generated deterministically and filtered to avoid equivalent answers.
-
-### Fill in the Process
-
-Players complete missing values inside a generated solution process. This mode focuses attention on the arithmetic connecting one transformation to the next.
-
-All three interactions reuse the same Level data, expressions, generated correct steps, scoring rules, Hint budget, and progressive feedback framework.
-
-## Learning and Replay Features
-
-### Progressive Error Feedback
-
-Feedback becomes more informative across consecutive incorrect attempts:
-
-1. Generic retry guidance
-2. Directional feedback about the relevant mathematical area
-3. Contextual explanation of the violated rule
-
-The automatic feedback system remains separate from player-requested Hints.
-
-### Mistake Book
-
-A Question is saved when the player makes repeated incorrect attempts or uses a Hint. Each saved entry includes:
-
-- Original expression
-- Source Level and gameplay interaction
-- Skill tags
-- Reason it was saved
-- Deterministic mathematical explanation
-- Complete correct solution process
-
-### Mistake Practice
-
-Creates a randomized practice session using up to 10 unique Mistake Book entries. Each Question retains the gameplay interaction in which it was originally recorded.
-
-### Zen Mode
-
-A three-minute mixed-mode session using the complete Question pool. It tracks solved Questions, accuracy, and the player's best solved count while preventing immediate Question repetition.
-
-### Survival Mode
-
-An untimed mixed-mode session with three shared lives. Every incorrect submission or incorrect option removes one life. The session saves the player's best solved count.
-
-## Milestone Development
-
-### M1 — Core Foundation
-
-#### Core Systems
-
-- Established the Godot project structure and Home → Lobby → Game flow
-- Implemented JSON content loading and validation
-- Implemented `ExpressionParser` and `StepGenerator`
-- Built the initial `GameManager` gameplay loop
-
-#### New Features
-
-- Step Ordering gameplay
-- Drag-and-drop Step Cards
-- Check, Hint, and Question progression
-- Basic correct and incorrect feedback
-
-#### UI / UX
-
-- Initial Home, Lobby, and Game scenes
-- Reusable Level Card and Step Card components
-- Basic navigation between all primary scenes
-
-#### Fixes and Optimization
-
-- Resolved initial scene and resource reference problems
-- Fixed Step Card setup and answer validation issues
-- Established consistent script, file, function, and variable naming
-
-### M2 — Content Expansion & UI Foundation
-
-#### Core Systems
-
-- Expanded the shared content schema to 12 Levels and 90 Questions
-- Improved generated solution steps to match recognizable classroom strategies
-- Added flexible three-to-five-step and longer solution processes
-
-#### New Features
-
-- Data-driven Level selection
-- Expanded Home, Lobby, Game, Settings, and Credits navigation
-- Local UI sound effects
-- Local Lucide icon library
-
-#### UI / UX
-
-- Established the 1920 × 1080 dark educational-technology visual language
-- Standardized cards, buttons, spacing, typography, and responsive behavior
-- Redesigned HomeScene and LobbyScene
-
-#### Fixes and Optimization
-
-- Removed trivial two-single-digit questions and unnecessary `+ 0` steps
-- Removed unnecessary single-number parentheses
-- Refined make-ten, decomposition, regrouping, and order-of-operations steps
-- Fixed Theme parsing and moved-resource reference errors
-
-### M3 — Gameplay Expansion & Polish
-
-#### New Features
-
-- Multiple-Choice Ordering
-- Fill in the Process
-- Progressive Error Feedback
-- Lobby search and filtering
-
-#### Extended Features
-
-- Shared Question content across all three gameplay interactions
-- Mode-specific deterministic Hint behavior
-- Search across Levels, Skills, Question IDs, and expressions
-
-#### UI / UX
-
-- Unified presentation across all three interactions
-- Improved expression alignment, input spacing, and wide-screen readability
-- Supported up to five visible Step Cards at the target resolution
-
-#### Fixes and Optimization
-
-- Reworked drag behavior so the entire selected card follows the pointer
-- Added dynamic Step Card reordering
-- Fixed rapid-Hint overlap and repeated-Check validation problems
-- Locked interactive options after a correct answer
-- Separated completion records by gameplay interaction
-
-### M4 — Learning Loop & Replayability
-
-#### New Features
-
-- Question and Level scoring
-- Best-score and star-rating persistence
-- Shared limited Hint budgets
-- Level Complete and Needs Practice results
-- Session Summary
-- First-time interaction tutorials
-- English and Simplified Chinese localization
-- Versioned Local Save system
-
-#### Extended Features
-
-- Mistake Book with explanations and correct answers
-- Randomized Mistake Practice
-- Three-minute Zen Mode
-- Three-life Survival Mode
-- Persistent replay records
-
-#### UI / UX
-
-- Level progress bar and best-star display
-- Score icon and score-gain animation
-- Remaining Hint display
-- Zen timer with final-ten-second warning
-- Survival life display
-- Reusable Settings and Mistake Book screens
-- Other category for secondary learning and replay features
-
-#### Fixes and Optimization
-
-- Prevented interrupted Levels from saving partial progress
-- Improved Hint availability and rapid-animation safety
-- Fixed incorrect cross-mode progress sharing
-- Added old-save migration and missing-section recovery
-- Reorganized UI scripts into `Screens` and `Components`
-- Extracted focused progress, Mistake Book, Zen, Survival, and choice-generation services
-
-## Educational Design Approach
-
-MathSmith does not simply reduce every expression to its final value. `StepGenerator` creates intermediate transformations intended to resemble strategies used in real classrooms, including:
-
-- Making ten
-- Decomposing by place value
-- Regrouping addends
-- Partial products
-- Division decomposition
-- Parentheses and operation precedence
-- Multi-step expression reduction
-
-For example:
+The following tasks are planned, not currently implemented.
+
+---
+
+# M5 — Analytics & Adaptive Learning
+
+**Goal: Observe player behavior, identify learning patterns, and use those findings to improve practice.**
+
+M5 extends the existing score, Mistake Book, Skill Tag, Local Save, and replay systems rather than replacing them.
+
+## Behavior Tracking
+
+- [ ] Create a lightweight gameplay telemetry model
+- [ ] Record Question start and completion timestamps
+- [ ] Record total solve time
+- [ ] Record time before first player action
+- [ ] Record incorrect attempts
+- [ ] Record Hint usage
+- [ ] Record highest Progressive Error Feedback level reached
+- [ ] Record gameplay interaction type
+- [ ] Record associated Skill Tags
+- [ ] Record Question Score
+- [ ] Record Level Score
+- [ ] Record Step Ordering drag / reorder count
+- [ ] Record Multiple-Choice selection changes
+- [ ] Record Fill in the Process answer revisions
+- [ ] Store completed session telemetry through Local Save
+- [ ] Define a lightweight Player History schema
+
+## Skill Analysis
+
+- [ ] Aggregate results by Skill Tag
+- [ ] Calculate Skill-level accuracy
+- [ ] Calculate average attempts by Skill
+- [ ] Calculate average Hint usage by Skill
+- [ ] Calculate average solve time by Skill
+- [ ] Compare performance across gameplay interactions
+- [ ] Identify repeated error categories
+- [ ] Create simple Skill Mastery values
+- [ ] Separate observed behavior from inferred player ability
+
+## Learning Behavior Patterns
+
+- [ ] Define observable solving patterns without over-claiming cognition
+- [ ] Compare first-action time with later correction behavior
+- [ ] Detect repeated submission / brute-force patterns
+- [ ] Detect high-revision exploratory solving patterns
+- [ ] Detect high-confidence first-attempt patterns
+- [ ] Document which conclusions are evidence-based versus hypotheses
+
+Example:
 
 ```text
-8 + 5 + 7
-= 8 + (2 + 3) + 7
-= (8 + 2) + (3 + 7)
-= 10 + 10
-= 20
+Observed:
+Long first-action time
+Low revision count
+First-attempt success
+
+Possible interpretation:
+Deliberate solving pattern
+
+Do not claim:
+"This player is a deliberate thinker."
 ```
 
-## Technical Architecture
+## Adaptive Practice
+
+- [ ] Identify currently weak Skills
+- [ ] Recommend relevant Levels
+- [ ] Recommend Mistake Practice when appropriate
+- [ ] Add weighted Question selection based on weak Skills
+- [ ] Allow Practice sessions to favor weak Skills
+- [ ] Allow Zen Mode Question weights to adapt to player performance
+- [ ] Prevent adaptive weighting from eliminating content variety
+- [ ] Keep recommendation logic deterministic and explainable
+
+## Player-Facing Skill Mastery
+
+- [ ] Create a Skill Mastery screen
+- [ ] Display Skill percentages
+- [ ] Display simple mastery states
+- [ ] Show improvement over recent sessions
+- [ ] Link weak Skills to relevant practice
+- [ ] Connect Skill Mastery to Player History
+
+Potential states:
 
 ```text
-MathSmith/
-├── Assets/
-│   ├── Icons/
-│   └── SFX/
-├── Data/
-│   └── SampleLevels.json
-├── Localization/
-├── Scenes/
-│   └── Menus/
-├── Scripts/
-│   ├── Gameplay/
-│   │   ├── GameManager.gd
-│   │   ├── LevelLoader.gd
-│   │   ├── SaveManager.gd
-│   │   ├── ProgressManager.gd
-│   │   ├── MistakeBookManager.gd
-│   │   ├── ZenModeManager.gd
-│   │   └── SurvivalModeManager.gd
-│   ├── Math/
-│   │   ├── ExpressionParser.gd
-│   │   ├── StepGenerator.gd
-│   │   └── ChoiceGenerator.gd
-│   └── UI/
-│       ├── Screens/
-│       └── Components/
-└── Themes/
+Mastered
+Strong
+Developing
+Needs Practice
 ```
 
-### Architectural Principles
+## Developer / Analytics Overlay
 
-- JSON is the single source of truth for Level and Question content.
-- Gameplay interactions consume the same generated correct process.
-- Gameplay logic remains separate from visual presentation.
-- Persistent systems use a versioned Save schema.
-- Replay modes do not overwrite standard Level progress.
-- Error explanations and distractors are deterministic and rule-based.
-- No LLM is used at runtime.
+- [ ] Create a developer-facing analytics screen
+- [ ] Show current session telemetry
+- [ ] Show Skill performance summaries
+- [ ] Show interaction-mode performance
+- [ ] Show repeated error categories
+- [ ] Show Hint usage patterns
+- [ ] Show first-action and solve-time statistics
+- [ ] Add filters for Level, Skill, Mode, and Question
+- [ ] Keep developer analytics separate from player-facing UI
 
-## Running the Project
+## M5 Validation
 
-1. Install Godot 4.7.1 or a compatible Godot 4.x version.
-2. Clone this repository.
-3. Import `project.godot` through the Godot Project Manager.
-4. Run the project from `HomeScene`.
+- [ ] Confirm telemetry does not alter gameplay behavior
+- [ ] Confirm saved analytics remain compatible with existing Save data
+- [ ] Review whether every tracked metric has a clear purpose
+- [ ] Remove telemetry that does not support a product or design decision
+- [ ] Validate Skill calculations with representative player histories
+- [ ] Confirm adaptive practice remains transparent and predictable
 
-The project is configured for a 1920 × 1080 viewport with responsive `canvas_items` stretching.
+### M5 Key Question
 
-## Controls
+> **What can player behavior tell us about where the learner is struggling, without making unsupported assumptions about cognition?**
 
-- **Mouse:** Navigate UI, choose options, and drag Step Cards
-- **Check:** Validate Step Ordering or Fill in the Process
-- **Hint:** Request limited mode-specific assistance
-- **Next:** Advance after completing a Question
+---
 
-## Save Data
+# M6 — Content Authoring Pipeline
 
-MathSmith stores local progress through Godot's `user://` directory:
+**Goal: Allow teachers, curriculum designers, and content specialists to create and validate MathSmith content without editing project code.**
+
+M6 moves MathSmith from a developer-authored prototype toward a reusable content platform.
+
+## Authoring Schema
+
+- [ ] Review the current JSON schema for author-facing requirements
+- [ ] Define required and optional content fields
+- [ ] Document Level Type fields
+- [ ] Document Level fields
+- [ ] Document Question fields
+- [ ] Document Skill Tag conventions
+- [ ] Define unique ID requirements
+- [ ] Define supported mathematical syntax
+- [ ] Define validation rules
+- [ ] Define content versioning strategy
+
+## CSV Template
+
+- [ ] Create a downloadable CSV template
+- [ ] Add example rows
+- [ ] Add human-readable column names
+- [ ] Document required fields
+- [ ] Document supported operators and syntax
+- [ ] Document Skill Tag formatting
+- [ ] Include sample Levels across multiple difficulty ranges
+
+## CSV Upload
+
+- [ ] Add local CSV file selection
+- [ ] Parse uploaded CSV
+- [ ] Convert CSV rows into runtime content data
+- [ ] Support multiple Levels in one upload
+- [ ] Preserve Question and Level IDs
+- [ ] Prevent uploaded content from silently overwriting existing content
+
+## Content Validation
+
+- [ ] Validate required fields
+- [ ] Validate duplicate IDs
+- [ ] Validate missing Level references
+- [ ] Validate malformed mathematical expressions
+- [ ] Validate unsupported operators
+- [ ] Validate empty Questions
+- [ ] Validate Skill Tags
+- [ ] Validate Level Type values
+- [ ] Validate Question counts
+- [ ] Validate whether `ExpressionParser` can parse each expression
+- [ ] Validate whether `StepGenerator` can generate a usable process
+- [ ] Produce human-readable validation errors
+- [ ] Identify the exact row / field causing each error
+
+Example:
 
 ```text
-user://mathsmith_save.json
+Row 17
+Question ID: L06_Q04
+
+Error:
+Expression "18 + / 4" could not be parsed.
+
+Suggested Action:
+Check the operator sequence.
 ```
 
-The current Save schema stores:
+## CSV → Runtime Content
 
-- Settings and language
-- Mode-specific Level progress
-- Best scores and stars
-- Mistake Book entries
-- Tutorial state
-- Zen Mode best result
-- Survival Mode best result
-- Reserved Skill Progress and Player History sections
+- [ ] Convert validated CSV into the internal runtime structure
+- [ ] Keep imported content compatible with existing LevelLoader logic
+- [ ] Allow imported content to use all three gameplay interactions
+- [ ] Preserve existing scoring and Hint systems
+- [ ] Preserve Search and Filter support
+- [ ] Preserve localization-ready data structure
 
-## Credits
+## Visual Content Editor
 
-- **Design and Development:** Yitong Hu
-- **Sound Effects:** [Kenney](https://kenney.nl/)
-- **Icons:** [Lucide](https://lucide.dev/)
-- **Engine:** [Godot](https://godotengine.org/)
+- [ ] Create a teacher-facing editor screen
+- [ ] Display all Levels
+- [ ] Add Level
+- [ ] Delete Level
+- [ ] Rename Level
+- [ ] Edit Level title
+- [ ] Edit Skill Tags
+- [ ] Reorder Levels
+- [ ] Add Question
+- [ ] Delete Question
+- [ ] Edit mathematical expression
+- [ ] Duplicate Question
+- [ ] Display Question count
+- [ ] Validate changes in real time
+- [ ] Surface clear error states
+- [ ] Avoid exposing raw JSON where unnecessary
 
-## License
+## Generated-Step Preview
 
-This repository is currently presented as a personal portfolio project. Third-party assets remain subject to their respective licenses.
+- [ ] Preview the generated solution for any Question
+- [ ] Display `ExpressionParser` result where useful
+- [ ] Display generated Step sequence
+- [ ] Flag generation failures
+- [ ] Allow authors to identify pedagogically awkward generated output
+- [ ] Keep preview separate from saved/published content
+
+## Teacher Preview Mode
+
+- [ ] Launch selected content directly into gameplay
+- [ ] Preview Step Ordering
+- [ ] Preview Multiple-Choice Ordering
+- [ ] Preview Fill in the Process
+- [ ] Return directly to Editor after preview
+- [ ] Preserve unsaved editing state
+- [ ] Clearly distinguish Preview from normal player progression
+- [ ] Prevent Preview sessions from changing player records
+
+## Authoring Workflow
+
+Implement the intended workflow:
+
+```text
+Create / Import
+→ Validate
+→ Preview
+→ Play
+→ Revise
+→ Validate Again
+→ Save / Publish
+```
+
+## Export
+
+- [ ] Export editor content as JSON
+- [ ] Export editor content as CSV where practical
+- [ ] Preserve IDs and Skill Tags
+- [ ] Validate before export
+- [ ] Warn authors about unresolved content errors
+
+## M6 Documentation
+
+- [ ] Write a content-authoring guide
+- [ ] Document supported math syntax
+- [ ] Document Level Type behavior
+- [ ] Document Skill Tag conventions
+- [ ] Document validation errors
+- [ ] Add example content
+- [ ] Document Preview workflow
+
+## M6 Validation
+
+- [ ] Test authoring without manually editing project files
+- [ ] Test malformed CSV imports
+- [ ] Test duplicate IDs
+- [ ] Test invalid expressions
+- [ ] Test large content imports
+- [ ] Confirm Teacher Preview does not affect progression
+- [ ] Confirm edited Questions work in all supported gameplay modes
+- [ ] Confirm exported data can be loaded back into MathSmith
+
+### M6 Key Question
+
+> **Can a content specialist create, validate, preview, and revise playable MathSmith content without engineering support?**
+
+---
+
+# M7 — Guided Smart Tutor & Final Polish
+
+**Goal: Connect existing learning, progress, review, and analytics systems through a guided player-facing assistant.**
+
+The Tutor should not replace MathSmith's deterministic mathematical systems.
+
+It should help the player understand and navigate information already produced by those systems.
+
+---
+
+## Tutor Design Principles
+
+- [ ] Keep core mathematics deterministic
+- [ ] Keep scoring deterministic
+- [ ] Keep progression deterministic
+- [ ] Keep Question validation deterministic
+- [ ] Use structured game state as Tutor context
+- [ ] Do not allow the Tutor to invent player progress
+- [ ] Do not allow the Tutor to invent mathematical correctness
+- [ ] Prefer constrained choices over unrestricted chat for the first implementation
+- [ ] Make Tutor actions transparent and reversible
+
+## Option-Based Tutor
+
+Create a guided, website-chatbot-style interaction rather than beginning with unrestricted free text.
+
+Potential options:
+
+```text
+What should I practice?
+Explain this game mode.
+Why did I lose points?
+Review my mistakes.
+What am I good at?
+What should I do next?
+Open Mistake Book.
+Practice a weak Skill.
+Start Zen Mode.
+```
+
+Tasks:
+
+- [ ] Create Tutor panel / screen
+- [ ] Create reusable option buttons
+- [ ] Create context-dependent option sets
+- [ ] Add Back / Previous behavior
+- [ ] Prevent irrelevant options from appearing
+- [ ] Preserve normal navigation when Tutor closes
+
+## Gameplay Rule Guidance
+
+- [ ] Explain Step Ordering rules
+- [ ] Explain Multiple-Choice Ordering rules
+- [ ] Explain Fill in the Process rules
+- [ ] Explain scoring
+- [ ] Explain Stars
+- [ ] Explain Hint limits
+- [ ] Explain Needs Practice
+- [ ] Explain Mistake Book
+- [ ] Explain Zen Mode
+- [ ] Explain Survival Mode
+
+Reuse existing tutorial content where practical.
+
+## Error Explanation
+
+- [ ] Reuse deterministic Progressive Error Feedback
+- [ ] Reuse stored Mistake Book explanations
+- [ ] Show relevant mathematical rules
+- [ ] Show correct reasoning steps when appropriate
+- [ ] Avoid immediately revealing full solutions when the player is still actively solving
+- [ ] Distinguish "Explain the rule" from "Show the answer"
+
+## Performance Summary
+
+Use M5 analytics and existing progress data to answer questions such as:
+
+- [ ] What Skills are strongest?
+- [ ] What Skills need more practice?
+- [ ] Which gameplay interaction is most difficult?
+- [ ] How has recent performance changed?
+- [ ] What mistakes are repeated?
+- [ ] How often are Hints required?
+
+Keep summaries grounded in actual stored data.
+
+## Practice Recommendations
+
+- [ ] Recommend weak Skills
+- [ ] Recommend relevant Levels
+- [ ] Recommend Mistake Practice
+- [ ] Recommend Zen Mode where appropriate
+- [ ] Recommend standard Level replay
+- [ ] Explain why a recommendation was made
+- [ ] Allow the player to reject a recommendation
+- [ ] Avoid creating one mandatory learning path
+
+Example:
+
+```text
+Recommendation:
+Practice Parentheses
+
+Why:
+Your recent Parentheses sessions have lower scores
+and require more Hints than your other Skills.
+
+[Practice Parentheses]
+[Review Mistakes]
+[Maybe Later]
+```
+
+## Guided Navigation
+
+Allow Tutor options to navigate directly to:
+
+- [ ] Relevant Level
+- [ ] Lobby
+- [ ] Mistake Book
+- [ ] Mistake Practice
+- [ ] Skill Mastery
+- [ ] Player History
+- [ ] Zen Mode
+- [ ] Survival Mode
+- [ ] Settings
+- [ ] Tutorial
+
+## Context Awareness
+
+The Tutor should know appropriate structured context such as:
+
+- [ ] Current screen
+- [ ] Current Level
+- [ ] Current gameplay interaction
+- [ ] Current Question
+- [ ] Remaining Hints
+- [ ] Current Score
+- [ ] Current Star projection where appropriate
+- [ ] Recent incorrect attempts
+- [ ] Stored Skill Mastery
+- [ ] Mistake Book state
+- [ ] Recent Player History
+
+Do not expose internal developer data directly to the player.
+
+## AI / Generative Extension
+
+Only after the deterministic Tutor workflow is stable:
+
+- [ ] Evaluate where generative explanations add real value
+- [ ] Pass only structured validated context to the model
+- [ ] Keep mathematical answers grounded in deterministic MathSmith data
+- [ ] Constrain generated explanations to known Question state
+- [ ] Add fallback deterministic responses
+- [ ] Review generated language for developmental appropriateness
+- [ ] Review generated language for pedagogical soundness
+- [ ] Prevent hallucinated player history
+- [ ] Prevent hallucinated rules or answers
+
+## Localization
+
+- [ ] Translate all remaining Tutor UI
+- [ ] Support English
+- [ ] Support Simplified Chinese
+- [ ] Validate text expansion
+- [ ] Validate terminology consistency across gameplay and Tutor responses
+
+## Final UI / UX Polish
+
+- [ ] Review hierarchy across all screens
+- [ ] Standardize final spacing
+- [ ] Standardize icon sizing
+- [ ] Standardize interaction states
+- [ ] Improve keyboard / focus behavior
+- [ ] Review responsive behavior
+- [ ] Review readability of complex expressions
+- [ ] Review accessibility
+- [ ] Review Tutorial UX
+- [ ] Review Settings UX
+- [ ] Review Mistake Book UX
+- [ ] Review Skill Mastery UX
+- [ ] Review History UX
+- [ ] Review Tutor UX
+
+## Final Audio / Feedback Polish
+
+- [ ] Review all SFX levels
+- [ ] Remove excessive repeated sounds
+- [ ] Standardize correct / incorrect feedback
+- [ ] Improve Level completion feedback
+- [ ] Improve Star feedback
+- [ ] Improve replay-mode feedback
+- [ ] Add audio settings validation
+
+## Final Content Review
+
+- [ ] Re-play representative Questions from every Level
+- [ ] Review generated reasoning
+- [ ] Review distractor quality
+- [ ] Review Fill blank quality
+- [ ] Review localization
+- [ ] Review tutorials
+- [ ] Review mathematical terminology
+- [ ] Review developmental appropriateness with subject-matter expertise
+
+## Final Production Pass
+
+- [ ] Remove debug-only UI
+- [ ] Remove unused assets
+- [ ] Remove obsolete code paths
+- [ ] Clean warnings
+- [ ] Review project naming
+- [ ] Review folder organization
+- [ ] Review Save migration
+- [ ] Review documentation
+- [ ] Update screenshots
+- [ ] Update portfolio presentation
+- [ ] Record final project demo
+- [ ] Update README project status
+
+### M7 Key Question
+
+> **Can the systems MathSmith already understands about content, mistakes, progress, and player performance be turned into useful guidance without giving control of mathematical correctness to generative AI?**
+
+---
+
+# Roadmap Summary
+
+| Milestone | Goal | Major Deliverables |
+| --- | --- | --- |
+| **M5 — Analytics & Adaptive Learning** | Understand player behavior and adapt practice | Telemetry, Skill Analysis, Skill Mastery, Adaptive Practice, Developer Analytics |
+| **M6 — Content Authoring Pipeline** | Allow educators to create their own content | CSV Import, Validation, Visual Editor, Teacher Preview, Export |
+| **M7 — Guided Smart Tutor & Final Polish** | Connect learning systems into guided support | Option-Based Tutor, Performance Summary, Recommendations, Navigation, Final Polish |
+
+The overall progression is:
+
+```text
+M1 — Can the core idea work?
+             ↓
+M2 — Can it scale into a complete product flow?
+             ↓
+M3 — Can the framework support multiple interactions?
+             ↓
+M4 — Can it create a complete learning and replay loop?
+             ↓
+M5 — Can the system understand player performance?
+             ↓
+M6 — Can educators create content without engineering support?
+             ↓
+M7 — Can these systems guide the learner intelligently?
+```
