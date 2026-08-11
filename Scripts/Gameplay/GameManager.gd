@@ -1,8 +1,8 @@
-## Controls the complete M1 gameplay loop for the active level.
+## Coordinates MathSmith's active Level and all three gameplay interactions.
 ##
-## This script owns question state, gameplay validation, navigation, progress,
-## and level completion. LevelLoader supplies content, StepGenerator produces
-## teaching steps, and GameUI only presents Game Scene state.
+## This script owns live Question state, gameplay validation, scoring, and
+## navigation. Focused services own content loading, choice generation,
+## persistent Level progress, and Mistake Book storage.
 extends Node
 
 #region ========== Constants ==========
@@ -28,7 +28,9 @@ const ADVANCED_LEVEL_HINT_BUDGET: int = 5
 var gameUI: Node = null
 var levelLoader := preload("res://Scripts/Gameplay/LevelLoader.gd").new()
 var stepGenerator := preload("res://Scripts/Math/StepGenerator.gd").new()
-var expressionParser := preload("res://Scripts/Math/ExpressionParser.gd").new()
+var choiceGenerator := preload("res://Scripts/Math/ChoiceGenerator.gd").new()
+var progressManager := preload("res://Scripts/Gameplay/ProgressManager.gd").new()
+var mistakeBookManager := preload("res://Scripts/Gameplay/MistakeBookManager.gd").new()
 
 #endregion
 
@@ -44,7 +46,6 @@ var questionCompleted: bool = false
 var revealedHintCount: int = 0
 var consecutiveIncorrectAttempts: int = 0
 var currentExpression: String = ""
-var levelProgress: Dictionary = {}
 var currentChoiceStage: int = 0
 var currentChoiceOptions: Array[String] = []
 var unavailableChoiceOptions: Array[String] = []
@@ -75,11 +76,11 @@ func _ready() -> void:
 	levelTypes = contentData["level_types"]
 	levels = contentData["levels"]
 	currentLevel = levels[0]
-	LoadLevelProgress()
+	progressManager.Initialize(DEFAULT_LEVEL_TYPE_ID)
 
 #endregion
 
-#region ========== Functions ==========
+#region ========== Scene Navigation ==========
 
 # Opens the Home Scene while preserving current-session progress.
 func OpenHome() -> void:
@@ -111,6 +112,10 @@ func ChangeScene(scenePath: String) -> void:
 
 	if changeError != OK:
 		push_error("Failed to open scene '%s' with error %d." % [scenePath, changeError])
+
+#endregion
+
+#region ========== Game UI Registration ==========
 
 # Registers the active Game Scene UI and starts its current Level.
 func RegisterGameUI(newGameUI: Node) -> void:
@@ -184,6 +189,10 @@ func DisconnectGameUISignals() -> void:
 	if gameUI.reviewMistakesRequested.is_connected(OpenMistakeBook):
 		gameUI.reviewMistakesRequested.disconnect(OpenMistakeBook)
 
+#endregion
+
+#region ========== Content and Level Selection ==========
+
 # Returns all Level Types that describe available gameplay interactions.
 func GetLevelTypes() -> Dictionary:
 	return levelTypes
@@ -246,99 +255,32 @@ func SelectLevel(levelId: String) -> bool:
 func GetSelectedLevelId() -> String:
 	return currentLevel.get("id", "")
 
+#endregion
+
+#region ========== Persistent Progress ==========
+
 # Returns lightweight progress for one Level during the current run.
 func GetLevelProgress(levelId: String) -> Dictionary:
-	var modeProgress: Dictionary = levelProgress.get(selectedLevelTypeId, {})
-	return modeProgress.get(
-		levelId,
-		{
-			"completedQuestions": 0,
-			"completed": false,
-			"needsPractice": false,
-			"bestScore": -1,
-			"bestStars": 0
-		}
-	)
+	return progressManager.GetLevelProgress(selectedLevelTypeId, levelId)
 
 # Records the completed session as Level Complete or Needs Practice.
 func RecordLevelResult(starCount: int) -> Dictionary:
 	var levelId: String = GetSelectedLevelId()
-
-	if levelId.is_empty():
-		return {}
-
-	var progressData := GetLevelProgress(levelId)
-	var wasCompleted: bool = progressData.get("completed", false)
-	var previousBestScore: int = progressData.get("bestScore", -1)
-	var isNewBest := currentLevelScore > previousBestScore
-	progressData["completedQuestions"] = currentLevel.get("questions", []).size()
-	progressData["completed"] = wasCompleted or starCount >= 1
-	progressData["needsPractice"] = not progressData["completed"] and starCount == 0
-	progressData["bestScore"] = maxi(previousBestScore, currentLevelScore)
-	progressData["bestStars"] = maxi(progressData.get("bestStars", 0), starCount)
-	SetLevelProgress(levelId, progressData)
-	SaveLevelProgress()
-	return {
-		"bestScore": progressData["bestScore"],
-		"isNewBest": isNewBest
-	}
-
-# Writes gameplay-owned Level progress through the shared Local Save manager.
-func SaveLevelProgress() -> void:
-	SaveManager.SetSection("levelProgress", levelProgress)
+	return progressManager.RecordLevelResult(
+		selectedLevelTypeId,
+		levelId,
+		currentLevel.get("questions", []).size(),
+		currentLevelScore,
+		starCount
+	)
 
 # Reloads cleared or externally changed progress from Local Save storage.
 func ReloadPersistentProgress() -> void:
-	LoadLevelProgress()
+	progressManager.ReloadPersistentProgress()
 
-# Loads mode-specific progress and migrates the previous shared Level format.
-func LoadLevelProgress() -> void:
-	var loadedProgress = SaveManager.GetSection("levelProgress")
-	levelProgress = loadedProgress if loadedProgress is Dictionary else {}
-	var legacyProgress: Dictionary = {}
+#endregion
 
-	# Old saves stored Level IDs directly, which represented Step Ordering play.
-	for progressKey in levelProgress.keys():
-		if str(progressKey).begins_with("level_"):
-			legacyProgress[progressKey] = levelProgress[progressKey]
-
-	if legacyProgress.is_empty():
-		ClearIncompleteSavedProgress()
-		return
-
-	levelProgress = {DEFAULT_LEVEL_TYPE_ID: legacyProgress}
-	ClearIncompleteSavedProgress()
-	SaveLevelProgress()
-
-# Removes obsolete per-Question progress so interrupted Levels always restart.
-func ClearIncompleteSavedProgress() -> void:
-	var progressWasChanged := false
-
-	for levelTypeId in levelProgress:
-		var modeProgress: Dictionary = levelProgress.get(levelTypeId, {})
-
-		for levelId in modeProgress:
-			var progressData: Dictionary = modeProgress.get(levelId, {})
-			var hasFinalResult: bool = (
-				progressData.get("completed", false)
-				or progressData.get("needsPractice", false)
-			)
-
-			if not hasFinalResult and progressData.get("completedQuestions", 0) > 0:
-				progressData["completedQuestions"] = 0
-				modeProgress[levelId] = progressData
-				progressWasChanged = true
-
-		levelProgress[levelTypeId] = modeProgress
-
-	if progressWasChanged:
-		SaveLevelProgress()
-
-# Stores one Level result beneath the currently selected Level Type.
-func SetLevelProgress(levelId: String, progressData: Dictionary) -> void:
-	var modeProgress: Dictionary = levelProgress.get(selectedLevelTypeId, {})
-	modeProgress[levelId] = progressData
-	levelProgress[selectedLevelTypeId] = modeProgress
+#region ========== Tutorials ==========
 
 # Shows interaction guidance only for an enabled and unviewed Level Type.
 func ShowTutorialIfNeeded() -> void:
@@ -384,6 +326,10 @@ func RecordTutorialViewed() -> void:
 	var tutorialState: Dictionary = SaveManager.GetSection("tutorialState")
 	tutorialState[selectedLevelTypeId] = true
 	SaveManager.SetSection("tutorialState", tutorialState)
+
+#endregion
+
+#region ========== Question Setup ==========
 
 # Loads the requested question and prepares its ordered and shuffled steps.
 func LoadQuestion(questionIndex: int) -> void:
@@ -466,6 +412,10 @@ func ShuffleSteps(orderedSteps: Array[String]) -> Array[String]:
 
 	return shuffledSteps
 
+#endregion
+
+#region ========== Step Ordering ==========
+
 # Validates the displayed step order or advances after a correct answer.
 func CheckAnswer() -> void:
 	if questionCompleted:
@@ -543,6 +493,10 @@ func UpdateHintAvailability() -> void:
 		return
 
 	UpdateSharedHintAvailability(true)
+
+#endregion
+
+#region ========== Fill in the Process ==========
 
 # Derives numeric blanks directly from generated correct Steps.
 func BuildFillProcessData(solutionSteps: Array[String]) -> Array:
@@ -639,6 +593,10 @@ func UpdateFillHintAvailability(enteredAnswers: Dictionary) -> void:
 
 	UpdateSharedHintAvailability(false)
 
+#endregion
+
+#region ========== Progressive Error Feedback ==========
+
 # Records one automatic-feedback attempt and returns its progressive message.
 func RegisterIncorrectAttempt() -> String:
 	consecutiveIncorrectAttempts += 1
@@ -710,6 +668,10 @@ func HasMixedOperationPrecedence() -> bool:
 	var hasLowerPriorityOperation := "+" in currentExpression or "-" in currentExpression
 	return hasHigherPriorityOperation and hasLowerPriorityOperation
 
+#endregion
+
+#region ========== Multiple Choice Ordering ==========
+
 # Builds one randomized candidate set for the active solution stage.
 func PrepareMultipleChoiceStage() -> void:
 	if currentChoiceStage >= correctSteps.size():
@@ -719,7 +681,7 @@ func PrepareMultipleChoiceStage() -> void:
 
 	var correctStep := correctSteps[currentChoiceStage]
 	var candidateCount := 4 if correctSteps.size() >= 4 else 3
-	currentChoiceOptions = BuildChoiceOptions(correctStep, candidateCount)
+	currentChoiceOptions = choiceGenerator.BuildChoiceOptions(correctStep, candidateCount)
 	unavailableChoiceOptions.clear()
 	gameUI.ShowChoiceStage(currentChoiceStage, correctSteps.size(), currentChoiceOptions)
 	UpdateSharedHintAvailability(currentChoiceOptions.size() > 1)
@@ -777,110 +739,9 @@ func UpdateMultipleChoiceHintAvailability(correctStep: String) -> void:
 
 	UpdateSharedHintAvailability(false)
 
-# Creates plausible, unique, non-equivalent distractors around one correct Step.
-func BuildChoiceOptions(correctStep: String, candidateCount: int) -> Array[String]:
-	var choices: Array[String] = [correctStep]
-	var correctValue = EvaluateStepText(correctStep)
-	var numberPattern := RegEx.new()
-	numberPattern.compile("[0-9]+")
-	var numberMatches := numberPattern.search_all(correctStep)
-	var adjustments: Array[int] = [1, -1, 2, -2, 10, -10]
+#endregion
 
-	# Arithmetic-value changes create believable mistakes without random nonsense.
-	for numberMatch in numberMatches:
-		var originalNumber := int(numberMatch.get_string())
-
-		for adjustment in adjustments:
-			var changedNumber := originalNumber + adjustment
-
-			if changedNumber < 0:
-				continue
-
-			var candidate := (
-				correctStep.left(numberMatch.get_start())
-				+ str(changedNumber)
-				+ correctStep.substr(numberMatch.get_end())
-			)
-			AppendValidDistractor(choices, candidate, correctValue)
-
-			if choices.size() >= candidateCount:
-				break
-
-		if choices.size() >= candidateCount:
-			break
-
-	# Operator changes provide a fallback for unusually short numeric Steps.
-	if choices.size() < candidateCount:
-		var operatorChanges := {
-			" + ": " - ",
-			" - ": " + ",
-			" * ": " + ",
-			" / ": " * "
-		}
-
-		for sourceOperator in operatorChanges:
-			if sourceOperator not in correctStep:
-				continue
-
-			var candidate := correctStep.replace(sourceOperator, operatorChanges[sourceOperator])
-			AppendValidDistractor(choices, candidate, correctValue)
-
-			if choices.size() >= candidateCount:
-				break
-
-	choices.shuffle()
-	return choices
-
-# Adds one distractor only when it parses and evaluates differently from the answer.
-func AppendValidDistractor(choices: Array[String], candidate: String, correctValue: Variant) -> void:
-	if candidate in choices:
-		return
-
-	var candidateValue = EvaluateStepText(candidate)
-
-	if candidateValue == null or candidateValue == correctValue:
-		return
-
-	choices.append(candidate)
-
-# Evaluates one displayed Step for deterministic equivalence filtering.
-func EvaluateStepText(stepText: String) -> Variant:
-	var expressionText := stepText.trim_prefix("= ")
-	var expressionTree := expressionParser.ParseExpression(expressionText)
-
-	if expressionTree.is_empty():
-		return null
-
-	var resultData := EvaluateExpressionNode(expressionTree)
-	return resultData.get("value") if resultData.get("valid", false) else null
-
-# Evaluates a parser node while rejecting invalid or non-whole-number division.
-func EvaluateExpressionNode(expressionNode: Dictionary) -> Dictionary:
-	if expressionNode["type"] == "number":
-		return {"valid": true, "value": expressionNode["value"]}
-
-	var leftResult := EvaluateExpressionNode(expressionNode["left"])
-	var rightResult := EvaluateExpressionNode(expressionNode["right"])
-
-	if not leftResult["valid"] or not rightResult["valid"]:
-		return {"valid": false}
-
-	var leftValue: int = leftResult["value"]
-	var rightValue: int = rightResult["value"]
-
-	match expressionNode["operation"]:
-		"+":
-			return {"valid": true, "value": leftValue + rightValue}
-		"-":
-			return {"valid": true, "value": leftValue - rightValue}
-		"*":
-			return {"valid": true, "value": leftValue * rightValue}
-		"/":
-			if rightValue == 0 or leftValue % rightValue != 0:
-				return {"valid": false}
-			return {"valid": true, "value": floori(float(leftValue) / float(rightValue))}
-
-	return {"valid": false}
+#region ========== Question Progression ==========
 
 # Advances to the next question or completes the current level.
 func GoToNextQuestion() -> void:
@@ -913,6 +774,10 @@ func GoToNextQuestion() -> void:
 
 	LoadQuestion(nextQuestionIndex)
 
+#endregion
+
+#region ========== Scoring and Hints ==========
+
 # Resets all score counters owned by one newly started Level session.
 func ResetLevelScoring() -> void:
 	currentLevelScore = 0
@@ -941,10 +806,13 @@ func RegisterHintUsed() -> void:
 	# Any requested Hint qualifies this Question for persistent review.
 	UpdateMistakeBookEntry()
 
+#endregion
+
+#region ========== Mistake Book ==========
+
 # Returns an isolated copy of every saved mistake entry.
 func GetMistakeBookEntries() -> Array:
-	var savedEntries = SaveManager.GetSection("mistakeBook")
-	return savedEntries if savedEntries is Array else []
+	return mistakeBookManager.GetEntries()
 
 # Adds or updates the current Question without duplicating its mode-specific entry.
 func UpdateMistakeBookEntry() -> void:
@@ -954,24 +822,7 @@ func UpdateMistakeBookEntry() -> void:
 		return
 
 	var question: Dictionary = questions[currentQuestionIndex]
-	var entryKey := "%s:%s:%s" % [
-		selectedLevelTypeId,
-		currentLevel.get("id", ""),
-		question.get("id", "")
-	]
-	var mistakeEntries := GetMistakeBookEntries()
-	var entryIndex := -1
-
-	for savedIndex in range(mistakeEntries.size()):
-		if mistakeEntries[savedIndex].get("entryKey", "") == entryKey:
-			entryIndex = savedIndex
-			break
-
-	var existingEntry: Dictionary = (
-		mistakeEntries[entryIndex] if entryIndex >= 0 else {}
-	)
-	var mistakeEntry := {
-		"entryKey": entryKey,
+	mistakeBookManager.RecordQuestion({
 		"questionId": question.get("id", ""),
 		"levelId": currentLevel.get("id", ""),
 		"levelTitle": currentLevel.get("title", "Untitled Level"),
@@ -979,67 +830,18 @@ func UpdateMistakeBookEntry() -> void:
 		"levelTypeTitle": GetLevelTypeById(selectedLevelTypeId).get("title", "Unknown Mode"),
 		"expression": currentExpression,
 		"skills": currentLevel.get("skills", []).duplicate(),
-		"incorrectAttempts": maxi(
-			existingEntry.get("incorrectAttempts", 0),
-			incorrectAttempts
-		),
-		"hintUsed": existingEntry.get("hintUsed", false) or hintsUsed > 0,
-		"errorCategory": GetMistakeCategory(currentExpression),
-		"explanation": GetMistakeExplanation(currentExpression),
-		"answerSteps": correctSteps.duplicate(),
-		"updatedAt": int(Time.get_unix_time_from_system())
-	}
-
-	if entryIndex >= 0:
-		mistakeEntries[entryIndex] = mistakeEntry
-	else:
-		mistakeEntries.push_front(mistakeEntry)
-
-	SaveManager.SetSection("mistakeBook", mistakeEntries)
+		"incorrectAttempts": incorrectAttempts,
+		"hintUsed": hintsUsed > 0,
+		"answerSteps": correctSteps.duplicate()
+	})
 
 # Removes one saved mistake by its stable mode, Level, and Question key.
 func RemoveMistakeBookEntry(entryKey: String) -> void:
-	var mistakeEntries := GetMistakeBookEntries()
+	mistakeBookManager.RemoveEntry(entryKey)
 
-	for entryIndex in range(mistakeEntries.size() - 1, -1, -1):
-		if mistakeEntries[entryIndex].get("entryKey", "") == entryKey:
-			mistakeEntries.remove_at(entryIndex)
+#endregion
 
-	SaveManager.SetSection("mistakeBook", mistakeEntries)
-
-# Classifies the mathematical rule used by a saved deterministic explanation.
-func GetMistakeCategory(expression: String) -> String:
-	if "(" in expression:
-		return "Parentheses"
-	if ExpressionHasMixedPrecedence(expression):
-		return "Order of Operations"
-	if "/" in expression:
-		return "Division"
-	if "*" in expression:
-		return "Multiplication"
-	if "-" in expression:
-		return "Subtraction"
-	return "Addition and Regrouping"
-
-# Returns a rule explanation without generating any new answer content.
-func GetMistakeExplanation(expression: String) -> String:
-	if "(" in expression:
-		return "Resolve the operations inside parentheses before the surrounding operation. Each transformation must preserve the expression's value."
-	if ExpressionHasMixedPrecedence(expression):
-		return "Resolve multiplication and division before addition and subtraction, working from left to right within the same priority."
-	if "/" in expression:
-		return "When decomposing division, split the dividend into parts that are each divisible by the divisor."
-	if "*" in expression:
-		return "Decompose a factor into useful parts, calculate each partial product, and then combine the partial products."
-	if "-" in expression:
-		return "Decompose the amount being subtracted into manageable parts while preserving the original difference."
-	return "Decompose and regroup the addends to make friendly totals while preserving the original sum."
-
-# Detects whether precedence between high- and low-priority operations applies.
-func ExpressionHasMixedPrecedence(expression: String) -> bool:
-	var hasHigherPriorityOperation := "*" in expression or "/" in expression
-	var hasLowerPriorityOperation := "+" in expression or "-" in expression
-	return hasHigherPriorityOperation and hasLowerPriorityOperation
+#region ========== Shared Hints and Level Completion ==========
 
 # Returns the fixed shared Hint budget for the selected Level range.
 func GetLevelHintBudget() -> int:

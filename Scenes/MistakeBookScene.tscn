@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3]
 
-[ext_resource type="Script" path="res://Scripts/UI/MistakeBookUI.gd" id="1_script"]
+[ext_resource type="Script" path="res://Scripts/UI/Screens/MistakeBookUI.gd" id="1_script"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/back.svg" id="3_back"]
 

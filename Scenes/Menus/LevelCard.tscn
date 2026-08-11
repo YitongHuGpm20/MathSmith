@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3]
 
-[ext_resource type="Script" path="res://Scripts/UI/LevelCard.gd" id="1_level_card"]
+[ext_resource type="Script" path="res://Scripts/UI/Components/LevelCard.gd" id="1_level_card"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_normal"]
 bg_color = Color(0.05, 0.075, 0.12, 0.97)
