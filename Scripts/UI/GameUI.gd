@@ -215,6 +215,7 @@ func CreateStepCards(steps: Array[String]) -> void:
 		var stepCard := STEP_CARD_SCENE.instantiate()
 		stepArea.add_child(stepCard)
 		stepCard.Setup(steps[_stepIndex])
+		stepCard.SetInteractionLocked(false)
 
 # Removes all cards from the current question display.
 func ClearStepCards() -> void:
@@ -474,6 +475,7 @@ func UpdateResponsiveLayout() -> void:
 # Displays the visual state for a correct answer.
 func ShowCorrectAnswer(playAudio: bool = true) -> void:
 	feedbackLabel.text = "Correct!"
+	SetStepCardsLocked(true)
 	hintButton.disabled = true
 	checkButton.visible = true
 	checkButton.disabled = false
@@ -481,6 +483,11 @@ func ShowCorrectAnswer(playAudio: bool = true) -> void:
 
 	if playAudio:
 		AudioManager.PlayCorrect()
+
+# Locks or unlocks every Step Ordering card without changing its appearance.
+func SetStepCardsLocked(isLocked: bool) -> void:
+	for stepCard in stepArea.get_children():
+		stepCard.SetInteractionLocked(isLocked)
 
 # Displays the visual state for an incorrect answer.
 func ShowIncorrectAnswer(feedbackMessage: String) -> void:

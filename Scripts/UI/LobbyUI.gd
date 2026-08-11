@@ -211,16 +211,19 @@ func _on_home_button_pressed() -> void:
 func _on_step_ordering_button_pressed() -> void:
 	if GameManager.SelectLevelType("step_ordering"):
 		ShowSelectedLevelType()
+		RefreshLevelCards()
 
 # Selects Multiple-Choice Ordering without changing shared Level content.
 func _on_choice_ordering_button_pressed() -> void:
 	if GameManager.SelectLevelType("multiple_choice_ordering"):
 		ShowSelectedLevelType()
+		RefreshLevelCards()
 
 # Selects Fill in the Process without duplicating Question or solution data.
 func _on_fill_process_button_pressed() -> void:
 	if GameManager.SelectLevelType("fill_in_process"):
 		ShowSelectedLevelType()
+		RefreshLevelCards()
 
 # Applies search immediately while the player types.
 func _on_search_input_text_changed(_newText: String) -> void:

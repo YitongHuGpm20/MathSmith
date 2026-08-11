@@ -74,6 +74,7 @@ func _ready() -> void:
 	levelTypes = contentData["level_types"]
 	levels = contentData["levels"]
 	currentLevel = levels[0]
+	LoadLevelProgress()
 
 #endregion
 
@@ -229,7 +230,8 @@ func GetSelectedLevelId() -> String:
 
 # Returns lightweight progress for one Level during the current run.
 func GetLevelProgress(levelId: String) -> Dictionary:
-	return levelProgress.get(
+	var modeProgress: Dictionary = levelProgress.get(selectedLevelTypeId, {})
+	return modeProgress.get(
 		levelId,
 		{
 			"completedQuestions": 0,
@@ -252,7 +254,8 @@ func RecordQuestionCompletion() -> void:
 		progressData["completedQuestions"],
 		currentQuestionIndex + 1
 	)
-	levelProgress[levelId] = progressData
+	SetLevelProgress(levelId, progressData)
+	SaveLevelProgress()
 
 # Records the completed session as Level Complete or Needs Practice.
 func RecordLevelResult(starCount: int) -> Dictionary:
@@ -270,11 +273,39 @@ func RecordLevelResult(starCount: int) -> Dictionary:
 	progressData["needsPractice"] = not progressData["completed"] and starCount == 0
 	progressData["bestScore"] = maxi(previousBestScore, currentLevelScore)
 	progressData["bestStars"] = maxi(progressData.get("bestStars", 0), starCount)
-	levelProgress[levelId] = progressData
+	SetLevelProgress(levelId, progressData)
+	SaveLevelProgress()
 	return {
 		"bestScore": progressData["bestScore"],
 		"isNewBest": isNewBest
 	}
+
+# Writes gameplay-owned Level progress through the shared Local Save manager.
+func SaveLevelProgress() -> void:
+	SaveManager.SetSection("levelProgress", levelProgress)
+
+# Loads mode-specific progress and migrates the previous shared Level format.
+func LoadLevelProgress() -> void:
+	var loadedProgress = SaveManager.GetSection("levelProgress")
+	levelProgress = loadedProgress if loadedProgress is Dictionary else {}
+	var legacyProgress: Dictionary = {}
+
+	# Old saves stored Level IDs directly, which represented Step Ordering play.
+	for progressKey in levelProgress.keys():
+		if str(progressKey).begins_with("level_"):
+			legacyProgress[progressKey] = levelProgress[progressKey]
+
+	if legacyProgress.is_empty():
+		return
+
+	levelProgress = {DEFAULT_LEVEL_TYPE_ID: legacyProgress}
+	SaveLevelProgress()
+
+# Stores one Level result beneath the currently selected Level Type.
+func SetLevelProgress(levelId: String, progressData: Dictionary) -> void:
+	var modeProgress: Dictionary = levelProgress.get(selectedLevelTypeId, {})
+	modeProgress[levelId] = progressData
+	levelProgress[selectedLevelTypeId] = modeProgress
 
 # Loads the requested question and prepares its ordered and shuffled steps.
 func LoadQuestion(questionIndex: int) -> void:

@@ -14,6 +14,7 @@ extends PanelContainer
 
 var stepText: String = ""
 var isDragging: bool = false
+var interactionLocked: bool = false
 
 #endregion
 
@@ -25,6 +26,9 @@ func _ready() -> void:
 
 # Creates a full-size card that stays attached to the original mouse grab point.
 func _get_drag_data(at_position: Vector2) -> Variant:
+	if interactionLocked:
+		return null
+
 	var previewRoot := Control.new()
 	var previewCard := duplicate()
 	previewRoot.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -91,5 +95,12 @@ func Setup(displayText: String) -> void:
 # Refreshes visual labels from the card's stored setup data.
 func UpdateDisplay() -> void:
 	stepLabel.text = stepText
+
+# Enables or blocks card dragging after gameplay validation.
+func SetInteractionLocked(isLocked: bool) -> void:
+	interactionLocked = isLocked
+	mouse_default_cursor_shape = (
+		Control.CURSOR_ARROW if interactionLocked else Control.CURSOR_POINTING_HAND
+	)
 
 #endregion
