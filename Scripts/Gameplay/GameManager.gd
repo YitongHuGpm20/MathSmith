@@ -14,6 +14,9 @@ const MISTAKE_BOOK_SCENE_PATH: String = "res://Scenes/MistakeBookScene.tscn"
 const DEFAULT_LEVEL_TYPE_ID: String = "step_ordering"
 const MULTIPLE_CHOICE_LEVEL_TYPE_ID: String = "multiple_choice_ordering"
 const FILL_PROCESS_LEVEL_TYPE_ID: String = "fill_in_process"
+const STANDARD_SESSION_TYPE: String = "level"
+const MISTAKE_PRACTICE_SESSION_TYPE: String = "mistake_practice"
+const MISTAKE_PRACTICE_QUESTION_COUNT: int = 10
 const MAX_QUESTION_SCORE: int = 100
 const INCORRECT_ATTEMPT_PENALTY: int = 15
 const HINT_SCORE_PENALTY: int = 15
@@ -60,6 +63,7 @@ var currentLevelHintsUsed: int = 0
 var questionScoreCommitted: bool = false
 var remainingHints: int = 0
 var levelHintBudget: int = 0
+var activeSessionType: String = STANDARD_SESSION_TYPE
 
 #endregion
 
@@ -144,7 +148,9 @@ func RegisterGameUI(newGameUI: Node) -> void:
 
 	ResetLevelScoring()
 	LoadQuestion(0)
-	ShowTutorialIfNeeded()
+
+	if activeSessionType == STANDARD_SESSION_TYPE:
+		ShowTutorialIfNeeded()
 
 # Releases a departing Game Scene UI without changing persistent gameplay data.
 func UnregisterGameUI(departingGameUI: Node) -> void:
@@ -236,6 +242,7 @@ func SelectLevel(levelId: String) -> bool:
 		return false
 
 	# Reset transient gameplay state for the newly selected Level.
+	activeSessionType = STANDARD_SESSION_TYPE
 	currentLevel = selectedLevel
 	currentQuestionIndex = 0
 	correctSteps.clear()
@@ -277,6 +284,48 @@ func RecordLevelResult(starCount: int) -> Dictionary:
 # Reloads cleared or externally changed progress from Local Save storage.
 func ReloadPersistentProgress() -> void:
 	progressManager.ReloadPersistentProgress()
+
+#endregion
+
+#region ========== Mistake Practice ==========
+
+# Builds one randomized review session from up to ten unique saved mistakes.
+func StartMistakePractice() -> bool:
+	var mistakeEntries := mistakeBookManager.GetEntries()
+
+	if mistakeEntries.is_empty():
+		return false
+
+	mistakeEntries.shuffle()
+	var practiceCount := mini(MISTAKE_PRACTICE_QUESTION_COUNT, mistakeEntries.size())
+	var practiceQuestions: Array = []
+	var practiceSkills: Array = []
+
+	for entryIndex in range(practiceCount):
+		var mistakeEntry: Dictionary = mistakeEntries[entryIndex]
+		practiceQuestions.append({
+			"id": "practice_%02d_%s" % [entryIndex, mistakeEntry.get("questionId", "")],
+			"expression": mistakeEntry.get("expression", ""),
+			"levelTypeId": mistakeEntry.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID),
+			"sourceEntryKey": mistakeEntry.get("entryKey", "")
+		})
+
+		for skill in mistakeEntry.get("skills", []):
+			if skill not in practiceSkills:
+				practiceSkills.append(skill)
+
+	activeSessionType = MISTAKE_PRACTICE_SESSION_TYPE
+	currentLevel = {
+		"id": MISTAKE_PRACTICE_SESSION_TYPE,
+		"title": "Mistake Practice",
+		"skills": practiceSkills,
+		"questions": practiceQuestions
+	}
+	selectedLevelTypeId = practiceQuestions[0].get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
+	currentQuestionIndex = 0
+	ResetLevelScoring()
+	OpenGame()
+	return true
 
 #endregion
 
@@ -352,6 +401,11 @@ func LoadQuestion(questionIndex: int) -> void:
 	ResetQuestionScoring()
 
 	var currentQuestion: Dictionary = questions[currentQuestionIndex]
+
+	# A mixed Mistake Practice session restores each Question's original mode.
+	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
+		selectedLevelTypeId = currentQuestion.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
+
 	var expression: String = currentQuestion.get("expression", "")
 	currentExpression = expression
 	correctSteps = stepGenerator.GenerateSteps(expression)
@@ -753,6 +807,27 @@ func GoToNextQuestion() -> void:
 		var maxLevelScore: int = questions.size() * MAX_QUESTION_SCORE
 		var starCount := CalculateStarRating(currentLevelScore, maxLevelScore)
 		var scorePercentage := roundi(float(currentLevelScore) / float(maxLevelScore) * 100.0)
+
+		# Practice sessions use shared scoring without changing normal Level progress.
+		if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
+			gameUI.ShowEndMenu({
+				"isPracticeSession": true,
+				"levelTitle": "Mistake Practice",
+				"levelTypeTitle": "Mixed Modes",
+				"score": currentLevelScore,
+				"maxScore": maxLevelScore,
+				"percentage": scorePercentage,
+				"stars": 0,
+				"questionsCompleted": questions.size(),
+				"questionCount": questions.size(),
+				"incorrectAttempts": currentLevelIncorrectAttempts,
+				"hintsUsed": currentLevelHintsUsed,
+				"bestScore": currentLevelScore,
+				"isNewBest": false,
+				"hasNextLevel": false
+			})
+			return
+
 		var resultData := RecordLevelResult(starCount)
 		var currentLevelIndex := levels.find(currentLevel)
 		gameUI.ShowEndMenu({
@@ -816,6 +891,10 @@ func GetMistakeBookEntries() -> Array:
 
 # Adds or updates the current Question without duplicating its mode-specific entry.
 func UpdateMistakeBookEntry() -> void:
+	# Practice mistakes already exist and retain their original Level metadata.
+	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
+		return
+
 	var questions: Array = currentLevel.get("questions", [])
 
 	if currentQuestionIndex < 0 or currentQuestionIndex >= questions.size():
@@ -893,6 +972,10 @@ func CalculateStarRating(levelScore: int, maxLevelScore: int) -> int:
 
 # Restarts the active level from its first question.
 func RestartLevel() -> void:
+	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
+		StartMistakePractice()
+		return
+
 	gameUI.HideEndMenu()
 	ResetLevelScoring()
 	LoadQuestion(0)

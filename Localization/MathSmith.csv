@@ -37,6 +37,10 @@ REVIEW,REVIEW,复习
 3 LIVES,3 LIVES,3 条命
 Review saved mistakes and their solution process.,Review saved mistakes and their solution process.,复习已保存的错题及其解题过程。
 Practice 10 random Questions from all saved mistakes.,Practice 10 random Questions from all saved mistakes.,从全部错题中随机练习 10 道题。
+MISTAKE_PRACTICE_EMPTY,Save at least one mistake before starting practice.,请先保存至少一道错题再开始练习。
+PRACTICE COMPLETE,PRACTICE COMPLETE,练习完成
+Practice Again,Practice Again,再次练习
+Mixed Modes,Mixed Modes,混合模式
 Solve random Questions from the full pool for 3 minutes.,Solve random Questions from the full pool for 3 minutes.,在 3 分钟内随机解答完整题库中的题目。
 Solve random Questions with three lives and no time limit.,Solve random Questions with three lives and no time limit.,使用三条命随机答题，不设时间限制。
 Review the reasoning behind Questions that need more practice.,Review the reasoning behind Questions that need more practice.,复习需要进一步练习的题目及其解题思路。

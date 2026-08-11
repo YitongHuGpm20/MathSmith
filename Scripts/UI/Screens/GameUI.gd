@@ -544,16 +544,29 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 	var maxLevelScore: int = summaryData.get("maxScore", 0)
 	var scorePercentage: int = summaryData.get("percentage", 0)
 	var starCount: int = summaryData.get("stars", 0)
+	var isPracticeSession: bool = summaryData.get("isPracticeSession", false)
 	var levelCompleted := starCount >= 1
-	completeLabel.text = tr("LEVEL COMPLETE") if levelCompleted else tr("NEEDS PRACTICE")
+
+	if isPracticeSession:
+		completeLabel.text = tr("PRACTICE COMPLETE")
+	elif levelCompleted:
+		completeLabel.text = tr("LEVEL COMPLETE")
+	else:
+		completeLabel.text = tr("NEEDS PRACTICE")
+
 	completeLabel.add_theme_color_override(
 		"font_color",
-		Color(0.45, 0.82, 1, 1) if levelCompleted else Color(1, 0.68, 0.34, 1)
+		Color(0.45, 0.82, 1, 1)
+		if levelCompleted or isPracticeSession
+		else Color(1, 0.68, 0.34, 1)
 	)
 	completeIcon.modulate = (
-		Color(0.35, 0.9, 0.72, 1) if levelCompleted else Color(1, 0.68, 0.34, 1)
+		Color(0.35, 0.9, 0.72, 1)
+		if levelCompleted or isPracticeSession
+		else Color(1, 0.68, 0.34, 1)
 	)
-	completeIcon.visible = levelCompleted
+	completeIcon.visible = levelCompleted or isPracticeSession
+	starsLabel.visible = not isPracticeSession
 	starsLabel.text = "★".repeat(starCount) + "☆".repeat(3 - starCount)
 	sessionMetaLabel.text = "%s\n%s" % [
 		tr(summaryData.get("levelTitle", "Untitled Level")),
@@ -572,18 +585,26 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 			summaryData.get("hintsUsed", 0)
 		]
 	)
+	bestScoreLabel.visible = not isPracticeSession
 	bestScoreLabel.text = "%s  %d / %d" % [
 		tr("Best Score"),
 		summaryData.get("bestScore", levelScore),
 		maxLevelScore
 	]
 	newBestLabel.text = tr("NEW BEST")
-	newBestLabel.visible = summaryData.get("isNewBest", false)
+	newBestLabel.visible = not isPracticeSession and summaryData.get("isNewBest", false)
 	nextLevelButton.visible = levelCompleted and summaryData.get("hasNextLevel", false)
-	retryButton.text = tr("Play Again") if levelCompleted else tr("Try Again")
+
+	if isPracticeSession:
+		retryButton.text = tr("Practice Again")
+	elif levelCompleted:
+		retryButton.text = tr("Play Again")
+	else:
+		retryButton.text = tr("Try Again")
+
 	endMenu.visible = true
 
-	if levelCompleted:
+	if levelCompleted or isPracticeSession:
 		AudioManager.PlayVictory()
 
 # Hides the level completion overlay before gameplay restarts.

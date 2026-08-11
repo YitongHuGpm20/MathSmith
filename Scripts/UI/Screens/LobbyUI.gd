@@ -299,6 +299,9 @@ func _on_level_card_selected(levelId: String) -> void:
 func _on_feature_card_selected(featureId: String) -> void:
 	if featureId == "mistake_book":
 		GameManager.OpenMistakeBook()
+	elif featureId == "mistake_practice":
+		if not GameManager.StartMistakePractice():
+			levelCountLabel.text = tr("MISTAKE_PRACTICE_EMPTY")
 
 # Returns to Home through GameManager's navigation entry point.
 func _on_home_button_pressed() -> void:
