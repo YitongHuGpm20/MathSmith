@@ -22,6 +22,8 @@ signal reviewMistakesRequested
 #region ========== Constants ==========
 
 const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
+const SCORE_ICON: Texture2D = preload("res://Assets/Icons/score.svg")
+const ZEN_SOLVED_ICON: Texture2D = preload("res://Assets/Icons/correct.svg")
 
 #endregion
 
@@ -43,7 +45,10 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 @onready var levelTitleLabel: Label = $"../MainMargin/MainLayout/TopBar/LevelTitleLabel"
 @onready var progressLabel: Label = $"../MainMargin/MainLayout/TopBar/ProgressGroup/ProgressLabel"
 @onready var progressBar: ProgressBar = $"../MainMargin/MainLayout/TopBar/ProgressGroup/ProgressBar"
+@onready var zenTimerGroup: HBoxContainer = $"../MainMargin/MainLayout/TopBar/ZenTimerGroup"
+@onready var zenTimerLabel: Label = $"../MainMargin/MainLayout/TopBar/ZenTimerGroup/ZenTimerLabel"
 @onready var scoreLabel: Label = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreLabel"
+@onready var scoreIcon: TextureRect = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreIcon"
 @onready var scoreGainLabel: Label = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreGainLabel"
 @onready var ruleLabel: Label = $"../MainMargin/MainLayout/RuleLabel"
 @onready var equationLabel: Label = $"../MainMargin/MainLayout/QuestionPanel/CenterContainer/EquationLabel"
@@ -79,6 +84,7 @@ const STEP_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/StepCard.tscn")
 var fillInputs: Dictionary = {}
 var displayedLevelScore: int = 0
 var scoreTween: Tween = null
+var zenModeActive: bool = false
 
 #endregion
 
@@ -182,6 +188,9 @@ func SetupQuestionHeader(
 
 # Displays only points already earned by completing Questions.
 func UpdateScore(_currentScore: int, levelScore: int) -> void:
+	if zenModeActive:
+		return
+
 	var earnedScore := levelScore - displayedLevelScore
 	displayedLevelScore = levelScore
 	scoreLabel.text = "%s %d" % [tr("Score"), levelScore]
@@ -190,6 +199,29 @@ func UpdateScore(_currentScore: int, levelScore: int) -> void:
 		PlayScoreGainAnimation(earnedScore)
 	else:
 		scoreGainLabel.visible = false
+
+# Switches shared header controls between Level progress and timed Zen status.
+func SetZenModeActive(isActive: bool) -> void:
+	zenModeActive = isActive
+	zenTimerGroup.visible = isActive
+	progressBar.visible = not isActive
+	tutorialButton.visible = not isActive
+	hintButton.visible = not isActive
+	scoreIcon.texture = ZEN_SOLVED_ICON if isActive else SCORE_ICON
+	scoreGainLabel.visible = false
+
+# Displays the remaining Zen time and number of completed Questions.
+func UpdateZenStatus(remainingSeconds: int, solvedCount: int) -> void:
+	var safeSeconds := maxi(0, remainingSeconds)
+	var minutes := floori(float(safeSeconds) / 60.0)
+	var seconds := safeSeconds % 60
+	zenTimerLabel.text = "%02d:%02d" % [minutes, seconds]
+	zenTimerLabel.add_theme_color_override(
+		"font_color",
+		Color(1, 0.5, 0.42, 1) if safeSeconds <= 10 else Color(0.45, 0.82, 1, 1)
+	)
+	progressLabel.text = tr("Random Questions")
+	scoreLabel.text = "%s %d" % [tr("Solved"), solvedCount]
 
 # Briefly celebrates newly committed points without obstructing gameplay.
 func PlayScoreGainAnimation(earnedScore: int) -> void:
@@ -540,6 +572,10 @@ func ShowDataError(message: String) -> void:
 
 # Displays the level completion overlay and result text.
 func ShowEndMenu(summaryData: Dictionary) -> void:
+	if summaryData.get("isZenSession", false):
+		ShowZenEndMenu(summaryData)
+		return
+
 	var levelScore: int = summaryData.get("score", 0)
 	var maxLevelScore: int = summaryData.get("maxScore", 0)
 	var scorePercentage: int = summaryData.get("percentage", 0)
@@ -606,6 +642,29 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 
 	if levelCompleted or isPracticeSession:
 		AudioManager.PlayVictory()
+
+# Displays the non-star result used by a completed three-minute Zen session.
+func ShowZenEndMenu(summaryData: Dictionary) -> void:
+	completeLabel.text = tr("TIME'S UP")
+	completeLabel.add_theme_color_override("font_color", Color(0.45, 0.82, 1, 1))
+	completeIcon.visible = false
+	starsLabel.visible = false
+	sessionMetaLabel.text = tr("Zen Mode")
+	resultLabel.text = "%s  %d" % [tr("Solved"), summaryData.get("solvedCount", 0)]
+	statsLabel.text = "%s  %d%%\n%s  %d" % [
+		tr("Accuracy"),
+		summaryData.get("accuracy", 0),
+		tr("Best"),
+		summaryData.get("bestSolvedCount", 0)
+	]
+	bestScoreLabel.visible = false
+	newBestLabel.text = tr("NEW BEST")
+	newBestLabel.visible = summaryData.get("isNewBest", false)
+	nextLevelButton.visible = false
+	retryButton.text = tr("Try Again")
+	reviewMistakesButton.visible = false
+	endMenu.visible = true
+	AudioManager.PlayVictory()
 
 # Hides the level completion overlay before gameplay restarts.
 func HideEndMenu() -> void:

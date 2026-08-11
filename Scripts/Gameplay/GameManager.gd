@@ -16,6 +16,7 @@ const MULTIPLE_CHOICE_LEVEL_TYPE_ID: String = "multiple_choice_ordering"
 const FILL_PROCESS_LEVEL_TYPE_ID: String = "fill_in_process"
 const STANDARD_SESSION_TYPE: String = "level"
 const MISTAKE_PRACTICE_SESSION_TYPE: String = "mistake_practice"
+const ZEN_SESSION_TYPE: String = "zen"
 const MISTAKE_PRACTICE_QUESTION_COUNT: int = 10
 const MAX_QUESTION_SCORE: int = 100
 const INCORRECT_ATTEMPT_PENALTY: int = 15
@@ -34,6 +35,7 @@ var stepGenerator := preload("res://Scripts/Math/StepGenerator.gd").new()
 var choiceGenerator := preload("res://Scripts/Math/ChoiceGenerator.gd").new()
 var progressManager := preload("res://Scripts/Gameplay/ProgressManager.gd").new()
 var mistakeBookManager := preload("res://Scripts/Gameplay/MistakeBookManager.gd").new()
+var zenModeManager := preload("res://Scripts/Gameplay/ZenModeManager.gd").new()
 
 #endregion
 
@@ -71,6 +73,7 @@ var activeSessionType: String = STANDARD_SESSION_TYPE
 
 # Loads shared content before any gameplay or menu scene requests it.
 func _ready() -> void:
+	set_process(false)
 	var contentData: Dictionary = levelLoader.LoadContentData()
 
 	if contentData.is_empty():
@@ -81,6 +84,23 @@ func _ready() -> void:
 	levels = contentData["levels"]
 	currentLevel = levels[0]
 	progressManager.Initialize(DEFAULT_LEVEL_TYPE_ID)
+
+# Updates the active Zen timer independently of Question interaction state.
+func _process(delta: float) -> void:
+	if activeSessionType != ZEN_SESSION_TYPE:
+		set_process(false)
+		return
+
+	var timerExpired := zenModeManager.AdvanceTime(delta)
+
+	if is_instance_valid(gameUI):
+		gameUI.UpdateZenStatus(
+			zenModeManager.GetRemainingSeconds(),
+			zenModeManager.GetSolvedCount()
+		)
+
+	if timerExpired:
+		EndZenMode()
 
 #endregion
 
@@ -147,6 +167,12 @@ func RegisterGameUI(newGameUI: Node) -> void:
 		currentLevel = levels[0]
 
 	ResetLevelScoring()
+
+	if activeSessionType == ZEN_SESSION_TYPE:
+		remainingHints = 0
+		levelHintBudget = 0
+		set_process(true)
+
 	LoadQuestion(0)
 
 	if activeSessionType == STANDARD_SESSION_TYPE:
@@ -242,6 +268,7 @@ func SelectLevel(levelId: String) -> bool:
 		return false
 
 	# Reset transient gameplay state for the newly selected Level.
+	set_process(false)
 	activeSessionType = STANDARD_SESSION_TYPE
 	currentLevel = selectedLevel
 	currentQuestionIndex = 0
@@ -287,7 +314,7 @@ func ReloadPersistentProgress() -> void:
 
 #endregion
 
-#region ========== Mistake Practice ==========
+#region ========== Replay Sessions ==========
 
 # Builds one randomized review session from up to ten unique saved mistakes.
 func StartMistakePractice() -> bool:
@@ -326,6 +353,49 @@ func StartMistakePractice() -> bool:
 	ResetLevelScoring()
 	OpenGame()
 	return true
+
+# Starts a three-minute mixed-mode session from the complete Question pool.
+func StartZenMode() -> bool:
+	if not zenModeManager.Initialize(levels):
+		return false
+
+	activeSessionType = ZEN_SESSION_TYPE
+	SelectNextZenQuestion()
+	ResetLevelScoring()
+	remainingHints = 0
+	levelHintBudget = 0
+	OpenGame()
+	return true
+
+# Selects a random Question and interaction mode without immediate repetition.
+func SelectNextZenQuestion() -> void:
+	var gameplayModeIds: Array[String] = [
+		DEFAULT_LEVEL_TYPE_ID,
+		MULTIPLE_CHOICE_LEVEL_TYPE_ID,
+		FILL_PROCESS_LEVEL_TYPE_ID
+	]
+	var selectedQuestion := zenModeManager.GetNextQuestion(gameplayModeIds)
+	selectedLevelTypeId = selectedQuestion.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
+	currentLevel = {
+		"id": ZEN_SESSION_TYPE,
+		"title": "Zen Mode",
+		"skills": selectedQuestion.get("skills", []).duplicate(),
+		"questions": [{
+			"id": selectedQuestion.get("id", ""),
+			"expression": selectedQuestion.get("expression", ""),
+			"levelTypeId": selectedLevelTypeId,
+			"sourceLevelId": selectedQuestion.get("sourceLevelId", "")
+		}]
+	}
+	currentQuestionIndex = 0
+
+# Ends the timed session and saves a new solved-count record when earned.
+func EndZenMode() -> void:
+	set_process(false)
+	var summaryData := zenModeManager.Finish(currentLevelIncorrectAttempts)
+
+	if is_instance_valid(gameUI) and not summaryData.is_empty():
+		gameUI.ShowEndMenu(summaryData)
 
 #endregion
 
@@ -405,6 +475,10 @@ func LoadQuestion(questionIndex: int) -> void:
 	# A mixed Mistake Practice session restores each Question's original mode.
 	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
 		selectedLevelTypeId = currentQuestion.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
+	elif activeSessionType == ZEN_SESSION_TYPE:
+		selectedLevelTypeId = currentQuestion.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
+
+	gameUI.SetZenModeActive(activeSessionType == ZEN_SESSION_TYPE)
 
 	var expression: String = currentQuestion.get("expression", "")
 	currentExpression = expression
@@ -449,6 +523,12 @@ func LoadQuestion(questionIndex: int) -> void:
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 	gameUI.UpdateHintCount(remainingHints)
+
+	if activeSessionType == ZEN_SESSION_TYPE:
+		gameUI.UpdateZenStatus(
+			zenModeManager.GetRemainingSeconds(),
+			zenModeManager.GetSolvedCount()
+		)
 
 	if remainingHints <= 0:
 		gameUI.SetHintAvailable(false)
@@ -799,6 +879,11 @@ func UpdateMultipleChoiceHintAvailability(correctStep: String) -> void:
 
 # Advances to the next question or completes the current level.
 func GoToNextQuestion() -> void:
+	if activeSessionType == ZEN_SESSION_TYPE:
+		SelectNextZenQuestion()
+		LoadQuestion(0)
+		return
+
 	var questions: Array = currentLevel.get("questions", [])
 	var nextQuestionIndex := currentQuestionIndex + 1
 
@@ -892,7 +977,7 @@ func GetMistakeBookEntries() -> Array:
 # Adds or updates the current Question without duplicating its mode-specific entry.
 func UpdateMistakeBookEntry() -> void:
 	# Practice mistakes already exist and retain their original Level metadata.
-	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
+	if activeSessionType in [MISTAKE_PRACTICE_SESSION_TYPE, ZEN_SESSION_TYPE]:
 		return
 
 	var questions: Array = currentLevel.get("questions", [])
@@ -924,6 +1009,9 @@ func RemoveMistakeBookEntry(entryKey: String) -> void:
 
 # Returns the fixed shared Hint budget for the selected Level range.
 func GetLevelHintBudget() -> int:
+	if activeSessionType == ZEN_SESSION_TYPE:
+		return 0
+
 	var selectedLevelIndex := 0
 	var selectedLevelId := GetSelectedLevelId()
 
@@ -952,6 +1040,10 @@ func CompleteQuestion() -> void:
 	consecutiveIncorrectAttempts = 0
 	questionScoreCommitted = true
 	currentLevelScore += currentQuestionScore
+
+	if activeSessionType == ZEN_SESSION_TYPE:
+		zenModeManager.RecordSolvedQuestion()
+
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
 # Calculates a Level rating using score percentage as its only input.
@@ -972,6 +1064,10 @@ func CalculateStarRating(levelScore: int, maxLevelScore: int) -> int:
 
 # Restarts the active level from its first question.
 func RestartLevel() -> void:
+	if activeSessionType == ZEN_SESSION_TYPE:
+		StartZenMode()
+		return
+
 	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
 		StartMistakePractice()
 		return
@@ -993,6 +1089,7 @@ func OpenNextLevel() -> void:
 
 # Returns to the Lobby while preserving current-session Level progress.
 func BackToLobby() -> void:
+	set_process(false)
 	OpenLobby()
 
 #endregion
