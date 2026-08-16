@@ -39,6 +39,8 @@ var mistakeBookManager := preload("res://Scripts/Gameplay/MistakeBookManager.gd"
 var zenModeManager := preload("res://Scripts/Gameplay/ZenModeManager.gd").new()
 var survivalModeManager := preload("res://Scripts/Gameplay/SurvivalModeManager.gd").new()
 var telemetryManager := preload("res://Scripts/Gameplay/TelemetryManager.gd").new()
+var playerHistoryManager := preload("res://Scripts/Gameplay/PlayerHistoryManager.gd").new()
+var skillMasteryManager := preload("res://Scripts/Gameplay/SkillMasteryManager.gd").new()
 
 #endregion
 
@@ -342,6 +344,14 @@ func GetQuestionTelemetryRecords() -> Array[Dictionary]:
 # Returns the current unfinished Question record with live elapsed time.
 func GetActiveQuestionTelemetry() -> Dictionary:
 	return telemetryManager.GetActiveQuestionSnapshot()
+
+# Returns the persistent history of completed Question summaries.
+func GetPlayerHistory() -> Array:
+	return playerHistoryManager.GetHistory()
+
+# Returns persisted Skill aggregation and Mastery values.
+func GetSkillProgress() -> Dictionary:
+	return skillMasteryManager.GetSkillProgress()
 
 #endregion
 
@@ -1185,12 +1195,14 @@ func CompleteQuestion() -> void:
 	elif activeSessionType == SURVIVAL_SESSION_TYPE:
 		survivalModeManager.RecordSolvedQuestion()
 
-	telemetryManager.CompleteQuestion({
+	var completedTelemetry := telemetryManager.CompleteQuestion({
 		"completed": true,
 		"questionScore": currentQuestionScore,
 		"incorrectAttempts": incorrectAttempts,
 		"hintsUsed": hintsUsed
 	})
+	playerHistoryManager.RecordCompletedQuestion(completedTelemetry)
+	skillMasteryManager.RebuildSkillProgress(playerHistoryManager.GetHistory())
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 

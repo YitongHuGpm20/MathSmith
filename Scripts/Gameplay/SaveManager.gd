@@ -8,7 +8,7 @@ extends Node
 #region ========== Constants ==========
 
 const SAVE_FILE_PATH: String = "user://mathsmith_save.json"
-const SAVE_SCHEMA_VERSION: int = 4
+const SAVE_SCHEMA_VERSION: int = 5
 
 #endregion
 
@@ -28,7 +28,7 @@ func _ready() -> void:
 
 #region ========== Functions ==========
 
-# Returns a fresh schema containing current and planned M4 data sections.
+# Returns a fresh schema containing current persistent learning data sections.
 func GetDefaultSaveData() -> Dictionary:
 	return {
 		"version": SAVE_SCHEMA_VERSION,
