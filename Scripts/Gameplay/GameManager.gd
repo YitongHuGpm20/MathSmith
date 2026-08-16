@@ -41,6 +41,7 @@ var survivalModeManager := preload("res://Scripts/Gameplay/SurvivalModeManager.g
 var telemetryManager := preload("res://Scripts/Gameplay/TelemetryManager.gd").new()
 var playerHistoryManager := preload("res://Scripts/Gameplay/PlayerHistoryManager.gd").new()
 var skillMasteryManager := preload("res://Scripts/Gameplay/SkillMasteryManager.gd").new()
+var behaviorPatternManager := preload("res://Scripts/Gameplay/BehaviorPatternManager.gd").new()
 
 #endregion
 
@@ -1201,6 +1202,9 @@ func CompleteQuestion() -> void:
 		"incorrectAttempts": incorrectAttempts,
 		"hintsUsed": hintsUsed
 	})
+	var behaviorAnalysis := behaviorPatternManager.AnalyzeQuestion(completedTelemetry)
+	completedTelemetry["behaviorPatterns"] = behaviorAnalysis["patterns"]
+	completedTelemetry["primaryBehaviorPattern"] = behaviorAnalysis["primaryPattern"]
 	playerHistoryManager.RecordCompletedQuestion(completedTelemetry)
 	skillMasteryManager.RebuildSkillProgress(playerHistoryManager.GetHistory())
 

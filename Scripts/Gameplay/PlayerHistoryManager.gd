@@ -57,6 +57,8 @@ func BuildHistoryRecord(telemetryRecord: Dictionary) -> Dictionary:
 		"totalSolveTimeMs": telemetryRecord.get("totalSolveTimeMs", -1),
 		"sharedMetrics": telemetryRecord.get("sharedMetrics", {}).duplicate(true),
 		"modeMetrics": telemetryRecord.get("modeMetrics", {}).duplicate(true),
+		"behaviorPatterns": telemetryRecord.get("behaviorPatterns", []).duplicate(),
+		"primaryBehaviorPattern": telemetryRecord.get("primaryBehaviorPattern", ""),
 		"outcome": telemetryRecord.get("outcome", {}).duplicate(true)
 	}
 
