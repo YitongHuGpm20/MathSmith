@@ -12,7 +12,11 @@ signal retryRequested
 signal nextLevelRequested
 signal lobbyRequested
 signal orderChanged
+signal stepDragStarted
+signal stepReordered
+signal stepDragCompleted
 signal choiceSelected(choiceText: String)
+signal fillValueChanged(blankId: String)
 signal tutorialDismissed
 signal tutorialRequested
 signal reviewMistakesRequested
@@ -88,6 +92,7 @@ var displayedLevelScore: int = 0
 var scoreTween: Tween = null
 var zenModeActive: bool = false
 var survivalModeActive: bool = false
+var suppressFillValueTracking: bool = false
 
 #endregion
 
@@ -106,6 +111,7 @@ func _ready() -> void:
 	lobbyButton.pressed.connect(_on_lobby_button_pressed)
 	closeTutorialButton.pressed.connect(_on_close_tutorial_button_pressed)
 	stepArea.orderChanged.connect(_on_step_order_changed)
+	stepArea.playerReordered.connect(_on_step_reordered)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
 	UpdateResponsiveLayout()
 
@@ -277,6 +283,8 @@ func CreateStepCards(steps: Array[String]) -> void:
 		stepArea.add_child(stepCard)
 		stepCard.Setup(steps[_stepIndex])
 		stepCard.SetInteractionLocked(false)
+		stepCard.dragStarted.connect(_on_step_drag_started)
+		stepCard.dragCompleted.connect(_on_step_drag_completed)
 
 # Removes all cards from the current question display.
 func ClearStepCards() -> void:
@@ -377,6 +385,7 @@ func CreateFillProcess(fillStepData: Array) -> void:
 			fillInput.placeholder_text = "?"
 			fillInput.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			fillInput.add_theme_font_size_override("font_size", 18)
+			fillInput.set_meta("blankId", blankId)
 			ApplyFillInputState(fillInput, "empty")
 			fillInput.text_changed.connect(_on_fill_input_text_changed.bind(fillInput))
 			stepRow.add_child(fillInput)
@@ -447,7 +456,9 @@ func RevealFillBlank(blankId: String, answer: String) -> void:
 		return
 
 	var fillInput: LineEdit = fillInputs[blankId]
+	suppressFillValueTracking = true
 	fillInput.text = answer
+	suppressFillValueTracking = false
 	fillInput.editable = false
 	fillInput.set_meta("revealedByHint", true)
 	ApplyFillInputState(fillInput, "revealed")
@@ -752,6 +763,18 @@ func _on_lobby_button_pressed() -> void:
 func _on_step_order_changed() -> void:
 	orderChanged.emit()
 
+# Forwards the beginning of one player drag independently of reordering.
+func _on_step_drag_started() -> void:
+	stepDragStarted.emit()
+
+# Forwards each player-driven index change during one active drag.
+func _on_step_reordered() -> void:
+	stepReordered.emit()
+
+# Forwards the final successful drop separately from hover reordering.
+func _on_step_drag_completed() -> void:
+	stepDragCompleted.emit()
+
 # Forwards one visual candidate selection to GameManager for validation.
 func _on_choice_button_pressed(choiceText: String) -> void:
 	choiceSelected.emit(choiceText)
@@ -767,6 +790,9 @@ func _on_tutorial_button_pressed() -> void:
 
 # Restricts Fill-in fields to whole-number input with one optional leading minus.
 func _on_fill_input_text_changed(newText: String, fillInput: LineEdit) -> void:
+	if not suppressFillValueTracking:
+		fillValueChanged.emit(fillInput.get_meta("blankId", ""))
+
 	var filteredText := ""
 
 	for characterIndex in range(newText.length()):
@@ -778,7 +804,9 @@ func _on_fill_input_text_changed(newText: String, fillInput: LineEdit) -> void:
 	if filteredText == newText:
 		return
 
+	suppressFillValueTracking = true
 	fillInput.text = filteredText
 	fillInput.caret_column = filteredText.length()
+	suppressFillValueTracking = false
 
 #endregion

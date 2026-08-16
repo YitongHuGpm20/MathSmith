@@ -4,6 +4,13 @@
 ## does not know whether its current position is correct.
 extends PanelContainer
 
+#region ========== Signals ==========
+
+signal dragStarted
+signal dragCompleted
+
+#endregion
+
 #region ========== References ==========
 
 @onready var stepLabel: Label = $MarginContainer/TextAnchor/StepLabel
@@ -44,6 +51,7 @@ func _get_drag_data(at_position: Vector2) -> Variant:
 	# Hide the source so the card appears physically lifted from the queue.
 	isDragging = true
 	modulate.a = 0.0
+	dragStarted.emit()
 	AudioManager.PlayDrag()
 	return self
 
@@ -52,13 +60,22 @@ func _notification(what: int) -> void:
 	if what != NOTIFICATION_DRAG_END or not isDragging:
 		return
 
+	# The dragged source reliably knows whether any valid drop target accepted it.
+	if is_drag_successful():
+		dragCompleted.emit()
+
 	isDragging = false
 	modulate.a = 1.0
 
 # Accepts another StepCard from the same visual step area.
 func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
-	if not data is PanelContainer or data == self or data.get_parent() != get_parent():
+	if not data is PanelContainer or data.get_parent() != get_parent():
 		return false
+
+	# Live reordering can move the dragged source beneath the pointer itself.
+	# Accept it as a valid final target without requesting another index change.
+	if data == self:
+		return true
 
 	# Reorder while hovering above or below this card's midpoint.
 	var targetIndex := get_index()

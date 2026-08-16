@@ -7,6 +7,7 @@ extends VBoxContainer
 #region ========== Signals ==========
 
 signal orderChanged
+signal playerReordered
 
 #endregion
 
@@ -75,6 +76,10 @@ func PreviewCardPosition(stepCard: Control, targetIndex: int, animateMovedCard: 
 		animateMovedCard
 	)
 	orderChanged.emit()
+
+	# Hint placement requests animation for the moved card; player drags do not.
+	if not animateMovedCard:
+		playerReordered.emit()
 
 # Tweens non-dragged cards from their previous slots to their new slots.
 func AnimateCardPositions(

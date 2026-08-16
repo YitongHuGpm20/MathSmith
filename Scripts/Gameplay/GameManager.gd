@@ -38,6 +38,7 @@ var progressManager := preload("res://Scripts/Gameplay/ProgressManager.gd").new(
 var mistakeBookManager := preload("res://Scripts/Gameplay/MistakeBookManager.gd").new()
 var zenModeManager := preload("res://Scripts/Gameplay/ZenModeManager.gd").new()
 var survivalModeManager := preload("res://Scripts/Gameplay/SurvivalModeManager.gd").new()
+var telemetryManager := preload("res://Scripts/Gameplay/TelemetryManager.gd").new()
 
 #endregion
 
@@ -155,7 +156,11 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	gameUI.nextLevelRequested.connect(OpenNextLevel)
 	gameUI.lobbyRequested.connect(BackToLobby)
 	gameUI.orderChanged.connect(UpdateHintAvailability)
+	gameUI.stepDragStarted.connect(telemetryManager.RecordStepDragStarted)
+	gameUI.stepReordered.connect(telemetryManager.RecordStepReordered)
+	gameUI.stepDragCompleted.connect(telemetryManager.RecordStepDragCompleted)
 	gameUI.choiceSelected.connect(SelectMultipleChoice)
+	gameUI.fillValueChanged.connect(telemetryManager.RecordFillValueChanged)
 	gameUI.tutorialDismissed.connect(RecordTutorialViewed)
 	gameUI.tutorialRequested.connect(ShowCurrentTutorial)
 	gameUI.reviewMistakesRequested.connect(OpenMistakeBook)
@@ -211,8 +216,20 @@ func DisconnectGameUISignals() -> void:
 	if gameUI.orderChanged.is_connected(UpdateHintAvailability):
 		gameUI.orderChanged.disconnect(UpdateHintAvailability)
 
+	if gameUI.stepDragStarted.is_connected(telemetryManager.RecordStepDragStarted):
+		gameUI.stepDragStarted.disconnect(telemetryManager.RecordStepDragStarted)
+
+	if gameUI.stepReordered.is_connected(telemetryManager.RecordStepReordered):
+		gameUI.stepReordered.disconnect(telemetryManager.RecordStepReordered)
+
+	if gameUI.stepDragCompleted.is_connected(telemetryManager.RecordStepDragCompleted):
+		gameUI.stepDragCompleted.disconnect(telemetryManager.RecordStepDragCompleted)
+
 	if gameUI.choiceSelected.is_connected(SelectMultipleChoice):
 		gameUI.choiceSelected.disconnect(SelectMultipleChoice)
+
+	if gameUI.fillValueChanged.is_connected(telemetryManager.RecordFillValueChanged):
+		gameUI.fillValueChanged.disconnect(telemetryManager.RecordFillValueChanged)
 
 	if gameUI.tutorialDismissed.is_connected(RecordTutorialViewed):
 		gameUI.tutorialDismissed.disconnect(RecordTutorialViewed)
@@ -316,6 +333,18 @@ func ReloadPersistentProgress() -> void:
 
 #endregion
 
+#region ========== Telemetry Inspection ==========
+
+# Returns completed Checkpoint 1 records without exposing mutable tracker state.
+func GetQuestionTelemetryRecords() -> Array[Dictionary]:
+	return telemetryManager.GetCompletedRecords()
+
+# Returns the current unfinished Question record with live elapsed time.
+func GetActiveQuestionTelemetry() -> Dictionary:
+	return telemetryManager.GetActiveQuestionSnapshot()
+
+#endregion
+
 #region ========== Replay Sessions ==========
 
 # Builds one randomized review session from up to ten unique saved mistakes.
@@ -334,9 +363,13 @@ func StartMistakePractice() -> bool:
 		var mistakeEntry: Dictionary = mistakeEntries[entryIndex]
 		practiceQuestions.append({
 			"id": "practice_%02d_%s" % [entryIndex, mistakeEntry.get("questionId", "")],
+			"sourceQuestionId": mistakeEntry.get("questionId", ""),
 			"expression": mistakeEntry.get("expression", ""),
 			"levelTypeId": mistakeEntry.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID),
-			"sourceEntryKey": mistakeEntry.get("entryKey", "")
+			"sourceEntryKey": mistakeEntry.get("entryKey", ""),
+			"sourceLevelId": mistakeEntry.get("levelId", ""),
+			"sourceLevelTitle": mistakeEntry.get("levelTitle", ""),
+			"skills": mistakeEntry.get("skills", []).duplicate()
 		})
 
 		for skill in mistakeEntry.get("skills", []):
@@ -566,6 +599,9 @@ func LoadQuestion(questionIndex: int) -> void:
 			shuffledSteps
 		)
 
+	# Begin timing only after the Question and its controls are fully presented.
+	telemetryManager.BeginQuestion(BuildTelemetryQuestionContext(currentQuestion))
+
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 	gameUI.UpdateHintCount(remainingHints)
 
@@ -596,6 +632,34 @@ func ShuffleSteps(orderedSteps: Array[String]) -> Array[String]:
 
 	return shuffledSteps
 
+# Builds stable source metadata for standard and replay-session Questions.
+func BuildTelemetryQuestionContext(currentQuestion: Dictionary) -> Dictionary:
+	var sourceLevelId: String = currentQuestion.get(
+		"sourceLevelId",
+		currentLevel.get("id", "")
+	)
+	var sourceLevel := GetLevelById(sourceLevelId)
+	var sourceLevelTitle: String = currentQuestion.get(
+		"sourceLevelTitle",
+		sourceLevel.get("title", currentLevel.get("title", ""))
+	)
+	var sourceSkills: Array = currentQuestion.get(
+		"skills",
+		sourceLevel.get("skills", currentLevel.get("skills", []))
+	)
+	return {
+		"questionId": currentQuestion.get(
+			"sourceQuestionId",
+			currentQuestion.get("id", "")
+		),
+		"levelId": sourceLevelId,
+		"levelTitle": sourceLevelTitle,
+		"levelTypeId": selectedLevelTypeId,
+		"sessionType": activeSessionType,
+		"expression": currentQuestion.get("expression", ""),
+		"skills": sourceSkills.duplicate()
+	}
+
 #endregion
 
 #region ========== Step Ordering ==========
@@ -608,6 +672,8 @@ func CheckAnswer() -> void:
 
 	if selectedLevelTypeId == MULTIPLE_CHOICE_LEVEL_TYPE_ID:
 		return
+
+	telemetryManager.RecordCheckSubmission(selectedLevelTypeId)
 
 	if selectedLevelTypeId == FILL_PROCESS_LEVEL_TYPE_ID:
 		CheckFillProcess()
@@ -786,6 +852,7 @@ func RegisterIncorrectAttempt() -> String:
 	consecutiveIncorrectAttempts += 1
 	incorrectAttempts += 1
 	currentLevelIncorrectAttempts += 1
+	telemetryManager.RecordIncorrectAttempt(selectedLevelTypeId)
 
 	# Survival consumes one life for each mode-specific incorrect attempt.
 	if activeSessionType == SURVIVAL_SESSION_TYPE:
@@ -885,6 +952,8 @@ func PrepareMultipleChoiceStage() -> void:
 func SelectMultipleChoice(choiceText: String) -> void:
 	if questionCompleted or currentChoiceStage >= correctSteps.size():
 		return
+
+	telemetryManager.RecordChoiceSelection()
 
 	var correctStep := correctSteps[currentChoiceStage]
 
@@ -1025,6 +1094,7 @@ func RegisterHintUsed() -> void:
 	currentLevelHintsUsed += 1
 	remainingHints = maxi(0, remainingHints - 1)
 	currentQuestionScore = maxi(0, currentQuestionScore - HINT_SCORE_PENALTY)
+	telemetryManager.RecordHintUse()
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 	gameUI.UpdateHintCount(remainingHints)
 
@@ -1114,6 +1184,13 @@ func CompleteQuestion() -> void:
 		zenModeManager.RecordSolvedQuestion()
 	elif activeSessionType == SURVIVAL_SESSION_TYPE:
 		survivalModeManager.RecordSolvedQuestion()
+
+	telemetryManager.CompleteQuestion({
+		"completed": true,
+		"questionScore": currentQuestionScore,
+		"incorrectAttempts": incorrectAttempts,
+		"hintsUsed": hintsUsed
+	})
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
