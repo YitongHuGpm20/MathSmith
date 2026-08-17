@@ -8,6 +8,7 @@ extends Node
 #region ========== Constants ==========
 
 const HOME_SCENE_PATH: String = "res://Scenes/HomeScene.tscn"
+const COURSE_SELECTION_SCENE_PATH: String = "res://Scenes/CourseSelectionScene.tscn"
 const LOBBY_SCENE_PATH: String = "res://Scenes/LobbyScene.tscn"
 const GAME_SCENE_PATH: String = "res://Scenes/GameScene.tscn"
 const MISTAKE_BOOK_SCENE_PATH: String = "res://Scenes/MistakeBookScene.tscn"
@@ -121,6 +122,10 @@ func _process(delta: float) -> void:
 # Opens the Home Scene while preserving current-session progress.
 func OpenHome() -> void:
 	ChangeScene(HOME_SCENE_PATH)
+
+# Opens player-facing Course Source selection before gameplay mode selection.
+func OpenCourseSelection() -> void:
+	ChangeScene(COURSE_SELECTION_SCENE_PATH)
 
 # Opens the Lobby Scene while preserving current-session progress.
 func OpenLobby() -> void:

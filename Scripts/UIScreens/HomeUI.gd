@@ -37,7 +37,7 @@ func _ready() -> void:
 	settingsButton.pressed.connect(settingsPanel.Open)
 	closeCreditsButton.pressed.connect(_on_close_credits_button_pressed)
 	exitButton.pressed.connect(_on_exit_button_pressed)
-	playRequested.connect(GameManager.OpenLobby)
+	playRequested.connect(GameManager.OpenCourseSelection)
 	exitRequested.connect(GameManager.QuitGame)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
 	UpdateResponsiveLayout()

@@ -1,0 +1,266 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UIScreens/CourseSelectionUI.gd" id="1_script"]
+[ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/back.svg" id="3_back"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/course_core.svg" id="5_core"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/course_imported.svg" id="6_imported"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/course_studio.svg" id="8_studio"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="7_settings_panel"]
+
+[node name="CourseSelectionScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.018, 0.027, 0.055, 1)
+mouse_filter = 2
+
+[node name="MainMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 64.0
+offset_top = 40.0
+offset_right = -64.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PageLayout" type="VBoxContainer" parent="MainMargin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Header" type="HBoxContainer" parent="MainMargin/PageLayout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackButton" type="Button" parent="MainMargin/PageLayout/Header"]
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+text = "Back"
+icon = ExtResource("3_back")
+icon_max_width = 18
+
+[node name="HeaderSpacer" type="Control" parent="MainMargin/PageLayout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SettingsButton" type="Button" parent="MainMargin/PageLayout/Header"]
+custom_minimum_size = Vector2(152, 48)
+layout_mode = 2
+text = "Settings"
+icon = ExtResource("4_settings")
+icon_max_width = 18
+
+[node name="ContentCenter" type="CenterContainer" parent="MainMargin/PageLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CourseContent" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter"]
+custom_minimum_size = Vector2(0, 520)
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="EyebrowLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.76, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "CHOOSE COURSE"
+horizontal_alignment = 1
+
+[node name="TitleLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "Select Your Learning Path"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.72, 0.82, 1)
+theme_override_font_sizes/font_size = 18
+text = "Each Course keeps its own progress, Mastery, and learning history."
+horizontal_alignment = 1
+
+[node name="CourseGrid" type="GridContainer" parent="MainMargin/PageLayout/ContentCenter/CourseContent"]
+custom_minimum_size = Vector2(0, 280)
+layout_mode = 2
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 18
+columns = 3
+
+[node name="CoreCourseButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid"]
+custom_minimum_size = Vector2(390, 250)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CardMargin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/CoreCourseButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 22.0
+offset_right = -24.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CardLayout" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/CoreCourseButton/CardMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/CoreCourseButton/CardMargin/CardLayout"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("5_core")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="TitleLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/CoreCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Core Curriculum"
+
+[node name="DescriptionLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/CoreCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.66, 0.72, 0.82, 1)
+text = "Built-in MathSmith learning path"
+autowrap_mode = 2
+
+[node name="MetadataLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/CoreCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+text = "12 Levels"
+
+[node name="StatusLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/CoreCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.9, 0.72, 1)
+text = "AVAILABLE"
+
+[node name="ImportedCourseButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid"]
+custom_minimum_size = Vector2(390, 250)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CardMargin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 22.0
+offset_right = -24.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CardLayout" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin/CardLayout"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("6_imported")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="TitleLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Imported Course"
+
+[node name="DescriptionLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.66, 0.72, 0.82, 1)
+text = "Teacher-authored CSV content"
+autowrap_mode = 2
+
+[node name="MetadataLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+text = "Not available yet"
+
+[node name="StatusLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.62, 0.72, 1)
+text = "UNAVAILABLE"
+
+[node name="StudioCourseButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid"]
+custom_minimum_size = Vector2(390, 250)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CardMargin" type="MarginContainer" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 22.0
+offset_right = -24.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CardLayout" type="VBoxContainer" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin/CardLayout"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("8_studio")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="TitleLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Studio Course"
+
+[node name="DescriptionLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.66, 0.72, 0.82, 1)
+text = "Content created in MathSmith Studio"
+autowrap_mode = 2
+
+[node name="MetadataLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+text = "Not available yet"
+
+[node name="StatusLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin/CardLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.62, 0.72, 1)
+text = "UNAVAILABLE"
+
+[node name="PlayerOnlyLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.57, 0.68, 1)
+text = "Course authoring is available separately through Teacher Tools."
+horizontal_alignment = 1
+
+[node name="SettingsPanel" parent="." instance=ExtResource("7_settings_panel")]

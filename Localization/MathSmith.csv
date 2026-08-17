@@ -168,3 +168,17 @@ Complete Questions to build Skill Mastery.,Complete Questions to build Skill Mas
 No weak Skill recommendation yet.,No weak Skill recommendation yet.,暂无薄弱技能推荐。
 Recommended: %s,Recommended: %s,推荐：%s
 %d Questions,%d Questions,%d 道题
+CHOOSE COURSE,CHOOSE COURSE,选择课程
+Select Your Learning Path,Select Your Learning Path,选择你的学习路径
+"Each Course keeps its own progress, Mastery, and learning history.","Each Course keeps its own progress, Mastery, and learning history.",每门课程都独立保存进度、掌握度和学习记录。
+Core Curriculum,Core Curriculum,核心课程
+Built-in MathSmith learning path,Built-in MathSmith learning path,MathSmith 内置学习路径
+Imported Course,Imported Course,导入课程
+Teacher-authored CSV content,Teacher-authored CSV content,教师通过 CSV 编写的课程内容
+Studio Course,Studio Course,工作室课程
+Content created in MathSmith Studio,Content created in MathSmith Studio,在 MathSmith Studio 中创建的内容
+%d Levels  •  %d Questions,%d Levels  •  %d Questions,%d 个关卡  •  %d 道题
+Not available yet,Not available yet,暂不可用
+AVAILABLE,AVAILABLE,可用
+UNAVAILABLE,UNAVAILABLE,不可用
+Course authoring is available separately through Teacher Tools.,Course authoring is available separately through Teacher Tools.,课程创作功能将在独立的教师工具中提供。
