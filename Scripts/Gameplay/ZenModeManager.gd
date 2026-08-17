@@ -81,12 +81,12 @@ func Finish(incorrectAttemptCount: int) -> Dictionary:
 		return {}
 
 	sessionEnded = true
-	var zenSaveData: Dictionary = SaveManager.GetSection("zenMode")
+	var zenSaveData: Dictionary = SaveManager.GetCourseSection("zenMode")
 	var previousBest: int = zenSaveData.get("bestSolvedCount", 0)
 	var isNewBest := solvedCount > previousBest
 	var bestSolvedCount := maxi(previousBest, solvedCount)
 	zenSaveData["bestSolvedCount"] = bestSolvedCount
-	SaveManager.SetSection("zenMode", zenSaveData)
+	SaveManager.SetCourseSection("zenMode", zenSaveData)
 	var totalAttempts := solvedCount + incorrectAttemptCount
 	var accuracy := (
 		roundi(float(solvedCount) / float(totalAttempts) * 100.0)

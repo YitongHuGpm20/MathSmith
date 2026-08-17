@@ -19,7 +19,7 @@ const ENABLE_CONSOLE_OUTPUT: bool = false
 # Rebuilds every Skill summary from saved history and persists the result.
 func RebuildSkillProgress(playerHistory: Array) -> Dictionary:
 	var skillProgress := AggregateHistory(playerHistory)
-	SaveManager.SetSection("skillProgress", skillProgress)
+	SaveManager.SetCourseSection("skillProgress", skillProgress)
 
 	if ENABLE_CONSOLE_OUTPUT:
 		print("[M5 Skill Progress] ", JSON.stringify(skillProgress, "  "))
@@ -28,7 +28,7 @@ func RebuildSkillProgress(playerHistory: Array) -> Dictionary:
 
 # Returns isolated persisted Skill summaries for inspection and later UI work.
 func GetSkillProgress() -> Dictionary:
-	var savedProgress = SaveManager.GetSection("skillProgress")
+	var savedProgress = SaveManager.GetCourseSection("skillProgress")
 	return savedProgress if savedProgress is Dictionary else {}
 
 # Collects raw totals for each Skill before calculating derived values.

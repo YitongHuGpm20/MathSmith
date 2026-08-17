@@ -8,7 +8,7 @@ extends RefCounted
 
 # Returns an isolated copy of every saved mistake entry.
 func GetEntries() -> Array:
-	var savedEntries = SaveManager.GetSection("mistakeBook")
+	var savedEntries = SaveManager.GetCourseSection("mistakeBook")
 	return savedEntries if savedEntries is Array else []
 
 # Adds or updates one Question without duplicating its mode-specific entry.
@@ -47,7 +47,7 @@ func RecordQuestion(questionContext: Dictionary) -> void:
 	else:
 		mistakeEntries.push_front(mistakeEntry)
 
-	SaveManager.SetSection("mistakeBook", mistakeEntries)
+	SaveManager.SetCourseSection("mistakeBook", mistakeEntries)
 
 # Removes one saved mistake by its stable mode, Level, and Question key.
 func RemoveEntry(entryKey: String) -> void:
@@ -57,7 +57,7 @@ func RemoveEntry(entryKey: String) -> void:
 		if mistakeEntries[entryIndex].get("entryKey", "") == entryKey:
 			mistakeEntries.remove_at(entryIndex)
 
-	SaveManager.SetSection("mistakeBook", mistakeEntries)
+	SaveManager.SetCourseSection("mistakeBook", mistakeEntries)
 
 # Classifies the mathematical rule used by a saved deterministic explanation.
 func GetMistakeCategory(expression: String) -> String:

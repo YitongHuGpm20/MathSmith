@@ -65,7 +65,7 @@ func ReloadPersistentProgress() -> void:
 
 # Loads mode-specific progress and migrates the previous shared Level format.
 func LoadLevelProgress() -> void:
-	var loadedProgress = SaveManager.GetSection("levelProgress")
+	var loadedProgress = SaveManager.GetCourseSection("levelProgress")
 	levelProgress = loadedProgress if loadedProgress is Dictionary else {}
 	var legacyProgress: Dictionary = {}
 
@@ -113,6 +113,6 @@ func SetLevelProgress(levelTypeId: String, levelId: String, progressData: Dictio
 
 # Writes the complete progress collection through the shared SaveManager.
 func SaveLevelProgress() -> void:
-	SaveManager.SetSection("levelProgress", levelProgress)
+	SaveManager.SetCourseSection("levelProgress", levelProgress)
 
 #endregion

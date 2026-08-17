@@ -27,7 +27,7 @@ func RecordCompletedQuestion(telemetryRecord: Dictionary) -> Dictionary:
 	while history.size() > MAX_HISTORY_RECORDS:
 		history.pop_front()
 
-	SaveManager.SetSection("playerHistory", history)
+	SaveManager.SetCourseSection("playerHistory", history)
 
 	if ENABLE_CONSOLE_OUTPUT:
 		print("[M5 Player History] savedRecords=", history.size())
@@ -36,7 +36,7 @@ func RecordCompletedQuestion(telemetryRecord: Dictionary) -> Dictionary:
 
 # Returns an isolated copy of the complete saved Question history.
 func GetHistory() -> Array:
-	var savedHistory = SaveManager.GetSection("playerHistory")
+	var savedHistory = SaveManager.GetCourseSection("playerHistory")
 	return savedHistory if savedHistory is Array else []
 
 # Removes event-level detail and preserves deterministic analysis inputs.

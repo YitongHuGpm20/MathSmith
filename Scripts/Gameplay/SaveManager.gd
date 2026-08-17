@@ -8,13 +8,22 @@ extends Node
 #region ========== Constants ==========
 
 const SAVE_FILE_PATH: String = "user://mathsmith_save.json"
-const SAVE_SCHEMA_VERSION: int = 5
+const SAVE_SCHEMA_VERSION: int = 6
+const CORE_CURRICULUM_SOURCE_ID: String = "core_curriculum"
+const IMPORTED_COURSE_SOURCE_ID: String = "imported_course"
+const STUDIO_COURSE_SOURCE_ID: String = "studio_course"
+const COURSE_SOURCE_IDS: Array[String] = [
+	CORE_CURRICULUM_SOURCE_ID,
+	IMPORTED_COURSE_SOURCE_ID,
+	STUDIO_COURSE_SOURCE_ID
+]
 
 #endregion
 
 #region ========== Variables ==========
 
 var saveData: Dictionary = {}
+var activeCourseSourceId: String = CORE_CURRICULUM_SOURCE_ID
 
 #endregion
 
@@ -38,13 +47,24 @@ func GetDefaultSaveData() -> Dictionary:
 			"mute": false,
 			"language": "en"
 		},
+		"courseState": {"selectedCourseSource": CORE_CURRICULUM_SOURCE_ID},
+		"courseData": {
+			CORE_CURRICULUM_SOURCE_ID: GetDefaultCoursePlayerData(),
+			IMPORTED_COURSE_SOURCE_ID: GetDefaultCoursePlayerData(),
+			STUDIO_COURSE_SOURCE_ID: GetDefaultCoursePlayerData()
+		},
+		"tutorialState": {}
+	}
+
+# Returns a fresh independent player-learning dataset for one Course Source.
+func GetDefaultCoursePlayerData() -> Dictionary:
+	return {
 		"levelProgress": {},
 		"mistakeBook": [],
 		"skillProgress": {},
 		"zenMode": {"bestSolvedCount": 0},
 		"survivalMode": {"bestSolvedCount": 0},
-		"playerHistory": [],
-		"tutorialState": {}
+		"playerHistory": []
 	}
 
 # Loads JSON data and restores missing sections from the current schema.
@@ -66,21 +86,71 @@ func LoadSaveData() -> void:
 		push_warning("Local Save contains invalid JSON and defaults will be used.")
 		return
 
+	var requiresMigration: bool = (
+		int(parsedData.get("version", 0)) < SAVE_SCHEMA_VERSION
+		or not parsedData.has("courseData")
+	)
 	MergeSavedSections(parsedData)
+
+	# Persist successful schema migration only after the complete merge exists.
+	if requiresMigration:
+		SaveLocalData()
 
 # Preserves known serializable sections while filling absent future fields.
 func MergeSavedSections(parsedData: Dictionary) -> void:
 	var defaultData := GetDefaultSaveData()
 
-	for sectionName in defaultData:
-		if sectionName == "version":
-			continue
+	# Global preferences and tutorials remain shared across Course Sources.
+	for sectionName in ["settings", "tutorialState", "courseState"]:
+		if (
+			parsedData.has(sectionName)
+			and typeof(parsedData[sectionName]) == typeof(defaultData[sectionName])
+		):
+			saveData[sectionName] = parsedData[sectionName].duplicate(true)
 
-		if parsedData.has(sectionName) and typeof(parsedData[sectionName]) == typeof(defaultData[sectionName]):
-			saveData[sectionName] = parsedData[sectionName]
+	if parsedData.get("courseData", {}) is Dictionary and not parsedData.get("courseData", {}).is_empty():
+		MergeCourseData(parsedData["courseData"])
+	else:
+		MigrateLegacyPlayerData(parsedData)
 
 	# Loaded data always adopts the schema understood by this build.
 	saveData["version"] = SAVE_SCHEMA_VERSION
+	activeCourseSourceId = saveData["courseState"].get(
+		"selectedCourseSource",
+		CORE_CURRICULUM_SOURCE_ID
+	)
+	if activeCourseSourceId not in COURSE_SOURCE_IDS:
+		activeCourseSourceId = CORE_CURRICULUM_SOURCE_ID
+		saveData["courseState"]["selectedCourseSource"] = activeCourseSourceId
+
+# Merges known Course fields while restoring any fields absent from old M6 data.
+func MergeCourseData(savedCourseData: Dictionary) -> void:
+	for courseSourceId in COURSE_SOURCE_IDS:
+		var mergedCourseData := GetDefaultCoursePlayerData()
+		var savedPlayerData = savedCourseData.get(courseSourceId, {})
+
+		if savedPlayerData is Dictionary:
+			for sectionName in mergedCourseData:
+				if (
+					savedPlayerData.has(sectionName)
+					and typeof(savedPlayerData[sectionName]) == typeof(mergedCourseData[sectionName])
+				):
+					mergedCourseData[sectionName] = savedPlayerData[sectionName].duplicate(true)
+
+		saveData["courseData"][courseSourceId] = mergedCourseData
+
+# Moves all pre-M6 player-learning sections into Core Curriculum exactly once.
+func MigrateLegacyPlayerData(parsedData: Dictionary) -> void:
+	var migratedCoreData := GetDefaultCoursePlayerData()
+
+	for sectionName in migratedCoreData:
+		if (
+			parsedData.has(sectionName)
+			and typeof(parsedData[sectionName]) == typeof(migratedCoreData[sectionName])
+		):
+			migratedCoreData[sectionName] = parsedData[sectionName].duplicate(true)
+
+	saveData["courseData"][CORE_CURRICULUM_SOURCE_ID] = migratedCoreData
 
 # Writes the complete versioned schema to Godot's user storage.
 func SaveLocalData() -> bool:
@@ -115,16 +185,75 @@ func SetSection(sectionName: String, sectionData: Variant, saveImmediately: bool
 
 	return SaveLocalData() if saveImmediately else true
 
+# Selects the Course scope used by all player-learning feature managers.
+func SetActiveCourseSource(courseSourceId: String, saveImmediately: bool = true) -> bool:
+	if courseSourceId not in COURSE_SOURCE_IDS:
+		return false
+
+	activeCourseSourceId = courseSourceId
+	saveData["courseState"]["selectedCourseSource"] = courseSourceId
+	return SaveLocalData() if saveImmediately else true
+
+# Returns isolated player-learning data from the active Course Source.
+func GetCourseSection(sectionName: String) -> Variant:
+	var coursePlayerData: Dictionary = saveData["courseData"].get(
+		activeCourseSourceId,
+		GetDefaultCoursePlayerData()
+	)
+	if not coursePlayerData.has(sectionName):
+		return null
+
+	var sectionData: Variant = coursePlayerData[sectionName]
+	return sectionData.duplicate(true) if sectionData is Array or sectionData is Dictionary else sectionData
+
+# Replaces one known section only inside the active Course Source.
+func SetCourseSection(
+	sectionName: String,
+	sectionData: Variant,
+	saveImmediately: bool = true
+) -> bool:
+	var defaultCourseData := GetDefaultCoursePlayerData()
+	if not defaultCourseData.has(sectionName):
+		push_error("Cannot save unknown Course player-data section: " + sectionName)
+		return false
+
+	var coursePlayerData: Dictionary = saveData["courseData"].get(
+		activeCourseSourceId,
+		GetDefaultCoursePlayerData()
+	)
+	coursePlayerData[sectionName] = (
+		sectionData.duplicate(true)
+		if sectionData is Array or sectionData is Dictionary
+		else sectionData
+	)
+	saveData["courseData"][activeCourseSourceId] = coursePlayerData
+	return SaveLocalData() if saveImmediately else true
+
+# Clears player-learning data for exactly one Course Source.
+func ResetCoursePlayerData(courseSourceId: String) -> bool:
+	if courseSourceId not in COURSE_SOURCE_IDS:
+		return false
+
+	saveData["courseData"][courseSourceId] = GetDefaultCoursePlayerData()
+	return SaveLocalData()
+
 # Restores the default schema after a confirmed Reset Progress action.
 func ResetAllData() -> bool:
 	saveData = GetDefaultSaveData()
+	activeCourseSourceId = CORE_CURRICULUM_SOURCE_ID
 	return SaveLocalData()
 
 # Clears player learning records while preserving current preferences.
 func ResetPlayerProgress() -> bool:
 	var settingsData: Dictionary = GetSection("settings")
+	var courseState: Dictionary = GetSection("courseState")
 	saveData = GetDefaultSaveData()
 	saveData["settings"] = settingsData
+	saveData["courseState"] = courseState
+	activeCourseSourceId = courseState.get(
+		"selectedCourseSource",
+		CORE_CURRICULUM_SOURCE_ID
+	)
 	return SaveLocalData()
 
 #endregion

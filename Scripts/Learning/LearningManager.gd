@@ -19,6 +19,7 @@ var adaptiveLearningManager := preload("res://Scripts/Learning/AdaptiveLearningM
 
 # Rebuilds derived Skill data from persistent Question history.
 func Initialize() -> void:
+	telemetryManager.ResetCourseContext()
 	skillMasteryManager.RebuildSkillProgress(playerHistoryManager.GetHistory())
 
 # Returns completed in-memory telemetry without exposing tracker state.

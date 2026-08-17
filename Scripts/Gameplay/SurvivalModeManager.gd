@@ -84,12 +84,12 @@ func Finish(incorrectAttemptCount: int) -> Dictionary:
 		return {}
 
 	sessionEnded = true
-	var survivalSaveData: Dictionary = SaveManager.GetSection("survivalMode")
+	var survivalSaveData: Dictionary = SaveManager.GetCourseSection("survivalMode")
 	var previousBest: int = survivalSaveData.get("bestSolvedCount", 0)
 	var isNewBest := solvedCount > previousBest
 	var bestSolvedCount := maxi(previousBest, solvedCount)
 	survivalSaveData["bestSolvedCount"] = bestSolvedCount
-	SaveManager.SetSection("survivalMode", survivalSaveData)
+	SaveManager.SetCourseSection("survivalMode", survivalSaveData)
 	return {
 		"isSurvivalSession": true,
 		"solvedCount": solvedCount,

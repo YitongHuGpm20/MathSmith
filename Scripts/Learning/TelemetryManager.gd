@@ -24,6 +24,13 @@ var uniqueEditedBlankIds: Dictionary = {}
 
 #region ========== Functions ==========
 
+# Clears in-memory analytics when the active Course Source changes.
+func ResetCourseContext() -> void:
+	activeQuestion.clear()
+	completedRecords.clear()
+	uniqueEditedBlankIds.clear()
+	questionStartTicksMs = 0
+
 # Starts a fresh raw record when one Question becomes interactive.
 func BeginQuestion(questionContext: Dictionary) -> void:
 	questionStartTicksMs = Time.get_ticks_msec()

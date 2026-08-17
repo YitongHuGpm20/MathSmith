@@ -91,6 +91,7 @@ func _ready() -> void:
 	if not courseManager.Initialize(contentData):
 		return
 	ApplyCurrentCourseContent()
+	SaveManager.SetActiveCourseSource(courseManager.GetCurrentCourseSourceId(), false)
 	progressManager.Initialize(DEFAULT_LEVEL_TYPE_ID)
 
 	# Rebuild derived learning state from persistent Question history.
@@ -268,7 +269,10 @@ func SelectCourseSource(courseSourceId: String) -> bool:
 
 	set_process(false)
 	activeSessionType = STANDARD_SESSION_TYPE
+	SaveManager.SetActiveCourseSource(courseSourceId)
 	ApplyCurrentCourseContent()
+	progressManager.ReloadPersistentProgress()
+	learningManager.Initialize()
 	ResetLevelScoring()
 	return true
 
