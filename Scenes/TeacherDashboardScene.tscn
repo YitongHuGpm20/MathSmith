@@ -61,35 +61,276 @@ text = "Settings"
 icon = ExtResource("4_settings")
 icon_max_width = 18
 
-[node name="Center" type="CenterContainer" parent="MainMargin/PageLayout"]
+[node name="DashboardContent" type="VBoxContainer" parent="MainMargin/PageLayout"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 22
 
-[node name="Content" type="VBoxContainer" parent="MainMargin/PageLayout/Center"]
-custom_minimum_size = Vector2(720, 260)
+[node name="TitleBlock" type="VBoxContainer" parent="MainMargin/PageLayout/DashboardContent"]
 layout_mode = 2
-theme_override_constants/separation = 20
-alignment = 1
+theme_override_constants/separation = 8
 
-[node name="Eyebrow" type="Label" parent="MainMargin/PageLayout/Center/Content"]
+[node name="Eyebrow" type="Label" parent="MainMargin/PageLayout/DashboardContent/TitleBlock"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.76, 1, 1)
 theme_override_font_sizes/font_size = 15
 text = "TEACHER DASHBOARD"
-horizontal_alignment = 1
 
-[node name="Title" type="Label" parent="MainMargin/PageLayout/Center/Content"]
+[node name="Title" type="Label" parent="MainMargin/PageLayout/DashboardContent/TitleBlock"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "Teacher Dashboard"
-horizontal_alignment = 1
 
-[node name="Description" type="Label" parent="MainMargin/PageLayout/Center/Content"]
+[node name="Description" type="Label" parent="MainMargin/PageLayout/DashboardContent/TitleBlock"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.67, 0.78, 1)
 theme_override_font_sizes/font_size = 19
-text = "Course authoring controls will be added in the next development step."
-horizontal_alignment = 1
+text = "Manage imported content and build editable courses in MathSmith Studio."
+
+[node name="Divider" type="HSeparator" parent="MainMargin/PageLayout/DashboardContent"]
+layout_mode = 2
+
+[node name="WorkspaceGrid" type="GridContainer" parent="MainMargin/PageLayout/DashboardContent"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 22
+theme_override_constants/v_separation = 22
+columns = 2
+
+[node name="ImportedCoursePanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid"]
+custom_minimum_size = Vector2(600, 610)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 30
+
+[node name="Content" type="VBoxContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionLabel" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.76, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "IMPORTED COURSE"
+
+[node name="Title" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "CSV Course Workspace"
+
+[node name="Description" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.67, 0.78, 1)
+theme_override_font_sizes/font_size = 16
+text = "Validate and manage one read-only teacher-authored CSV Course."
+autowrap_mode = 2
+
+[node name="StatusPanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+
+[node name="StatusMargin" type="MarginContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/StatusPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="StatusContent" type="VBoxContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/StatusPanel/StatusMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ImportedStatusLabel" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/StatusPanel/StatusMargin/StatusContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "No Imported Course"
+
+[node name="ImportedMetadataLabel" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/StatusPanel/StatusMargin/StatusContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 15
+text = "Create or import content to make this Course available."
+
+[node name="PrimaryAction" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+disabled = true
+text = "Import / Replace CSV"
+tooltip_text = "CSV import will be implemented in a later M6 step."
+
+[node name="ActionGrid" type="GridContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="ViewButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "View Current Course"
+
+[node name="ValidationButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Validation Results"
+
+[node name="PreviewButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Preview"
+
+[node name="ImportStudioButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Import to Studio"
+
+[node name="ExportButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Export"
+
+[node name="RemoveButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Remove Imported Course"
+
+[node name="StudioCoursePanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid"]
+custom_minimum_size = Vector2(600, 610)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 30
+
+[node name="Content" type="VBoxContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionLabel" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.9, 0.72, 1)
+theme_override_font_sizes/font_size = 14
+text = "STUDIO COURSE"
+
+[node name="Title" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "MathSmith Studio"
+
+[node name="Description" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.67, 0.78, 1)
+theme_override_font_sizes/font_size = 16
+text = "Create and edit an independent visual-authoring Course."
+autowrap_mode = 2
+
+[node name="StatusPanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+
+[node name="StatusMargin" type="MarginContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/StatusPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="StatusContent" type="VBoxContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/StatusPanel/StatusMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StudioStatusLabel" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/StatusPanel/StatusMargin/StatusContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "No Studio Course"
+
+[node name="StudioMetadataLabel" type="Label" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/StatusPanel/StatusMargin/StatusContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 15
+text = "Create or import content to make this Course available."
+
+[node name="PrimaryAction" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+disabled = true
+text = "Open Visual Course Editor"
+tooltip_text = "MathSmith Studio will be implemented in a later M6 step."
+
+[node name="ActionGrid" type="GridContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="CreateButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Create New Studio Course"
+
+[node name="CopyButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Copy Imported Course"
+
+[node name="PreviewButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Preview"
+
+[node name="ExportButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Export"
+
+[node name="ResetButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Reset Studio Course"
+
+[node name="DeleteButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Delete Studio Course"
 
 [node name="SettingsPanel" parent="." instance=ExtResource("5_settings_panel")]
 layout_mode = 1

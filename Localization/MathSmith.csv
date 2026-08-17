@@ -195,3 +195,27 @@ Local prototype access — not production authentication.,Local prototype access
 TEACHER DASHBOARD,TEACHER DASHBOARD,教师控制台
 Teacher Dashboard,Teacher Dashboard,教师控制台
 Course authoring controls will be added in the next development step.,Course authoring controls will be added in the next development step.,课程创作控件将在下一开发步骤中加入。
+Manage imported content and build editable courses in MathSmith Studio.,Manage imported content and build editable courses in MathSmith Studio.,管理导入内容并在 MathSmith Studio 中创建可编辑课程。
+IMPORTED COURSE,IMPORTED COURSE,导入课程
+CSV Course Workspace,CSV Course Workspace,CSV 课程工作区
+Validate and manage one read-only teacher-authored CSV Course.,Validate and manage one read-only teacher-authored CSV Course.,验证并管理一门教师编写的只读 CSV 课程。
+Current Imported Course,Current Imported Course,当前导入课程
+No Imported Course,No Imported Course,暂无导入课程
+Current Studio Course,Current Studio Course,当前工作室课程
+No Studio Course,No Studio Course,暂无工作室课程
+Create or import content to make this Course available.,Create or import content to make this Course available.,创建或导入内容后即可使用此课程。
+Import / Replace CSV,Import / Replace CSV,导入或替换 CSV
+View Current Course,View Current Course,查看当前课程
+Validation Results,Validation Results,验证结果
+Preview,Preview,预览
+Import to Studio,Import to Studio,导入到工作室
+Export,Export,导出
+Remove Imported Course,Remove Imported Course,移除导入课程
+STUDIO COURSE,STUDIO COURSE,工作室课程
+MathSmith Studio,MathSmith Studio,MathSmith Studio
+Create and edit an independent visual-authoring Course.,Create and edit an independent visual-authoring Course.,创建并编辑独立的可视化创作课程。
+Open Visual Course Editor,Open Visual Course Editor,打开可视化课程编辑器
+Create New Studio Course,Create New Studio Course,新建工作室课程
+Copy Imported Course,Copy Imported Course,复制导入课程
+Reset Studio Course,Reset Studio Course,重置工作室课程
+Delete Studio Course,Delete Studio Course,删除工作室课程
