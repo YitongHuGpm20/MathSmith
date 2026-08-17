@@ -161,3 +161,10 @@ Multi Operand,Multi Operand,多操作数
 Multi Step,Multi Step,多步骤
 Precedence,Precedence,运算顺序
 Challenge,Challenge,挑战
+Adaptive Practice,Adaptive Practice,自适应练习
+Practice Questions weighted toward your weaker Skills.,Practice Questions weighted toward your weaker Skills.,根据你的薄弱技能加权抽取题目。
+Skill Mastery,Skill Mastery,技能掌握度
+Complete Questions to build Skill Mastery.,Complete Questions to build Skill Mastery.,完成题目以建立技能掌握度。
+No weak Skill recommendation yet.,No weak Skill recommendation yet.,暂无薄弱技能推荐。
+Recommended: %s,Recommended: %s,推荐：%s
+%d Questions,%d Questions,%d 道题

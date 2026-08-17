@@ -82,6 +82,10 @@ const ZEN_SOLVED_ICON: Texture2D = preload("res://Assets/Icons/correct.svg")
 @onready var tutorialInstructionsLabel: Label = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/TutorialInstructionsLabel"
 @onready var closeTutorialButton: Button = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/Actions/CloseButton"
 @onready var settingsPanel = $"../SettingsPanel"
+@onready var analyticsOverlay: PanelContainer = $"../AnalyticsOverlay"
+@onready var analyticsText: RichTextLabel = $"../AnalyticsOverlay/MarginContainer/Content/AnalyticsText"
+@onready var closeAnalyticsButton: Button = $"../AnalyticsOverlay/MarginContainer/Content/Header/CloseButton"
+@onready var analyticsRefreshTimer: Timer = $"../AnalyticsRefreshTimer"
 
 #endregion
 
@@ -105,6 +109,8 @@ func _ready() -> void:
 	topLobbyButton.pressed.connect(_on_lobby_button_pressed)
 	tutorialButton.pressed.connect(_on_tutorial_button_pressed)
 	settingsButton.pressed.connect(settingsPanel.Open)
+	closeAnalyticsButton.pressed.connect(ToggleAnalyticsOverlay)
+	analyticsRefreshTimer.timeout.connect(RefreshAnalyticsOverlay)
 	retryButton.pressed.connect(_on_retry_button_pressed)
 	nextLevelButton.pressed.connect(_on_next_level_button_pressed)
 	reviewMistakesButton.pressed.connect(_on_review_mistakes_button_pressed)
@@ -122,9 +128,88 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	GameManager.UnregisterGameUI(self)
 
+# Toggles the developer-only analytics panel with F3.
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
+		ToggleAnalyticsOverlay()
+		get_viewport().set_input_as_handled()
+
 #endregion
 
 #region ========== Functions ==========
+
+# Opens or closes the developer analytics panel and refreshes on open.
+func ToggleAnalyticsOverlay() -> void:
+	analyticsOverlay.visible = not analyticsOverlay.visible
+	if analyticsOverlay.visible:
+		RefreshAnalyticsOverlay()
+
+# Presents live telemetry and persistent analysis without mutating either.
+func RefreshAnalyticsOverlay() -> void:
+	if not analyticsOverlay.visible:
+		return
+
+	var activeTelemetry := GameManager.GetActiveQuestionTelemetry()
+	var playerHistory := GameManager.GetPlayerHistory()
+	var skillProgress := GameManager.GetSkillProgress()
+	var weakSkills := GameManager.GetWeakSkills()
+	var latestPattern := "None"
+
+	if not playerHistory.is_empty():
+		latestPattern = playerHistory.back().get("primaryBehaviorPattern", "")
+		if latestPattern.is_empty():
+			latestPattern = "None"
+
+	var activeLines: PackedStringArray = []
+	if activeTelemetry.is_empty():
+		activeLines.append("No active Question")
+	else:
+		activeLines.append("Question: %s" % activeTelemetry.get("questionId", ""))
+		activeLines.append("Mode: %s" % activeTelemetry.get("levelTypeId", ""))
+		activeLines.append("Elapsed: %d ms" % activeTelemetry.get("elapsedTimeMs", 0))
+		activeLines.append("First action: %s / %d ms" % [
+			activeTelemetry.get("firstActionType", "None"),
+			activeTelemetry.get("firstActionTimeMs", -1)
+		])
+		activeLines.append("Shared: %s" % JSON.stringify(
+			activeTelemetry.get("sharedMetrics", {})
+		))
+		activeLines.append("Mode metrics: %s" % JSON.stringify(
+			activeTelemetry.get("modeMetrics", {})
+		))
+
+	analyticsText.text = (
+		"[b]ACTIVE QUESTION[/b]\n%s\n\n"
+		+ "[b]PLAYER HISTORY[/b]\nSaved Questions: %d\nLatest pattern: %s\n\n"
+		+ "[b]SKILL MASTERY[/b]\n%s\n\n"
+		+ "[b]WEAK SKILLS[/b]\n%s"
+	) % [
+		"\n".join(activeLines),
+		playerHistory.size(),
+		latestPattern,
+		FormatSkillProgress(skillProgress),
+		", ".join(weakSkills) if not weakSkills.is_empty() else "None"
+	]
+
+# Formats Skill summaries into one compact developer-facing line per Skill.
+func FormatSkillProgress(skillProgress: Dictionary) -> String:
+	if skillProgress.is_empty():
+		return "No Skill data"
+
+	var skillIds: Array[String] = []
+	for skillId in skillProgress:
+		skillIds.append(str(skillId))
+	skillIds.sort()
+
+	var skillLines: PackedStringArray = []
+	for skillId in skillIds:
+		var summary: Dictionary = skillProgress[skillId]
+		skillLines.append("%s: %d%% (%d Questions)" % [
+			skillId,
+			int(summary.get("masteryScore", 0)),
+			int(summary.get("attemptCount", 0))
+		])
+	return "\n".join(skillLines)
 
 # Displays a newly loaded question and rebuilds its step cards.
 func ShowQuestion(

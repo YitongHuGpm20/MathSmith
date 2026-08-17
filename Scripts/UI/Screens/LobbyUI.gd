@@ -22,6 +22,10 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 @onready var filterButton: OptionButton = $MainMargin/MainLayout/SearchRow/FilterButton
 @onready var levelCountLabel: Label = $MainMargin/MainLayout/SectionHeader/LevelCountLabel
 @onready var levelCardContainer: GridContainer = $MainMargin/MainLayout/LevelScroll/LevelCardContainer
+@onready var masteryPanel: PanelContainer = $MainMargin/MainLayout/MasteryPanel
+@onready var masteryContainer: HFlowContainer = $MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout/MasteryContainer
+@onready var masteryEmptyLabel: Label = $MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout/MasteryEmptyLabel
+@onready var recommendationLabel: Label = $MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout/MasteryHeader/RecommendationLabel
 @onready var settingsPanel = $SettingsPanel
 
 #endregion
@@ -34,6 +38,12 @@ var showingOther: bool = false
 
 # Defines the four secondary learning and replay entries shown under Other.
 var otherFeatures: Array[Dictionary] = [
+	{
+		"id": "adaptive_practice",
+		"title": "Adaptive Practice",
+		"badge": "10 QUESTIONS",
+		"description": "Practice Questions weighted toward your weaker Skills."
+	},
 	{
 		"id": "mistake_book",
 		"title": "Mistake Book",
@@ -66,9 +76,11 @@ var otherFeatures: Array[Dictionary] = [
 
 # Displays the selected playable Level Type when the Lobby enters the tree.
 func _ready() -> void:
+	showingOther = GameManager.GetLobbyCategory() == "other"
 	homeButton.pressed.connect(_on_home_button_pressed)
 	settingsButton.pressed.connect(settingsPanel.Open)
 	settingsPanel.progressReset.connect(RefreshLevelCards)
+	settingsPanel.progressReset.connect(RefreshSkillMastery)
 	stepOrderingButton.pressed.connect(_on_step_ordering_button_pressed)
 	choiceOrderingButton.pressed.connect(_on_choice_ordering_button_pressed)
 	fillProcessButton.pressed.connect(_on_fill_process_button_pressed)
@@ -81,6 +93,7 @@ func _ready() -> void:
 	allLevels = GameManager.GetLevels()
 	SetupFilters()
 	RefreshLevelCards()
+	RefreshSkillMastery()
 	UpdateResponsiveLayout()
 
 #endregion
@@ -101,6 +114,7 @@ func ShowSelectedLevelType() -> void:
 	)
 	fillProcessButton.set_pressed_no_signal(GameManager.selectedLevelTypeId == "fill_in_process")
 	otherButton.set_pressed_no_signal(showingOther)
+	masteryPanel.visible = showingOther
 
 	# Keep the three gameplay buttons visually exclusive from the Other category.
 	if showingOther:
@@ -120,6 +134,90 @@ func UpdateResponsiveLayout() -> void:
 		levelCardContainer.columns = 2
 	else:
 		levelCardContainer.columns = 1
+
+# Rebuilds compact Skill Mastery cards from persistent M5 analysis data.
+func RefreshSkillMastery() -> void:
+	for child in masteryContainer.get_children():
+		child.queue_free()
+
+	var skillProgress := GameManager.GetSkillProgress()
+	masteryEmptyLabel.visible = skillProgress.is_empty()
+
+	var skillIds: Array[String] = []
+	for skillId in skillProgress:
+		skillIds.append(str(skillId))
+	skillIds.sort()
+
+	for skillId in skillIds:
+		CreateMasteryCard(skillId, skillProgress[skillId])
+
+	var recommendations := GameManager.GetWeakSkillRecommendations()
+	if recommendations.is_empty():
+		recommendationLabel.text = tr("No weak Skill recommendation yet.")
+	else:
+		recommendationLabel.text = tr("Recommended: %s") % tr(
+			recommendations[0].get("levelTitle", "")
+		)
+
+# Creates one readable Skill summary without owning analysis decisions.
+func CreateMasteryCard(skillId: String, skillSummary: Dictionary) -> void:
+	var card := VBoxContainer.new()
+	card.custom_minimum_size = Vector2(220, 58)
+	card.add_theme_constant_override("separation", 4)
+	masteryContainer.add_child(card)
+
+	var header := HBoxContainer.new()
+	card.add_child(header)
+
+	var skillLabel := Label.new()
+	skillLabel.text = tr(skillId.replace("_", " ").capitalize())
+	skillLabel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(skillLabel)
+
+	var scoreLabel := Label.new()
+	scoreLabel.text = "%d%%" % int(skillSummary.get("masteryScore", 0))
+	scoreLabel.add_theme_color_override("font_color", Color(0.45, 0.82, 1.0))
+	header.add_child(scoreLabel)
+
+	var masteryBar := ProgressBar.new()
+	masteryBar.custom_minimum_size = Vector2(0, 8)
+	masteryBar.max_value = 100
+	masteryBar.value = skillSummary.get("masteryScore", 0)
+	masteryBar.show_percentage = false
+	ApplyMasteryBarStyle(masteryBar)
+	card.add_child(masteryBar)
+
+	var attemptLabel := Label.new()
+	attemptLabel.text = tr("%d Questions") % int(skillSummary.get("attemptCount", 0))
+	attemptLabel.add_theme_font_size_override("font_size", 12)
+	attemptLabel.add_theme_color_override("font_color", Color(0.55, 0.62, 0.72))
+	card.add_child(attemptLabel)
+
+# Applies the shared gray-to-blue MathSmith gradient to one Mastery bar.
+func ApplyMasteryBarStyle(masteryBar: ProgressBar) -> void:
+	var backgroundStyle := StyleBoxFlat.new()
+	backgroundStyle.bg_color = Color(0.12, 0.15, 0.21, 1.0)
+	backgroundStyle.set_corner_radius_all(4)
+	masteryBar.add_theme_stylebox_override("background", backgroundStyle)
+
+	# Stretch one horizontal gradient across the currently filled percentage.
+	var fillGradient := Gradient.new()
+	fillGradient.offsets = PackedFloat32Array([0.0, 0.45, 1.0])
+	fillGradient.colors = PackedColorArray([
+		Color(0.34, 0.39, 0.48, 1.0),
+		Color(0.16, 0.48, 0.76, 1.0),
+		Color(0.18, 0.68, 1.0, 1.0)
+	])
+	var gradientTexture := GradientTexture2D.new()
+	gradientTexture.gradient = fillGradient
+	gradientTexture.width = 256
+	gradientTexture.height = 8
+	gradientTexture.fill_from = Vector2(0.0, 0.5)
+	gradientTexture.fill_to = Vector2(1.0, 0.5)
+
+	var fillStyle := StyleBoxTexture.new()
+	fillStyle.texture = gradientTexture
+	masteryBar.add_theme_stylebox_override("fill", fillStyle)
 
 # Builds progress and Skill filters from the currently loaded Level data.
 func SetupFilters() -> void:
@@ -297,7 +395,9 @@ func _on_level_card_selected(levelId: String) -> void:
 
 # Opens implemented secondary features while preserving future card IDs.
 func _on_feature_card_selected(featureId: String) -> void:
-	if featureId == "mistake_book":
+	if featureId == "adaptive_practice":
+		GameManager.StartAdaptivePractice()
+	elif featureId == "mistake_book":
 		GameManager.OpenMistakeBook()
 	elif featureId == "mistake_practice":
 		if not GameManager.StartMistakePractice():
@@ -341,6 +441,7 @@ func _on_fill_process_button_pressed() -> void:
 # Opens the secondary learning and replay category without changing gameplay mode.
 func _on_other_button_pressed() -> void:
 	showingOther = true
+	GameManager.SetLobbyCategory("other")
 	ShowSelectedLevelType()
 	SetupFilters()
 	RefreshLevelCards()
@@ -359,5 +460,6 @@ func _on_language_changed(_localeCode: String) -> void:
 	ShowSelectedLevelType()
 	SetupFilters()
 	RefreshLevelCards()
+	RefreshSkillMastery()
 
 #endregion

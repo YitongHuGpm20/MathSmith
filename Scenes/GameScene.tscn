@@ -509,4 +509,59 @@ text = "Got It"
 icon = ExtResource("7_check")
 icon_max_width = 18
 
+[node name="AnalyticsOverlay" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -540.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 550.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("ModalStyle")
+
+[node name="MarginContainer" type="MarginContainer" parent="AnalyticsOverlay"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
+
+[node name="Content" type="VBoxContainer" parent="AnalyticsOverlay/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="AnalyticsOverlay/MarginContainer/Content"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="AnalyticsOverlay/MarginContainer/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 19
+text = "M5 ANALYTICS"
+
+[node name="CloseButton" type="Button" parent="AnalyticsOverlay/MarginContainer/Content/Header"]
+custom_minimum_size = Vector2(40, 36)
+layout_mode = 2
+text = "×"
+
+[node name="Divider" type="HSeparator" parent="AnalyticsOverlay/MarginContainer/Content"]
+layout_mode = 2
+
+[node name="AnalyticsText" type="RichTextLabel" parent="AnalyticsOverlay/MarginContainer/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.75, 0.8, 0.88, 1)
+theme_override_font_sizes/normal_font_size = 15
+bbcode_enabled = true
+fit_content = false
+scroll_active = true
+
+[node name="AnalyticsRefreshTimer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
 [node name="SettingsPanel" parent="." instance=ExtResource("13_settings_panel")]

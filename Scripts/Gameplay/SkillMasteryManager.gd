@@ -1,14 +1,15 @@
 ## Aggregates persistent Question history into deterministic Skill performance.
 ##
 ## Each completed Question contributes equally to every declared Skill. Mastery
-## currently mirrors average Question score without behavior classification.
+## combines average performance with gradually accumulated evidence.
 extends RefCounted
 
 #region ========== Configuration ==========
 
-const SKILL_PROGRESS_SCHEMA_VERSION: int = 1
+const SKILL_PROGRESS_SCHEMA_VERSION: int = 2
 const MINIMUM_SCORE: int = 0
 const MAXIMUM_SCORE: int = 100
+const MASTERY_EVIDENCE_QUESTION_COUNT: int = 10
 const ENABLE_CONSOLE_OUTPUT: bool = true
 
 #endregion
@@ -86,6 +87,7 @@ func CreateEmptySummary(skillId: String) -> Dictionary:
 		"totalScore": 0,
 		"averageScore": 0.0,
 		"masteryScore": 0,
+		"evidenceProgress": 0.0,
 		"totalIncorrectAttempts": 0,
 		"totalHintsUsed": 0,
 		"totalSolveTimeMs": 0,
@@ -93,16 +95,21 @@ func CreateEmptySummary(skillId: String) -> Dictionary:
 		"lastPlayedAtUnixMs": 0
 	}
 
-# Calculates deterministic averages and the current Skill Mastery value.
+# Calculates performance averages and evidence-adjusted Skill Mastery.
 func FinalizeSummary(summary: Dictionary) -> void:
 	var attemptCount: int = summary.get("attemptCount", 0)
 	if attemptCount <= 0:
 		return
 
 	var averageScore := float(summary.get("totalScore", 0)) / float(attemptCount)
+	var evidenceProgress := minf(
+		1.0,
+		float(attemptCount) / float(MASTERY_EVIDENCE_QUESTION_COUNT)
+	)
 	summary["averageScore"] = snappedf(averageScore, 0.01)
+	summary["evidenceProgress"] = snappedf(evidenceProgress, 0.01)
 	summary["masteryScore"] = clampi(
-		roundi(averageScore),
+		roundi(averageScore * evidenceProgress),
 		MINIMUM_SCORE,
 		MAXIMUM_SCORE
 	)

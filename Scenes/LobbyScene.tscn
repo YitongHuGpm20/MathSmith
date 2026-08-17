@@ -102,6 +102,44 @@ text = "Step Ordering"
 icon = ExtResource("5_steps")
 icon_max_width = 18
 
+[node name="MasteryPanel" type="PanelContainer" parent="MainMargin/MainLayout"]
+layout_mode = 2
+
+[node name="MasteryMargin" type="MarginContainer" parent="MainMargin/MainLayout/MasteryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 12
+
+[node name="MasteryLayout" type="VBoxContainer" parent="MainMargin/MainLayout/MasteryPanel/MasteryMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MasteryHeader" type="HBoxContainer" parent="MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout"]
+layout_mode = 2
+
+[node name="MasteryTitle" type="Label" parent="MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout/MasteryHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "Skill Mastery"
+
+[node name="RecommendationLabel" type="Label" parent="MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout/MasteryHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.82, 1, 1)
+text = ""
+
+[node name="MasteryContainer" type="HFlowContainer" parent="MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+
+[node name="MasteryEmptyLabel" type="Label" parent="MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.62, 0.72, 1)
+text = "Complete Questions to build Skill Mastery."
+
 [node name="ChoiceOrderingButton" type="Button" parent="MainMargin/MainLayout/LevelTypeRow"]
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 2

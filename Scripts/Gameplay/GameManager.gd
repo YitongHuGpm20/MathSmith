@@ -16,8 +16,10 @@ const MULTIPLE_CHOICE_LEVEL_TYPE_ID: String = "multiple_choice_ordering"
 const FILL_PROCESS_LEVEL_TYPE_ID: String = "fill_in_process"
 const STANDARD_SESSION_TYPE: String = "level"
 const MISTAKE_PRACTICE_SESSION_TYPE: String = "mistake_practice"
+const ADAPTIVE_PRACTICE_SESSION_TYPE: String = "adaptive_practice"
 const ZEN_SESSION_TYPE: String = "zen"
 const SURVIVAL_SESSION_TYPE: String = "survival"
+const OTHER_LOBBY_CATEGORY_ID: String = "other"
 const MISTAKE_PRACTICE_QUESTION_COUNT: int = 10
 const MAX_QUESTION_SCORE: int = 100
 const INCORRECT_ATTEMPT_PENALTY: int = 15
@@ -42,6 +44,7 @@ var telemetryManager := preload("res://Scripts/Gameplay/TelemetryManager.gd").ne
 var playerHistoryManager := preload("res://Scripts/Gameplay/PlayerHistoryManager.gd").new()
 var skillMasteryManager := preload("res://Scripts/Gameplay/SkillMasteryManager.gd").new()
 var behaviorPatternManager := preload("res://Scripts/Gameplay/BehaviorPatternManager.gd").new()
+var adaptiveLearningManager := preload("res://Scripts/Gameplay/AdaptiveLearningManager.gd").new()
 
 #endregion
 
@@ -72,6 +75,7 @@ var questionScoreCommitted: bool = false
 var remainingHints: int = 0
 var levelHintBudget: int = 0
 var activeSessionType: String = STANDARD_SESSION_TYPE
+var lobbyCategoryId: String = DEFAULT_LEVEL_TYPE_ID
 
 #endregion
 
@@ -90,6 +94,9 @@ func _ready() -> void:
 	levels = contentData["levels"]
 	currentLevel = levels[0]
 	progressManager.Initialize(DEFAULT_LEVEL_TYPE_ID)
+
+	# Rebuild saved Skill values so formula changes apply without new gameplay.
+	skillMasteryManager.RebuildSkillProgress(playerHistoryManager.GetHistory())
 
 # Updates the active Zen timer independently of Question interaction state.
 func _process(delta: float) -> void:
@@ -122,6 +129,7 @@ func OpenLobby() -> void:
 
 # Opens the saved deterministic Question review collection.
 func OpenMistakeBook() -> void:
+	lobbyCategoryId = OTHER_LOBBY_CATEGORY_ID
 	ChangeScene(MISTAKE_BOOK_SCENE_PATH)
 
 # Opens the Game Scene for the currently selected Level.
@@ -267,7 +275,20 @@ func SelectLevelType(levelTypeId: String) -> bool:
 		return false
 
 	selectedLevelTypeId = levelTypeId
+	lobbyCategoryId = levelTypeId
 	return true
+
+# Stores the visible Lobby category independently from mixed gameplay modes.
+func SetLobbyCategory(categoryId: String) -> bool:
+	if categoryId != OTHER_LOBBY_CATEGORY_ID and not levelTypes.has(categoryId):
+		return false
+
+	lobbyCategoryId = categoryId
+	return true
+
+# Returns the category restored when the Lobby Scene is opened again.
+func GetLobbyCategory() -> String:
+	return lobbyCategoryId
 
 # Returns all validated levels for future Lobby card generation.
 func GetLevels() -> Array:
@@ -354,24 +375,41 @@ func GetPlayerHistory() -> Array:
 func GetSkillProgress() -> Dictionary:
 	return skillMasteryManager.GetSkillProgress()
 
+# Returns learned Skills currently below the centralized Mastery threshold.
+func GetWeakSkills() -> Array[String]:
+	return adaptiveLearningManager.GetWeakSkills(skillMasteryManager.GetSkillProgress())
+
+# Returns ranked Levels whose declared Skills match current learning needs.
+func GetWeakSkillRecommendations() -> Array[Dictionary]:
+	return adaptiveLearningManager.BuildWeakSkillRecommendations(
+		levels,
+		skillMasteryManager.GetSkillProgress()
+	)
+
 #endregion
 
 #region ========== Replay Sessions ==========
 
 # Builds one randomized review session from up to ten unique saved mistakes.
 func StartMistakePractice() -> bool:
+	lobbyCategoryId = OTHER_LOBBY_CATEGORY_ID
 	var mistakeEntries := mistakeBookManager.GetEntries()
 
 	if mistakeEntries.is_empty():
 		return false
 
-	mistakeEntries.shuffle()
 	var practiceCount := mini(MISTAKE_PRACTICE_QUESTION_COUNT, mistakeEntries.size())
+	var weakSkills := GetWeakSkills()
+	var selectedMistakes := adaptiveLearningManager.SelectWeightedQuestions(
+		mistakeEntries,
+		weakSkills,
+		practiceCount
+	)
 	var practiceQuestions: Array = []
 	var practiceSkills: Array = []
 
-	for entryIndex in range(practiceCount):
-		var mistakeEntry: Dictionary = mistakeEntries[entryIndex]
+	for entryIndex in range(selectedMistakes.size()):
+		var mistakeEntry: Dictionary = selectedMistakes[entryIndex]
 		practiceQuestions.append({
 			"id": "practice_%02d_%s" % [entryIndex, mistakeEntry.get("questionId", "")],
 			"sourceQuestionId": mistakeEntry.get("questionId", ""),
@@ -400,9 +438,55 @@ func StartMistakePractice() -> bool:
 	OpenGame()
 	return true
 
+# Starts a ten-Question mixed-mode practice weighted toward weak Skills.
+func StartAdaptivePractice() -> bool:
+	lobbyCategoryId = OTHER_LOBBY_CATEGORY_ID
+	var questionPool := BuildAdaptiveQuestionPool()
+	if questionPool.is_empty():
+		return false
+
+	var weakSkills := GetWeakSkills()
+	var practiceCount := mini(MISTAKE_PRACTICE_QUESTION_COUNT, questionPool.size())
+	var selectedQuestions := adaptiveLearningManager.SelectWeightedQuestions(
+		questionPool,
+		weakSkills,
+		practiceCount
+	)
+	var gameplayModeIds: Array[String] = [
+		DEFAULT_LEVEL_TYPE_ID,
+		MULTIPLE_CHOICE_LEVEL_TYPE_ID,
+		FILL_PROCESS_LEVEL_TYPE_ID
+	]
+	var practiceSkills: Array = []
+
+	for questionIndex in range(selectedQuestions.size()):
+		var questionData: Dictionary = selectedQuestions[questionIndex]
+		questionData["id"] = "adaptive_%02d_%s" % [
+			questionIndex,
+			questionData.get("sourceQuestionId", "")
+		]
+		questionData["levelTypeId"] = gameplayModeIds.pick_random()
+		for skill in questionData.get("skills", []):
+			if skill not in practiceSkills:
+				practiceSkills.append(skill)
+
+	activeSessionType = ADAPTIVE_PRACTICE_SESSION_TYPE
+	currentLevel = {
+		"id": ADAPTIVE_PRACTICE_SESSION_TYPE,
+		"title": "Adaptive Practice",
+		"skills": practiceSkills,
+		"questions": selectedQuestions
+	}
+	selectedLevelTypeId = selectedQuestions[0].get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
+	currentQuestionIndex = 0
+	ResetLevelScoring()
+	OpenGame()
+	return true
+
 # Starts a three-minute mixed-mode session from the complete Question pool.
 func StartZenMode() -> bool:
-	if not zenModeManager.Initialize(levels):
+	lobbyCategoryId = OTHER_LOBBY_CATEGORY_ID
+	if not zenModeManager.Initialize(levels, skillMasteryManager.GetSkillProgress()):
 		return false
 
 	activeSessionType = ZEN_SESSION_TYPE
@@ -413,8 +497,24 @@ func StartZenMode() -> bool:
 	OpenGame()
 	return true
 
+# Flattens authored Levels into source-aware Adaptive Practice candidates.
+func BuildAdaptiveQuestionPool() -> Array[Dictionary]:
+	var questionPool: Array[Dictionary] = []
+	for level in levels:
+		for question in level.get("questions", []):
+			questionPool.append({
+				"questionId": question.get("id", ""),
+				"sourceQuestionId": question.get("id", ""),
+				"expression": question.get("expression", ""),
+				"sourceLevelId": level.get("id", ""),
+				"sourceLevelTitle": level.get("title", ""),
+				"skills": level.get("skills", []).duplicate()
+			})
+	return questionPool
+
 # Starts an untimed mixed-mode session with three shared lives.
 func StartSurvivalMode() -> bool:
+	lobbyCategoryId = OTHER_LOBBY_CATEGORY_ID
 	if not survivalModeManager.Initialize(levels):
 		return false
 
@@ -561,8 +661,8 @@ func LoadQuestion(questionIndex: int) -> void:
 
 	var currentQuestion: Dictionary = questions[currentQuestionIndex]
 
-	# A mixed Mistake Practice session restores each Question's original mode.
-	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
+	# Mixed finite Practice sessions restore each Question's assigned mode.
+	if activeSessionType in [MISTAKE_PRACTICE_SESSION_TYPE, ADAPTIVE_PRACTICE_SESSION_TYPE]:
 		selectedLevelTypeId = currentQuestion.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
 	elif activeSessionType in [ZEN_SESSION_TYPE, SURVIVAL_SESSION_TYPE]:
 		selectedLevelTypeId = currentQuestion.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
@@ -1039,10 +1139,10 @@ func GoToNextQuestion() -> void:
 		var scorePercentage := roundi(float(currentLevelScore) / float(maxLevelScore) * 100.0)
 
 		# Practice sessions use shared scoring without changing normal Level progress.
-		if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
+		if activeSessionType in [MISTAKE_PRACTICE_SESSION_TYPE, ADAPTIVE_PRACTICE_SESSION_TYPE]:
 			gameUI.ShowEndMenu({
 				"isPracticeSession": true,
-				"levelTitle": "Mistake Practice",
+				"levelTitle": currentLevel.get("title", "Practice"),
 				"levelTypeTitle": "Mixed Modes",
 				"score": currentLevelScore,
 				"maxScore": maxLevelScore,
@@ -1125,6 +1225,7 @@ func UpdateMistakeBookEntry() -> void:
 	# Practice mistakes already exist and retain their original Level metadata.
 	if activeSessionType in [
 		MISTAKE_PRACTICE_SESSION_TYPE,
+		ADAPTIVE_PRACTICE_SESSION_TYPE,
 		ZEN_SESSION_TYPE,
 		SURVIVAL_SESSION_TYPE
 	]:
@@ -1207,6 +1308,7 @@ func CompleteQuestion() -> void:
 	completedTelemetry["primaryBehaviorPattern"] = behaviorAnalysis["primaryPattern"]
 	playerHistoryManager.RecordCompletedQuestion(completedTelemetry)
 	skillMasteryManager.RebuildSkillProgress(playerHistoryManager.GetHistory())
+	GetWeakSkillRecommendations()
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
@@ -1237,6 +1339,9 @@ func RestartLevel() -> void:
 
 	if activeSessionType == MISTAKE_PRACTICE_SESSION_TYPE:
 		StartMistakePractice()
+		return
+	if activeSessionType == ADAPTIVE_PRACTICE_SESSION_TYPE:
+		StartAdaptivePractice()
 		return
 
 	gameUI.HideEndMenu()

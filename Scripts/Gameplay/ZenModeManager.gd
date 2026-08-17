@@ -17,13 +17,15 @@ var lastQuestionKey: String = ""
 var timeRemaining: float = 0.0
 var solvedCount: int = 0
 var sessionEnded: bool = false
+var weakSkills: Array[String] = []
+var adaptiveLearningManager := preload("res://Scripts/Gameplay/AdaptiveLearningManager.gd").new()
 
 #endregion
 
 #region ========== Functions ==========
 
 # Creates a fresh timed session from every validated Level Question.
-func Initialize(levels: Array) -> bool:
+func Initialize(levels: Array, skillProgress: Dictionary = {}) -> bool:
 	BuildQuestionPool(levels)
 
 	if questionPool.is_empty():
@@ -33,6 +35,7 @@ func Initialize(levels: Array) -> bool:
 	timeRemaining = DURATION_SECONDS
 	solvedCount = 0
 	sessionEnded = false
+	weakSkills = adaptiveLearningManager.GetWeakSkills(skillProgress)
 	return true
 
 # Decrements the clock and returns true on its first expiration frame.
@@ -57,16 +60,11 @@ func RecordSolvedQuestion() -> void:
 
 # Returns one random Question and random interaction without adjacent repetition.
 func GetNextQuestion(levelTypeIds: Array[String]) -> Dictionary:
-	var candidates: Array[Dictionary] = []
-
-	for questionData in questionPool:
-		if GetQuestionKey(questionData) != lastQuestionKey:
-			candidates.append(questionData)
-
-	if candidates.is_empty():
-		candidates.assign(questionPool)
-
-	var selectedQuestion: Dictionary = candidates.pick_random()
+	var selectedQuestion := adaptiveLearningManager.SelectWeightedQuestion(
+		questionPool,
+		weakSkills,
+		lastQuestionKey
+	)
 	lastQuestionKey = GetQuestionKey(selectedQuestion)
 	var selectedLevelTypeId: String = levelTypeIds.pick_random()
 	return {
