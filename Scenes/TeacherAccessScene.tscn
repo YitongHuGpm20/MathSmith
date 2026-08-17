@@ -1,0 +1,144 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UIScreens/TeacherAccessUI.gd" id="1_script"]
+[ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/back.svg" id="3_back"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="5_settings_panel"]
+
+[node name="TeacherAccessScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.018, 0.027, 0.055, 1)
+mouse_filter = 2
+
+[node name="MainMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 64.0
+offset_top = 40.0
+offset_right = -64.0
+offset_bottom = -40.0
+
+[node name="PageLayout" type="VBoxContainer" parent="MainMargin"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="MainMargin/PageLayout"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="MainMargin/PageLayout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+text = "Back"
+icon = ExtResource("3_back")
+icon_max_width = 18
+
+[node name="HeaderSpacer" type="Control" parent="MainMargin/PageLayout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SettingsButton" type="Button" parent="MainMargin/PageLayout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(152, 48)
+layout_mode = 2
+text = "Settings"
+icon = ExtResource("4_settings")
+icon_max_width = 18
+
+[node name="Center" type="CenterContainer" parent="MainMargin/PageLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AccessPanel" type="PanelContainer" parent="MainMargin/PageLayout/Center"]
+custom_minimum_size = Vector2(560, 390)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/Center/AccessPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 52
+theme_override_constants/margin_top = 44
+theme_override_constants/margin_right = 52
+theme_override_constants/margin_bottom = 44
+
+[node name="Content" type="VBoxContainer" parent="MainMargin/PageLayout/Center/AccessPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Eyebrow" type="Label" parent="MainMargin/PageLayout/Center/AccessPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.76, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "TEACHER ACCESS"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="MainMargin/PageLayout/Center/AccessPanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "MathSmith Teacher Tools"
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="MainMargin/PageLayout/Center/AccessPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.67, 0.78, 1)
+theme_override_font_sizes/font_size = 17
+text = "Enter the local prototype password."
+horizontal_alignment = 1
+
+[node name="PasswordInput" type="LineEdit" parent="MainMargin/PageLayout/Center/AccessPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+placeholder_text = "Password"
+secret = true
+secret_character = "•"
+
+[node name="DemoPasswordHint" type="RichTextLabel" parent="MainMargin/PageLayout/Center/AccessPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.68, 0.84, 1)
+theme_override_font_sizes/font_size = 14
+bbcode_enabled = true
+text = "[center]Demo access: the password is [code][font_size=19][color=#52d5ff]teacher[/color][/font_size][/code][/center]"
+fit_content = true
+scroll_active = false
+
+[node name="FeedbackLabel" type="Label" parent="MainMargin/PageLayout/Center/AccessPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.36, 0.42, 1)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="ContinueButton" type="Button" parent="MainMargin/PageLayout/Center/AccessPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Continue"
+
+[node name="PrototypeNote" type="Label" parent="MainMargin/PageLayout/Center/AccessPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.5, 0.62, 1)
+theme_override_font_sizes/font_size = 14
+text = "Local prototype access — not production authentication."
+horizontal_alignment = 1
+
+[node name="SettingsPanel" parent="." instance=ExtResource("5_settings_panel")]
+layout_mode = 1

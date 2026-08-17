@@ -182,3 +182,16 @@ Not available yet,Not available yet,暂不可用
 AVAILABLE,AVAILABLE,可用
 UNAVAILABLE,UNAVAILABLE,不可用
 Course authoring is available separately through Teacher Tools.,Course authoring is available separately through Teacher Tools.,课程创作功能将在独立的教师工具中提供。
+Teacher Tools,Teacher Tools,教师工具
+TEACHER ACCESS,TEACHER ACCESS,教师入口
+MathSmith Teacher Tools,MathSmith Teacher Tools,MathSmith 教师工具
+Enter the local prototype password.,Enter the local prototype password.,请输入本地原型密码。
+Demo access: the password is teacher.,Demo access: the password is teacher.,演示入口：密码是 teacher。
+"[center]Demo access: the password is [code][font_size=19][color=#52d5ff]teacher[/color][/font_size][/code][/center]","[center]Demo access: the password is [code][font_size=19][color=#52d5ff]teacher[/color][/font_size][/code][/center]","[center]演示入口：密码是 [code][font_size=19][color=#52d5ff]teacher[/color][/font_size][/code][/center]"
+Password,Password,密码
+Continue,Continue,继续
+Incorrect password.,Incorrect password.,密码错误。
+Local prototype access — not production authentication.,Local prototype access — not production authentication.,本地原型入口——并非生产级身份验证。
+TEACHER DASHBOARD,TEACHER DASHBOARD,教师控制台
+Teacher Dashboard,Teacher Dashboard,教师控制台
+Course authoring controls will be added in the next development step.,Course authoring controls will be added in the next development step.,课程创作控件将在下一开发步骤中加入。

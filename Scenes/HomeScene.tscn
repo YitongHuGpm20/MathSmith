@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bvos8byg17f8j" path="res://Assets/Icons/modes.svg" id="8_modes"]
 [ext_resource type="Texture2D" uid="uid://ce12xygy43tk4" path="res://Assets/Icons/progress.svg" id="9_progress"]
 [ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="10_settings_panel"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/lock.svg" id="11_teacher"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_play"]
 content_margin_left = 34.0
@@ -435,6 +436,17 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 17
 text = "Settings"
 icon = ExtResource("5_settings")
+
+[node name="TeacherToolsButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(176, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 17
+text = "Teacher Tools"
+icon = ExtResource("11_teacher")
+icon_max_width = 18
 
 [node name="ExitButton" type="Button" parent="MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions" unique_id=1376587342]
 unique_name_in_owner = true

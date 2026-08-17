@@ -9,6 +9,8 @@ extends Node
 
 const HOME_SCENE_PATH: String = "res://Scenes/HomeScene.tscn"
 const COURSE_SELECTION_SCENE_PATH: String = "res://Scenes/CourseSelectionScene.tscn"
+const TEACHER_ACCESS_SCENE_PATH: String = "res://Scenes/TeacherAccessScene.tscn"
+const TEACHER_DASHBOARD_SCENE_PATH: String = "res://Scenes/TeacherDashboardScene.tscn"
 const LOBBY_SCENE_PATH: String = "res://Scenes/LobbyScene.tscn"
 const GAME_SCENE_PATH: String = "res://Scenes/GameScene.tscn"
 const MISTAKE_BOOK_SCENE_PATH: String = "res://Scenes/MistakeBookScene.tscn"
@@ -126,6 +128,14 @@ func OpenHome() -> void:
 # Opens player-facing Course Source selection before gameplay mode selection.
 func OpenCourseSelection() -> void:
 	ChangeScene(COURSE_SELECTION_SCENE_PATH)
+
+# Opens the local prototype gate for teacher-facing tools.
+func OpenTeacherTools() -> void:
+	ChangeScene(TEACHER_ACCESS_SCENE_PATH)
+
+# Opens the teacher workspace after the prototype password gate succeeds.
+func OpenTeacherDashboard() -> void:
+	ChangeScene(TEACHER_DASHBOARD_SCENE_PATH)
 
 # Opens the Lobby Scene while preserving current-session progress.
 func OpenLobby() -> void:

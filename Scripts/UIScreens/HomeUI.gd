@@ -16,6 +16,7 @@ signal exitRequested
 @onready var playButton: Button = %PlayButton
 @onready var creditsButton: Button = %CreditsButton
 @onready var settingsButton: Button = $MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions/SettingsButton
+@onready var teacherToolsButton: Button = %TeacherToolsButton
 @onready var exitButton: Button = %ExitButton
 @onready var creditsOverlay: PanelContainer = $CreditsOverlay
 @onready var closeCreditsButton: Button = %CloseButton
@@ -35,6 +36,7 @@ func _ready() -> void:
 	playButton.pressed.connect(_on_play_button_pressed)
 	creditsButton.pressed.connect(_on_credits_button_pressed)
 	settingsButton.pressed.connect(settingsPanel.Open)
+	teacherToolsButton.pressed.connect(GameManager.OpenTeacherTools)
 	closeCreditsButton.pressed.connect(_on_close_credits_button_pressed)
 	exitButton.pressed.connect(_on_exit_button_pressed)
 	playRequested.connect(GameManager.OpenCourseSelection)

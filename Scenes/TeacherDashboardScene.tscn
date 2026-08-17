@@ -1,0 +1,95 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UIScreens/TeacherDashboardUI.gd" id="1_script"]
+[ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/home.svg" id="3_home"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="5_settings_panel"]
+
+[node name="TeacherDashboardScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.018, 0.027, 0.055, 1)
+
+[node name="MainMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 64.0
+offset_top = 40.0
+offset_right = -64.0
+offset_bottom = -40.0
+
+[node name="PageLayout" type="VBoxContainer" parent="MainMargin"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="MainMargin/PageLayout"]
+layout_mode = 2
+
+[node name="HomeButton" type="Button" parent="MainMargin/PageLayout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(152, 48)
+layout_mode = 2
+text = "Home"
+icon = ExtResource("3_home")
+icon_max_width = 18
+
+[node name="HeaderSpacer" type="Control" parent="MainMargin/PageLayout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SettingsButton" type="Button" parent="MainMargin/PageLayout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(152, 48)
+layout_mode = 2
+text = "Settings"
+icon = ExtResource("4_settings")
+icon_max_width = 18
+
+[node name="Center" type="CenterContainer" parent="MainMargin/PageLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Content" type="VBoxContainer" parent="MainMargin/PageLayout/Center"]
+custom_minimum_size = Vector2(720, 260)
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Eyebrow" type="Label" parent="MainMargin/PageLayout/Center/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.76, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "TEACHER DASHBOARD"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="MainMargin/PageLayout/Center/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Teacher Dashboard"
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="MainMargin/PageLayout/Center/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.67, 0.78, 1)
+theme_override_font_sizes/font_size = 19
+text = "Course authoring controls will be added in the next development step."
+horizontal_alignment = 1
+
+[node name="SettingsPanel" parent="." instance=ExtResource("5_settings_panel")]
+layout_mode = 1

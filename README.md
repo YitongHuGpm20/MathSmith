@@ -1346,6 +1346,8 @@ The purpose of this milestone would be to answer:
 
 ## M6 — Content Authoring Pipeline
 
+Teacher Tools currently use a local prototype password gate (`teacher`) for portfolio demonstrations. This is not production authentication and must not be treated as a security boundary.
+
 **Goal: Allow educators and content specialists to create and validate content**
 
 Potential systems:
