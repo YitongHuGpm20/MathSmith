@@ -18,7 +18,7 @@ var timeRemaining: float = 0.0
 var solvedCount: int = 0
 var sessionEnded: bool = false
 var weakSkills: Array[String] = []
-var adaptiveLearningManager := preload("res://Scripts/Gameplay/AdaptiveLearningManager.gd").new()
+var adaptiveLearningManager := preload("res://Scripts/Learning/AdaptiveLearningManager.gd").new()
 
 #endregion
 

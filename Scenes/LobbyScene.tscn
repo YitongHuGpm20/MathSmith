@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3]
 
-[ext_resource type="Script" path="res://Scripts/UI/Screens/LobbyUI.gd" id="1_lobby_ui"]
+[ext_resource type="Script" path="res://Scripts/UIScreens/LobbyUI.gd" id="1_lobby_ui"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/home.svg" id="3_home"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]

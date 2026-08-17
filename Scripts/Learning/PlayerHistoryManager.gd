@@ -8,7 +8,7 @@ extends RefCounted
 
 const PLAYER_HISTORY_SCHEMA_VERSION: int = 1
 const MAX_HISTORY_RECORDS: int = 1000
-const ENABLE_CONSOLE_OUTPUT: bool = true
+const ENABLE_CONSOLE_OUTPUT: bool = false
 
 #endregion
 

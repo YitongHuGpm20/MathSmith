@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://b83iw0kho1jn"]
 
-[ext_resource type="Script" path="res://Scripts/UI/Components/StepCard.gd" id="1_step_card"]
+[ext_resource type="Script" path="res://Scripts/UIComponents/StepCard.gd" id="1_step_card"]
 
 [sub_resource type="StyleBoxFlat" id="CardStyle"]
 content_margin_left = 0.0

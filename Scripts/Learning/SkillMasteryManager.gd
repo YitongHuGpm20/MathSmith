@@ -10,7 +10,7 @@ const SKILL_PROGRESS_SCHEMA_VERSION: int = 2
 const MINIMUM_SCORE: int = 0
 const MAXIMUM_SCORE: int = 100
 const MASTERY_EVIDENCE_QUESTION_COUNT: int = 10
-const ENABLE_CONSOLE_OUTPUT: bool = true
+const ENABLE_CONSOLE_OUTPUT: bool = false
 
 #endregion
 

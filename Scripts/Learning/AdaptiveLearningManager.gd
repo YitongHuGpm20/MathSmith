@@ -10,7 +10,7 @@ const WEAK_SKILL_MASTERY_THRESHOLD: int = 80
 const MINIMUM_SKILL_ATTEMPTS: int = 1
 const BASE_QUESTION_WEIGHT: int = 1
 const WEAK_SKILL_WEIGHT_BONUS: int = 2
-const ENABLE_CONSOLE_OUTPUT: bool = true
+const ENABLE_CONSOLE_OUTPUT: bool = false
 
 #endregion
 

@@ -1,14 +1,13 @@
 ## Records raw M5 Question behavior without interpreting player intent.
 ##
-## Checkpoint 1 telemetry is memory-only and deterministic. It measures timing
-## and interaction counts, prints completed records for manual validation, and
-## deliberately performs no classification, mastery, or adaptive weighting.
+## Raw telemetry remains memory-only and deterministic. Persistent history,
+## behavior analysis, and adaptive systems consume its completed summaries.
 extends RefCounted
 
 #region ========== Configuration ==========
 
 const TELEMETRY_SCHEMA_VERSION: int = 1
-const ENABLE_CONSOLE_OUTPUT: bool = true
+const ENABLE_CONSOLE_OUTPUT: bool = false
 const MAX_MEMORY_RECORDS: int = 200
 const MAX_EVENTS_PER_QUESTION: int = 500
 
@@ -169,7 +168,7 @@ func CompleteQuestion(outcomeData: Dictionary) -> Dictionary:
 	uniqueEditedBlankIds.clear()
 	return completedRecord
 
-# Returns isolated completed records for later Checkpoint systems and inspection.
+# Returns isolated completed records for analysis systems and inspection.
 func GetCompletedRecords() -> Array[Dictionary]:
 	return completedRecords.duplicate(true)
 

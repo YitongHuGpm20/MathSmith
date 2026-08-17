@@ -13,7 +13,7 @@ const REPEATED_HINT_USES: int = 2
 const REPEATED_CHECK_SUBMISSIONS: int = 3
 const EXCESSIVE_REORDER_MOVES: int = 12
 const EXCESSIVE_FILL_REVISIONS: int = 3
-const ENABLE_CONSOLE_OUTPUT: bool = true
+const ENABLE_CONSOLE_OUTPUT: bool = false
 
 #endregion
 

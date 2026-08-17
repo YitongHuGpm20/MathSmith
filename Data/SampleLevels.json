@@ -21,7 +21,7 @@
 	  "questions": [
 		{"id": "L01_Q01", "expression": "14 + 8"},
 		{"id": "L01_Q02", "expression": "17 + 6"},
-		{"id": "L01_Q03", "expression": "12 + 7"},
+		{"id": "L01_Q03", "expression": "15 + 17"},
 		{"id": "L01_Q04", "expression": "24 + 15"},
 		{"id": "L01_Q05", "expression": "38 + 27"}
 	  ]

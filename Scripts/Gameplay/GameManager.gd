@@ -1,8 +1,8 @@
 ## Coordinates MathSmith's active Level and all three gameplay interactions.
 ##
 ## This script owns live Question state, gameplay validation, scoring, and
-## navigation. Focused services own content loading, choice generation,
-## persistent Level progress, and Mistake Book storage.
+## navigation. Focused services own content, persistence, practice-session
+## construction, replay rules, and M5 learning analysis.
 extends Node
 
 #region ========== Constants ==========
@@ -40,11 +40,8 @@ var progressManager := preload("res://Scripts/Gameplay/ProgressManager.gd").new(
 var mistakeBookManager := preload("res://Scripts/Gameplay/MistakeBookManager.gd").new()
 var zenModeManager := preload("res://Scripts/Gameplay/ZenModeManager.gd").new()
 var survivalModeManager := preload("res://Scripts/Gameplay/SurvivalModeManager.gd").new()
-var telemetryManager := preload("res://Scripts/Gameplay/TelemetryManager.gd").new()
-var playerHistoryManager := preload("res://Scripts/Gameplay/PlayerHistoryManager.gd").new()
-var skillMasteryManager := preload("res://Scripts/Gameplay/SkillMasteryManager.gd").new()
-var behaviorPatternManager := preload("res://Scripts/Gameplay/BehaviorPatternManager.gd").new()
-var adaptiveLearningManager := preload("res://Scripts/Gameplay/AdaptiveLearningManager.gd").new()
+var learningManager := preload("res://Scripts/Learning/LearningManager.gd").new()
+var practiceSessionManager := preload("res://Scripts/Gameplay/PracticeSessionManager.gd").new()
 
 #endregion
 
@@ -92,11 +89,11 @@ func _ready() -> void:
 	# Publish validated content and preserve the initial default Level.
 	levelTypes = contentData["level_types"]
 	levels = contentData["levels"]
-	currentLevel = levels[0]
+	currentLevel = CreateShuffledLevel(levels[0])
 	progressManager.Initialize(DEFAULT_LEVEL_TYPE_ID)
 
-	# Rebuild saved Skill values so formula changes apply without new gameplay.
-	skillMasteryManager.RebuildSkillProgress(playerHistoryManager.GetHistory())
+	# Rebuild derived learning state from persistent Question history.
+	learningManager.Initialize()
 
 # Updates the active Zen timer independently of Question interaction state.
 func _process(delta: float) -> void:
@@ -167,11 +164,11 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	gameUI.nextLevelRequested.connect(OpenNextLevel)
 	gameUI.lobbyRequested.connect(BackToLobby)
 	gameUI.orderChanged.connect(UpdateHintAvailability)
-	gameUI.stepDragStarted.connect(telemetryManager.RecordStepDragStarted)
-	gameUI.stepReordered.connect(telemetryManager.RecordStepReordered)
-	gameUI.stepDragCompleted.connect(telemetryManager.RecordStepDragCompleted)
+	gameUI.stepDragStarted.connect(learningManager.RecordStepDragStarted)
+	gameUI.stepReordered.connect(learningManager.RecordStepReordered)
+	gameUI.stepDragCompleted.connect(learningManager.RecordStepDragCompleted)
 	gameUI.choiceSelected.connect(SelectMultipleChoice)
-	gameUI.fillValueChanged.connect(telemetryManager.RecordFillValueChanged)
+	gameUI.fillValueChanged.connect(learningManager.RecordFillValueChanged)
 	gameUI.tutorialDismissed.connect(RecordTutorialViewed)
 	gameUI.tutorialRequested.connect(ShowCurrentTutorial)
 	gameUI.reviewMistakesRequested.connect(OpenMistakeBook)
@@ -182,7 +179,7 @@ func RegisterGameUI(newGameUI: Node) -> void:
 		return
 
 	if currentLevel.is_empty():
-		currentLevel = levels[0]
+		currentLevel = CreateShuffledLevel(levels[0])
 
 	ResetLevelScoring()
 
@@ -227,20 +224,20 @@ func DisconnectGameUISignals() -> void:
 	if gameUI.orderChanged.is_connected(UpdateHintAvailability):
 		gameUI.orderChanged.disconnect(UpdateHintAvailability)
 
-	if gameUI.stepDragStarted.is_connected(telemetryManager.RecordStepDragStarted):
-		gameUI.stepDragStarted.disconnect(telemetryManager.RecordStepDragStarted)
+	if gameUI.stepDragStarted.is_connected(learningManager.RecordStepDragStarted):
+		gameUI.stepDragStarted.disconnect(learningManager.RecordStepDragStarted)
 
-	if gameUI.stepReordered.is_connected(telemetryManager.RecordStepReordered):
-		gameUI.stepReordered.disconnect(telemetryManager.RecordStepReordered)
+	if gameUI.stepReordered.is_connected(learningManager.RecordStepReordered):
+		gameUI.stepReordered.disconnect(learningManager.RecordStepReordered)
 
-	if gameUI.stepDragCompleted.is_connected(telemetryManager.RecordStepDragCompleted):
-		gameUI.stepDragCompleted.disconnect(telemetryManager.RecordStepDragCompleted)
+	if gameUI.stepDragCompleted.is_connected(learningManager.RecordStepDragCompleted):
+		gameUI.stepDragCompleted.disconnect(learningManager.RecordStepDragCompleted)
 
 	if gameUI.choiceSelected.is_connected(SelectMultipleChoice):
 		gameUI.choiceSelected.disconnect(SelectMultipleChoice)
 
-	if gameUI.fillValueChanged.is_connected(telemetryManager.RecordFillValueChanged):
-		gameUI.fillValueChanged.disconnect(telemetryManager.RecordFillValueChanged)
+	if gameUI.fillValueChanged.is_connected(learningManager.RecordFillValueChanged):
+		gameUI.fillValueChanged.disconnect(learningManager.RecordFillValueChanged)
 
 	if gameUI.tutorialDismissed.is_connected(RecordTutorialViewed):
 		gameUI.tutorialDismissed.disconnect(RecordTutorialViewed)
@@ -313,7 +310,7 @@ func SelectLevel(levelId: String) -> bool:
 	# Reset transient gameplay state for the newly selected Level.
 	set_process(false)
 	activeSessionType = STANDARD_SESSION_TYPE
-	currentLevel = selectedLevel
+	currentLevel = CreateShuffledLevel(selectedLevel)
 	currentQuestionIndex = 0
 	correctSteps.clear()
 	questionCompleted = false
@@ -327,6 +324,29 @@ func SelectLevel(levelId: String) -> bool:
 	revealedFillBlankIds.clear()
 	ResetLevelScoring()
 	return true
+
+# Returns an isolated Level whose Questions are randomized for one new run.
+func CreateShuffledLevel(sourceLevel: Dictionary) -> Dictionary:
+	var shuffledLevel: Dictionary = sourceLevel.duplicate(true)
+	var originalQuestions: Array = sourceLevel.get("questions", [])
+	var shuffledQuestions: Array = originalQuestions.duplicate(true)
+
+	if shuffledQuestions.size() > 1:
+		shuffledQuestions.shuffle()
+
+		# Rotate once when randomization happens to retain the authored order.
+		if shuffledQuestions == originalQuestions:
+			shuffledQuestions.push_front(shuffledQuestions.pop_back())
+
+	shuffledLevel["questions"] = shuffledQuestions
+	return shuffledLevel
+
+# Returns the authored Level index without depending on randomized data equality.
+func GetLevelIndexById(levelId: String) -> int:
+	for levelIndex in range(levels.size()):
+		if levels[levelIndex].get("id", "") == levelId:
+			return levelIndex
+	return -1
 
 # Returns the selected Level ID or an empty String before content is available.
 func GetSelectedLevelId() -> String:
@@ -359,32 +379,29 @@ func ReloadPersistentProgress() -> void:
 
 #region ========== Telemetry Inspection ==========
 
-# Returns completed Checkpoint 1 records without exposing mutable tracker state.
+# Returns completed in-memory telemetry without exposing mutable tracker state.
 func GetQuestionTelemetryRecords() -> Array[Dictionary]:
-	return telemetryManager.GetCompletedRecords()
+	return learningManager.GetQuestionTelemetryRecords()
 
 # Returns the current unfinished Question record with live elapsed time.
 func GetActiveQuestionTelemetry() -> Dictionary:
-	return telemetryManager.GetActiveQuestionSnapshot()
+	return learningManager.GetActiveQuestionTelemetry()
 
 # Returns the persistent history of completed Question summaries.
 func GetPlayerHistory() -> Array:
-	return playerHistoryManager.GetHistory()
+	return learningManager.GetPlayerHistory()
 
 # Returns persisted Skill aggregation and Mastery values.
 func GetSkillProgress() -> Dictionary:
-	return skillMasteryManager.GetSkillProgress()
+	return learningManager.GetSkillProgress()
 
 # Returns learned Skills currently below the centralized Mastery threshold.
 func GetWeakSkills() -> Array[String]:
-	return adaptiveLearningManager.GetWeakSkills(skillMasteryManager.GetSkillProgress())
+	return learningManager.GetWeakSkills()
 
 # Returns ranked Levels whose declared Skills match current learning needs.
 func GetWeakSkillRecommendations() -> Array[Dictionary]:
-	return adaptiveLearningManager.BuildWeakSkillRecommendations(
-		levels,
-		skillMasteryManager.GetSkillProgress()
-	)
+	return learningManager.GetWeakSkillRecommendations(levels)
 
 #endregion
 
@@ -393,46 +410,18 @@ func GetWeakSkillRecommendations() -> Array[Dictionary]:
 # Builds one randomized review session from up to ten unique saved mistakes.
 func StartMistakePractice() -> bool:
 	lobbyCategoryId = OTHER_LOBBY_CATEGORY_ID
-	var mistakeEntries := mistakeBookManager.GetEntries()
-
-	if mistakeEntries.is_empty():
+	var sessionData := practiceSessionManager.BuildMistakePracticeSession(
+		mistakeBookManager.GetEntries(),
+		MISTAKE_PRACTICE_QUESTION_COUNT,
+		DEFAULT_LEVEL_TYPE_ID,
+		learningManager
+	)
+	if sessionData.is_empty():
 		return false
 
-	var practiceCount := mini(MISTAKE_PRACTICE_QUESTION_COUNT, mistakeEntries.size())
-	var weakSkills := GetWeakSkills()
-	var selectedMistakes := adaptiveLearningManager.SelectWeightedQuestions(
-		mistakeEntries,
-		weakSkills,
-		practiceCount
-	)
-	var practiceQuestions: Array = []
-	var practiceSkills: Array = []
-
-	for entryIndex in range(selectedMistakes.size()):
-		var mistakeEntry: Dictionary = selectedMistakes[entryIndex]
-		practiceQuestions.append({
-			"id": "practice_%02d_%s" % [entryIndex, mistakeEntry.get("questionId", "")],
-			"sourceQuestionId": mistakeEntry.get("questionId", ""),
-			"expression": mistakeEntry.get("expression", ""),
-			"levelTypeId": mistakeEntry.get("levelTypeId", DEFAULT_LEVEL_TYPE_ID),
-			"sourceEntryKey": mistakeEntry.get("entryKey", ""),
-			"sourceLevelId": mistakeEntry.get("levelId", ""),
-			"sourceLevelTitle": mistakeEntry.get("levelTitle", ""),
-			"skills": mistakeEntry.get("skills", []).duplicate()
-		})
-
-		for skill in mistakeEntry.get("skills", []):
-			if skill not in practiceSkills:
-				practiceSkills.append(skill)
-
 	activeSessionType = MISTAKE_PRACTICE_SESSION_TYPE
-	currentLevel = {
-		"id": MISTAKE_PRACTICE_SESSION_TYPE,
-		"title": "Mistake Practice",
-		"skills": practiceSkills,
-		"questions": practiceQuestions
-	}
-	selectedLevelTypeId = practiceQuestions[0].get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
+	currentLevel = sessionData["level"]
+	selectedLevelTypeId = sessionData["initialLevelTypeId"]
 	currentQuestionIndex = 0
 	ResetLevelScoring()
 	OpenGame()
@@ -441,43 +430,24 @@ func StartMistakePractice() -> bool:
 # Starts a ten-Question mixed-mode practice weighted toward weak Skills.
 func StartAdaptivePractice() -> bool:
 	lobbyCategoryId = OTHER_LOBBY_CATEGORY_ID
-	var questionPool := BuildAdaptiveQuestionPool()
-	if questionPool.is_empty():
-		return false
-
-	var weakSkills := GetWeakSkills()
-	var practiceCount := mini(MISTAKE_PRACTICE_QUESTION_COUNT, questionPool.size())
-	var selectedQuestions := adaptiveLearningManager.SelectWeightedQuestions(
-		questionPool,
-		weakSkills,
-		practiceCount
-	)
 	var gameplayModeIds: Array[String] = [
 		DEFAULT_LEVEL_TYPE_ID,
 		MULTIPLE_CHOICE_LEVEL_TYPE_ID,
 		FILL_PROCESS_LEVEL_TYPE_ID
 	]
-	var practiceSkills: Array = []
-
-	for questionIndex in range(selectedQuestions.size()):
-		var questionData: Dictionary = selectedQuestions[questionIndex]
-		questionData["id"] = "adaptive_%02d_%s" % [
-			questionIndex,
-			questionData.get("sourceQuestionId", "")
-		]
-		questionData["levelTypeId"] = gameplayModeIds.pick_random()
-		for skill in questionData.get("skills", []):
-			if skill not in practiceSkills:
-				practiceSkills.append(skill)
+	var sessionData := practiceSessionManager.BuildAdaptivePracticeSession(
+		levels,
+		MISTAKE_PRACTICE_QUESTION_COUNT,
+		gameplayModeIds,
+		DEFAULT_LEVEL_TYPE_ID,
+		learningManager
+	)
+	if sessionData.is_empty():
+		return false
 
 	activeSessionType = ADAPTIVE_PRACTICE_SESSION_TYPE
-	currentLevel = {
-		"id": ADAPTIVE_PRACTICE_SESSION_TYPE,
-		"title": "Adaptive Practice",
-		"skills": practiceSkills,
-		"questions": selectedQuestions
-	}
-	selectedLevelTypeId = selectedQuestions[0].get("levelTypeId", DEFAULT_LEVEL_TYPE_ID)
+	currentLevel = sessionData["level"]
+	selectedLevelTypeId = sessionData["initialLevelTypeId"]
 	currentQuestionIndex = 0
 	ResetLevelScoring()
 	OpenGame()
@@ -486,7 +456,7 @@ func StartAdaptivePractice() -> bool:
 # Starts a three-minute mixed-mode session from the complete Question pool.
 func StartZenMode() -> bool:
 	lobbyCategoryId = OTHER_LOBBY_CATEGORY_ID
-	if not zenModeManager.Initialize(levels, skillMasteryManager.GetSkillProgress()):
+	if not zenModeManager.Initialize(levels, learningManager.GetSkillProgress()):
 		return false
 
 	activeSessionType = ZEN_SESSION_TYPE
@@ -496,21 +466,6 @@ func StartZenMode() -> bool:
 	levelHintBudget = 0
 	OpenGame()
 	return true
-
-# Flattens authored Levels into source-aware Adaptive Practice candidates.
-func BuildAdaptiveQuestionPool() -> Array[Dictionary]:
-	var questionPool: Array[Dictionary] = []
-	for level in levels:
-		for question in level.get("questions", []):
-			questionPool.append({
-				"questionId": question.get("id", ""),
-				"sourceQuestionId": question.get("id", ""),
-				"expression": question.get("expression", ""),
-				"sourceLevelId": level.get("id", ""),
-				"sourceLevelTitle": level.get("title", ""),
-				"skills": level.get("skills", []).duplicate()
-			})
-	return questionPool
 
 # Starts an untimed mixed-mode session with three shared lives.
 func StartSurvivalMode() -> bool:
@@ -711,7 +666,7 @@ func LoadQuestion(questionIndex: int) -> void:
 		)
 
 	# Begin timing only after the Question and its controls are fully presented.
-	telemetryManager.BeginQuestion(BuildTelemetryQuestionContext(currentQuestion))
+	learningManager.BeginQuestion(BuildTelemetryQuestionContext(currentQuestion))
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 	gameUI.UpdateHintCount(remainingHints)
@@ -784,7 +739,7 @@ func CheckAnswer() -> void:
 	if selectedLevelTypeId == MULTIPLE_CHOICE_LEVEL_TYPE_ID:
 		return
 
-	telemetryManager.RecordCheckSubmission(selectedLevelTypeId)
+	learningManager.RecordCheckSubmission(selectedLevelTypeId)
 
 	if selectedLevelTypeId == FILL_PROCESS_LEVEL_TYPE_ID:
 		CheckFillProcess()
@@ -963,7 +918,7 @@ func RegisterIncorrectAttempt() -> String:
 	consecutiveIncorrectAttempts += 1
 	incorrectAttempts += 1
 	currentLevelIncorrectAttempts += 1
-	telemetryManager.RecordIncorrectAttempt(selectedLevelTypeId)
+	learningManager.RecordIncorrectAttempt(selectedLevelTypeId)
 
 	# Survival consumes one life for each mode-specific incorrect attempt.
 	if activeSessionType == SURVIVAL_SESSION_TYPE:
@@ -1064,7 +1019,7 @@ func SelectMultipleChoice(choiceText: String) -> void:
 	if questionCompleted or currentChoiceStage >= correctSteps.size():
 		return
 
-	telemetryManager.RecordChoiceSelection()
+	learningManager.RecordChoiceSelection()
 
 	var correctStep := correctSteps[currentChoiceStage]
 
@@ -1159,7 +1114,7 @@ func GoToNextQuestion() -> void:
 			return
 
 		var resultData := RecordLevelResult(starCount)
-		var currentLevelIndex := levels.find(currentLevel)
+		var currentLevelIndex := GetLevelIndexById(currentLevel.get("id", ""))
 		gameUI.ShowEndMenu({
 			"levelTitle": currentLevel.get("title", "Untitled Level"),
 			"levelTypeTitle": GetLevelTypeById(selectedLevelTypeId).get("title", "Unknown Mode"),
@@ -1205,7 +1160,7 @@ func RegisterHintUsed() -> void:
 	currentLevelHintsUsed += 1
 	remainingHints = maxi(0, remainingHints - 1)
 	currentQuestionScore = maxi(0, currentQuestionScore - HINT_SCORE_PENALTY)
-	telemetryManager.RecordHintUse()
+	learningManager.RecordHintUse()
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 	gameUI.UpdateHintCount(remainingHints)
 
@@ -1297,18 +1252,12 @@ func CompleteQuestion() -> void:
 	elif activeSessionType == SURVIVAL_SESSION_TYPE:
 		survivalModeManager.RecordSolvedQuestion()
 
-	var completedTelemetry := telemetryManager.CompleteQuestion({
+	learningManager.CompleteQuestion({
 		"completed": true,
 		"questionScore": currentQuestionScore,
 		"incorrectAttempts": incorrectAttempts,
 		"hintsUsed": hintsUsed
 	})
-	var behaviorAnalysis := behaviorPatternManager.AnalyzeQuestion(completedTelemetry)
-	completedTelemetry["behaviorPatterns"] = behaviorAnalysis["patterns"]
-	completedTelemetry["primaryBehaviorPattern"] = behaviorAnalysis["primaryPattern"]
-	playerHistoryManager.RecordCompletedQuestion(completedTelemetry)
-	skillMasteryManager.RebuildSkillProgress(playerHistoryManager.GetHistory())
-	GetWeakSkillRecommendations()
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
@@ -1345,12 +1294,13 @@ func RestartLevel() -> void:
 		return
 
 	gameUI.HideEndMenu()
+	currentLevel = CreateShuffledLevel(GetLevelById(currentLevel.get("id", "")))
 	ResetLevelScoring()
 	LoadQuestion(0)
 
 # Starts the next data-driven Level while preserving the selected Level Type.
 func OpenNextLevel() -> void:
-	var currentLevelIndex := levels.find(currentLevel)
+	var currentLevelIndex := GetLevelIndexById(currentLevel.get("id", ""))
 
 	if currentLevelIndex < 0 or currentLevelIndex >= levels.size() - 1:
 		OpenLobby()

@@ -1191,15 +1191,22 @@ MathSmith/
 │   │   ├── SaveManager.gd
 │   │   ├── ProgressManager.gd
 │   │   ├── MistakeBookManager.gd
+│   │   ├── PracticeSessionManager.gd
 │   │   ├── ZenModeManager.gd
 │   │   └── SurvivalModeManager.gd
+│   ├── Learning/
+│   │   ├── LearningManager.gd
+│   │   ├── TelemetryManager.gd
+│   │   ├── PlayerHistoryManager.gd
+│   │   ├── SkillMasteryManager.gd
+│   │   ├── BehaviorPatternManager.gd
+│   │   └── AdaptiveLearningManager.gd
 │   ├── Math/
 │   │   ├── ExpressionParser.gd
 │   │   ├── StepGenerator.gd
 │   │   └── ChoiceGenerator.gd
-│   └── UI/
-│       ├── Screens/
-│       └── Components/
+│   ├── UIComponents/
+│   └── UIScreens/
 └── Themes/
 ```
 
@@ -1243,6 +1250,8 @@ As the project expanded, responsibilities were extracted from `GameManager`.
 Examples include:
 
 - `ProgressManager`
+- `LearningManager`
+- `PracticeSessionManager`
 - `MistakeBookManager`
 - `ZenModeManager`
 - `SurvivalModeManager`
