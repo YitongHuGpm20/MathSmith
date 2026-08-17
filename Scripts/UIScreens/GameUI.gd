@@ -179,11 +179,13 @@ func RefreshAnalyticsOverlay() -> void:
 		))
 
 	analyticsText.text = (
-		"[b]ACTIVE QUESTION[/b]\n%s\n\n"
+		"[b]COURSE SOURCE[/b]\n%s\n\n"
+		+ "[b]ACTIVE QUESTION[/b]\n%s\n\n"
 		+ "[b]PLAYER HISTORY[/b]\nSaved Questions: %d\nLatest pattern: %s\n\n"
 		+ "[b]SKILL MASTERY[/b]\n%s\n\n"
 		+ "[b]WEAK SKILLS[/b]\n%s"
 	) % [
+		GameManager.GetCurrentCourseSourceId(),
 		"\n".join(activeLines),
 		playerHistory.size(),
 		latestPattern,

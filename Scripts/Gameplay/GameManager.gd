@@ -34,6 +34,7 @@ const ADVANCED_LEVEL_HINT_BUDGET: int = 5
 
 var gameUI: Node = null
 var levelLoader := preload("res://Scripts/Gameplay/LevelLoader.gd").new()
+var courseManager := preload("res://Scripts/Gameplay/CourseManager.gd").new()
 var stepGenerator := preload("res://Scripts/Math/StepGenerator.gd").new()
 var choiceGenerator := preload("res://Scripts/Math/ChoiceGenerator.gd").new()
 var progressManager := preload("res://Scripts/Gameplay/ProgressManager.gd").new()
@@ -86,10 +87,10 @@ func _ready() -> void:
 	if contentData.is_empty():
 		return
 
-	# Publish validated content and preserve the initial default Level.
-	levelTypes = contentData["level_types"]
-	levels = contentData["levels"]
-	currentLevel = CreateShuffledLevel(levels[0])
+	# Install built-in content as the always-available Core Curriculum source.
+	if not courseManager.Initialize(contentData):
+		return
+	ApplyCurrentCourseContent()
 	progressManager.Initialize(DEFAULT_LEVEL_TYPE_ID)
 
 	# Rebuild derived learning state from persistent Question history.
@@ -247,6 +248,41 @@ func DisconnectGameUISignals() -> void:
 
 	if gameUI.reviewMistakesRequested.is_connected(OpenMistakeBook):
 		gameUI.reviewMistakesRequested.disconnect(OpenMistakeBook)
+
+#endregion
+
+#region ========== Course Source Context ==========
+
+# Returns the single active Course Source ID for all runtime systems.
+func GetCurrentCourseSourceId() -> String:
+	return courseManager.GetCurrentCourseSourceId()
+
+# Returns availability and metadata for the three supported Course Sources.
+func GetCourseSourceSummaries() -> Array[Dictionary]:
+	return courseManager.GetCourseSourceSummaries()
+
+# Selects one available Course Source and publishes its independent content.
+func SelectCourseSource(courseSourceId: String) -> bool:
+	if not courseManager.SelectCourseSource(courseSourceId):
+		return false
+
+	set_process(false)
+	activeSessionType = STANDARD_SESSION_TYPE
+	ApplyCurrentCourseContent()
+	ResetLevelScoring()
+	return true
+
+# Applies the active Course Source content without exposing storage details.
+func ApplyCurrentCourseContent() -> void:
+	var courseContent := courseManager.GetCurrentCourseContent()
+	levelTypes = courseContent.get("level_types", {})
+	levels = courseContent.get("levels", [])
+
+	if not levelTypes.has(selectedLevelTypeId):
+		selectedLevelTypeId = DEFAULT_LEVEL_TYPE_ID
+	lobbyCategoryId = selectedLevelTypeId
+	currentLevel = CreateShuffledLevel(levels[0]) if not levels.is_empty() else {}
+	currentQuestionIndex = 0
 
 #endregion
 
