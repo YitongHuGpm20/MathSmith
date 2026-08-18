@@ -23,6 +23,8 @@ const ADAPTIVE_PRACTICE_SESSION_TYPE: String = "adaptive_practice"
 const ZEN_SESSION_TYPE: String = "zen"
 const SURVIVAL_SESSION_TYPE: String = "survival"
 const OTHER_LOBBY_CATEGORY_ID: String = "other"
+const IMPORTED_COURSE_SOURCE_ID: String = "imported_course"
+const STUDIO_COURSE_SOURCE_ID: String = "studio_course"
 const MISTAKE_PRACTICE_QUESTION_COUNT: int = 10
 const MAX_QUESTION_SCORE: int = 100
 const INCORRECT_ATTEMPT_PENALTY: int = 15
@@ -93,6 +95,7 @@ func _ready() -> void:
 	# Install built-in content as the always-available Core Curriculum source.
 	if not courseManager.Initialize(contentData):
 		return
+	RestorePersistedCourseSources()
 	ApplyCurrentCourseContent()
 	SaveManager.SetActiveCourseSource(courseManager.GetCurrentCourseSourceId(), false)
 	progressManager.Initialize(DEFAULT_LEVEL_TYPE_ID)
@@ -276,6 +279,48 @@ func GetCurrentCourseSourceId() -> String:
 # Returns availability and metadata for the three supported Course Sources.
 func GetCourseSourceSummaries() -> Array[Dictionary]:
 	return courseManager.GetCourseSourceSummaries()
+
+# Returns whether one Course Source currently contains registered runtime content.
+func HasCourseSourceContent(courseSourceId: String) -> bool:
+	return courseManager.IsCourseSourceAvailable(courseSourceId)
+
+# Restores replaceable Course Sources saved during earlier application sessions.
+func RestorePersistedCourseSources() -> void:
+	for courseSourceId in [IMPORTED_COURSE_SOURCE_ID, STUDIO_COURSE_SOURCE_ID]:
+		var persistedCourse: Dictionary = SaveManager.GetPersistedCourseContent(courseSourceId)
+		var persistedContent: Dictionary = persistedCourse.get("content", {})
+		var persistedMetadata: Dictionary = persistedCourse.get("metadata", {})
+		if persistedContent.is_empty():
+			continue
+		if not courseManager.RegisterCourseContent(courseSourceId, persistedContent, persistedMetadata):
+			push_warning("Saved Course content could not be restored: " + courseSourceId)
+
+# Registers and persists the first validated Imported Course atomically.
+func SaveFirstImportedCourse(contentData: Dictionary, metadata: Dictionary) -> bool:
+	if courseManager.IsCourseSourceAvailable(IMPORTED_COURSE_SOURCE_ID):
+		return false
+
+	var persistedMetadata := metadata.duplicate(true)
+	var currentUnixMs := int(Time.get_unix_time_from_system() * 1000.0)
+	persistedMetadata["importedAtUnixMs"] = currentUnixMs
+	persistedMetadata["lastModifiedAtUnixMs"] = currentUnixMs
+
+	if not courseManager.RegisterCourseContent(
+		IMPORTED_COURSE_SOURCE_ID,
+		contentData,
+		persistedMetadata
+	):
+		return false
+
+	if not SaveManager.SetPersistedCourseContent(
+		IMPORTED_COURSE_SOURCE_ID,
+		contentData,
+		persistedMetadata
+	):
+		courseManager.ClearCourseContent(IMPORTED_COURSE_SOURCE_ID)
+		return false
+
+	return true
 
 # Selects one available Course Source and publishes its independent content.
 func SelectCourseSource(courseSourceId: String) -> bool:
@@ -1315,6 +1360,16 @@ func CompleteQuestion() -> void:
 	})
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
+
+	# Standard Levels finish automatically after their final correct-answer state is drawn.
+	var questions: Array = currentLevel.get("questions", [])
+	var isFinalStandardQuestion := (
+		activeSessionType == STANDARD_SESSION_TYPE
+		and not questions.is_empty()
+		and currentQuestionIndex >= questions.size() - 1
+	)
+	if isFinalStandardQuestion:
+		GoToNextQuestion.call_deferred()
 
 # Calculates a Level rating using score percentage as its only input.
 func CalculateStarRating(levelScore: int, maxLevelScore: int) -> int:

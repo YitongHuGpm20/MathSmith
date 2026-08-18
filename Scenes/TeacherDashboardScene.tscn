@@ -70,12 +70,6 @@ theme_override_constants/separation = 22
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Eyebrow" type="Label" parent="MainMargin/PageLayout/DashboardContent/TitleBlock"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.76, 1, 1)
-theme_override_font_sizes/font_size = 15
-text = "TEACHER DASHBOARD"
-
 [node name="Title" type="Label" parent="MainMargin/PageLayout/DashboardContent/TitleBlock"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
@@ -133,7 +127,7 @@ text = "Validate and manage one read-only teacher-authored CSV Course."
 autowrap_mode = 2
 
 [node name="StatusPanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
-custom_minimum_size = Vector2(0, 92)
+custom_minimum_size = Vector2(0, 132)
 layout_mode = 2
 
 [node name="StatusMargin" type="MarginContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/StatusPanel"]
@@ -160,12 +154,12 @@ theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
 theme_override_font_sizes/font_size = 15
 text = "Create or import content to make this Course available."
 
-[node name="PrimaryAction" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
+[node name="ImportCsvButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
-disabled = true
 text = "Import / Replace CSV"
-tooltip_text = "CSV import will be implemented in a later M6 step."
+tooltip_text = "Select and validate a MathSmith Course CSV. Existing content will not be replaced yet."
 
 [node name="ActionGrid" type="GridContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
 layout_mode = 2
@@ -180,7 +174,8 @@ size_flags_horizontal = 3
 disabled = true
 text = "View Current Course"
 
-[node name="ValidationButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+[node name="ValidationResultsButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -250,7 +245,7 @@ text = "Create and edit an independent visual-authoring Course."
 autowrap_mode = 2
 
 [node name="StatusPanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
-custom_minimum_size = Vector2(0, 92)
+custom_minimum_size = Vector2(0, 132)
 layout_mode = 2
 
 [node name="StatusMargin" type="MarginContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/StatusPanel"]
@@ -331,6 +326,140 @@ layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "Delete Studio Course"
+
+[node name="ValidationOverlay" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OverlayMargin" type="MarginContainer" parent="ValidationOverlay"]
+layout_mode = 2
+theme_override_constants/margin_left = 120
+theme_override_constants/margin_top = 70
+theme_override_constants/margin_right = 120
+theme_override_constants/margin_bottom = 70
+
+[node name="ReportPanel" type="PanelContainer" parent="ValidationOverlay/OverlayMargin"]
+layout_mode = 2
+
+[node name="ReportMargin" type="MarginContainer" parent="ValidationOverlay/OverlayMargin/ReportPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 30
+
+[node name="ReportLayout" type="VBoxContainer" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="HBoxContainer" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout"]
+layout_mode = 2
+
+[node name="HeaderText" type="VBoxContainer" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="Title" type="Label" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout/Header/HeaderText"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "Validation Results"
+
+[node name="ValidationFilenameLabel" type="Label" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout/Header/HeaderText"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 16
+
+[node name="CloseValidationButton" type="Button" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+text = "Close"
+
+[node name="Summary" type="HBoxContainer" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="ValidationStatusLabel" type="Label" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout/Summary"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Error"
+
+[node name="ValidationCountsLabel" type="Label" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout/Summary"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.72, 0.84, 1)
+theme_override_font_sizes/font_size = 17
+text = "0 Errors  •  0 Warnings  •  0 Valid"
+vertical_alignment = 1
+
+[node name="Divider" type="HSeparator" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout"]
+layout_mode = 2
+
+[node name="IssueScroll" type="ScrollContainer" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ValidationIssueList" type="VBoxContainer" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout/IssueScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="ValidationEmptyLabel" type="Label" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 20
+text = "All parsed records passed validation."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ReportActions" type="HBoxContainer" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout"]
+layout_mode = 2
+alignment = 2
+
+[node name="ConfirmValidatedImportButton" type="Button" parent="ValidationOverlay/OverlayMargin/ReportPanel/ReportMargin/ReportLayout/ReportActions"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(190, 50)
+layout_mode = 2
+text = "Import Course"
+
+[node name="CsvFileDialog" type="FileDialog" parent="."]
+unique_name_in_owner = true
+title = "Select MathSmith Course CSV"
+initial_position = 2
+size = Vector2i(1100, 720)
+ok_button_text = "Validate"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.csv ; CSV Files")
+
+[node name="ConfirmImportDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Confirm Import"
+initial_position = 2
+size = Vector2i(620, 260)
+ok_button_text = "Import Course"
+
+[node name="ImportNoticeDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+initial_position = 2
+size = Vector2i(620, 240)
 
 [node name="SettingsPanel" parent="." instance=ExtResource("5_settings_panel")]
 layout_mode = 1

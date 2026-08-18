@@ -63,6 +63,15 @@ func RegisterCourseContent(
 	)
 	return true
 
+# Clears one replaceable runtime Course Source without affecting built-in content.
+func ClearCourseContent(courseSourceId: String) -> bool:
+	if courseSourceId == CORE_CURRICULUM_SOURCE_ID or not courseSources.has(courseSourceId):
+		return false
+	courseSources[courseSourceId] = CreateEmptyCourseSource(courseSourceId)
+	if currentCourseSourceId == courseSourceId:
+		currentCourseSourceId = CORE_CURRICULUM_SOURCE_ID
+	return true
+
 # Selects one available Course Source without guessing from gameplay state.
 func SelectCourseSource(courseSourceId: String) -> bool:
 	if not IsCourseSourceAvailable(courseSourceId):

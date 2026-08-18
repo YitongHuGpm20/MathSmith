@@ -8,7 +8,7 @@ extends Node
 #region ========== Constants ==========
 
 const SAVE_FILE_PATH: String = "user://mathsmith_save.json"
-const SAVE_SCHEMA_VERSION: int = 6
+const SAVE_SCHEMA_VERSION: int = 7
 const CORE_CURRICULUM_SOURCE_ID: String = "core_curriculum"
 const IMPORTED_COURSE_SOURCE_ID: String = "imported_course"
 const STUDIO_COURSE_SOURCE_ID: String = "studio_course"
@@ -53,6 +53,10 @@ func GetDefaultSaveData() -> Dictionary:
 			IMPORTED_COURSE_SOURCE_ID: GetDefaultCoursePlayerData(),
 			STUDIO_COURSE_SOURCE_ID: GetDefaultCoursePlayerData()
 		},
+		"courseContent": {
+			IMPORTED_COURSE_SOURCE_ID: GetDefaultPersistedCourseContent(),
+			STUDIO_COURSE_SOURCE_ID: GetDefaultPersistedCourseContent()
+		},
 		"tutorialState": {}
 	}
 
@@ -66,6 +70,10 @@ func GetDefaultCoursePlayerData() -> Dictionary:
 		"survivalMode": {"bestSolvedCount": 0},
 		"playerHistory": []
 	}
+
+# Returns an empty persistent authoring payload kept separate from player data.
+func GetDefaultPersistedCourseContent() -> Dictionary:
+	return {"content": {}, "metadata": {}}
 
 # Loads JSON data and restores missing sections from the current schema.
 func LoadSaveData() -> void:
@@ -89,6 +97,7 @@ func LoadSaveData() -> void:
 	var requiresMigration: bool = (
 		int(parsedData.get("version", 0)) < SAVE_SCHEMA_VERSION
 		or not parsedData.has("courseData")
+		or not parsedData.has("courseContent")
 	)
 	MergeSavedSections(parsedData)
 
@@ -112,6 +121,11 @@ func MergeSavedSections(parsedData: Dictionary) -> void:
 		MergeCourseData(parsedData["courseData"])
 	else:
 		MigrateLegacyPlayerData(parsedData)
+
+	# Imported and Studio content persist independently from their player records.
+	var savedCourseContent = parsedData.get("courseContent", {})
+	if savedCourseContent is Dictionary:
+		MergePersistedCourseContent(savedCourseContent)
 
 	# Loaded data always adopts the schema understood by this build.
 	saveData["version"] = SAVE_SCHEMA_VERSION
@@ -138,6 +152,20 @@ func MergeCourseData(savedCourseData: Dictionary) -> void:
 					mergedCourseData[sectionName] = savedPlayerData[sectionName].duplicate(true)
 
 		saveData["courseData"][courseSourceId] = mergedCourseData
+
+# Merges only replaceable Course Source content from a versioned Local Save.
+func MergePersistedCourseContent(savedCourseContent: Dictionary) -> void:
+	for courseSourceId in [IMPORTED_COURSE_SOURCE_ID, STUDIO_COURSE_SOURCE_ID]:
+		var savedCourseValue = savedCourseContent.get(courseSourceId, {})
+		if not savedCourseValue is Dictionary:
+			continue
+
+		var persistedCourse := GetDefaultPersistedCourseContent()
+		if savedCourseValue.get("content", {}) is Dictionary:
+			persistedCourse["content"] = savedCourseValue.get("content", {}).duplicate(true)
+		if savedCourseValue.get("metadata", {}) is Dictionary:
+			persistedCourse["metadata"] = savedCourseValue.get("metadata", {}).duplicate(true)
+		saveData["courseContent"][courseSourceId] = persistedCourse
 
 # Moves all pre-M6 player-learning sections into Core Curriculum exactly once.
 func MigrateLegacyPlayerData(parsedData: Dictionary) -> void:
@@ -237,6 +265,45 @@ func ResetCoursePlayerData(courseSourceId: String) -> bool:
 	saveData["courseData"][courseSourceId] = GetDefaultCoursePlayerData()
 	return SaveLocalData()
 
+# Returns isolated persisted content for one replaceable Course Source.
+func GetPersistedCourseContent(courseSourceId: String) -> Dictionary:
+	if courseSourceId not in [IMPORTED_COURSE_SOURCE_ID, STUDIO_COURSE_SOURCE_ID]:
+		return GetDefaultPersistedCourseContent()
+	return saveData.get("courseContent", {}).get(
+		courseSourceId,
+		GetDefaultPersistedCourseContent()
+	).duplicate(true)
+
+# Persists normalized Imported or Studio content without touching player data.
+func SetPersistedCourseContent(
+	courseSourceId: String,
+	contentData: Dictionary,
+	metadata: Dictionary
+) -> bool:
+	if courseSourceId not in [IMPORTED_COURSE_SOURCE_ID, STUDIO_COURSE_SOURCE_ID]:
+		return false
+	if contentData.is_empty():
+		return false
+
+	var previousCourseContent: Dictionary = saveData["courseContent"].get(
+		courseSourceId,
+		GetDefaultPersistedCourseContent()
+	).duplicate(true)
+	saveData["courseContent"][courseSourceId] = {
+		"content": contentData.duplicate(true),
+		"metadata": metadata.duplicate(true)
+	}
+	if SaveLocalData():
+		return true
+
+	# Restore in-memory state when disk persistence fails.
+	saveData["courseContent"][courseSourceId] = previousCourseContent
+	return false
+
+# Reports whether one replaceable Course Source has saved runtime content.
+func HasPersistedCourseContent(courseSourceId: String) -> bool:
+	return not GetPersistedCourseContent(courseSourceId).get("content", {}).is_empty()
+
 # Restores the default schema after a confirmed Reset Progress action.
 func ResetAllData() -> bool:
 	saveData = GetDefaultSaveData()
@@ -247,9 +314,11 @@ func ResetAllData() -> bool:
 func ResetPlayerProgress() -> bool:
 	var settingsData: Dictionary = GetSection("settings")
 	var courseState: Dictionary = GetSection("courseState")
+	var courseContent: Dictionary = GetSection("courseContent")
 	saveData = GetDefaultSaveData()
 	saveData["settings"] = settingsData
 	saveData["courseState"] = courseState
+	saveData["courseContent"] = courseContent
 	activeCourseSourceId = courseState.get(
 		"selectedCourseSource",
 		CORE_CURRICULUM_SOURCE_ID

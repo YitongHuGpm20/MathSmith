@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cnbpl4q428bhj"
+
+[deps]
+
+files=["res://Authoring/MathSmith_Course_Template.course.translation", "res://Authoring/MathSmith_Course_Template.course.translation", "res://Authoring/MathSmith_Course_Template.course.translation", "res://Authoring/MathSmith_Course_Template.level.translation", "res://Authoring/MathSmith_Course_Template.level.translation", "res://Authoring/MathSmith_Course_Template.level.translation", "res://Authoring/MathSmith_Course_Template.skill.translation", "res://Authoring/MathSmith_Course_Template.question.translation", "res://Authoring/MathSmith_Course_Template.expression.translation"]
+
+source_file="res://Authoring/MathSmith_Course_Template.csv"
+dest_files=["res://Authoring/MathSmith_Course_Template.course.translation", "res://Authoring/MathSmith_Course_Template.course.translation", "res://Authoring/MathSmith_Course_Template.course.translation", "res://Authoring/MathSmith_Course_Template.level.translation", "res://Authoring/MathSmith_Course_Template.level.translation", "res://Authoring/MathSmith_Course_Template.level.translation", "res://Authoring/MathSmith_Course_Template.skill.translation", "res://Authoring/MathSmith_Course_Template.question.translation", "res://Authoring/MathSmith_Course_Template.expression.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

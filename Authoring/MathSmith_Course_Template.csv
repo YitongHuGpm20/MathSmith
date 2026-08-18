@@ -1,0 +1,7 @@
+record_type,course_id,course_name,course_description,level_id,level_name,level_type,skill_tags,question_id,expression
+COURSE,your_course_id,Your Course Name,Short description,,,,,,
+LEVEL,,,,level_01,First Level,step_ordering,skill_one;skill_two,,
+LEVEL,,,,level_02,Second Level,multiple_choice_ordering,skill_three;skill_four,,
+QUESTION,,,,level_01,,,,L01_Q01,14 + 8
+QUESTION,,,,level_01,,,,L01_Q02,17 + 6
+QUESTION,,,,level_02,,,,L02_Q01,18 + 12 / 3 - 4

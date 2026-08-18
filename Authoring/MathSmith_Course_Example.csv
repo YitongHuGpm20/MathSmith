@@ -1,0 +1,17 @@
+record_type,course_id,course_name,course_description,level_id,level_name,level_type,skill_tags,question_id,expression
+COURSE,number_sense_course,Number Sense Workshop,Practice structured arithmetic reasoning,,,,,,
+LEVEL,,,,level_01,Build Friendly Numbers,step_ordering,addition;decomposition,,
+LEVEL,,,,level_02,Operation Decisions,multiple_choice_ordering,mixed_operations;precedence,,
+LEVEL,,,,level_03,Complete the Process,fill_in_process,parentheses;multi_step,,
+QUESTION,,,,level_01,,,,NS01_Q01,18 + 7
+QUESTION,,,,level_01,,,,NS01_Q02,27 + 16
+QUESTION,,,,level_01,,,,NS01_Q03,38 + 24
+QUESTION,,,,level_01,,,,NS01_Q04,46 + 37
+QUESTION,,,,level_02,,,,NS02_Q01,18 + 12 / 3 - 4
+QUESTION,,,,level_02,,,,NS02_Q02,36 / 6 + 5 * 2
+QUESTION,,,,level_02,,,,NS02_Q03,7 * 8 - 30 / 5
+QUESTION,,,,level_02,,,,NS02_Q04,24 - 12 / 3 + 7
+QUESTION,,,,level_03,,,,NS03_Q01,(8 + 4) * 3 - 6
+QUESTION,,,,level_03,,,,NS03_Q02,5 * (9 - 3) + 8
+QUESTION,,,,level_03,,,,NS03_Q03,(24 / 6) + (7 * 3)
+QUESTION,,,,level_03,,,,NS03_Q04,(14 - 5) * (3 + 2)

@@ -219,3 +219,28 @@ Create New Studio Course,Create New Studio Course,新建工作室课程
 Copy Imported Course,Copy Imported Course,复制导入课程
 Reset Studio Course,Reset Studio Course,重置工作室课程
 Delete Studio Course,Delete Studio Course,删除工作室课程
+Error,Error,错误
+Warning,Warning,警告
+Valid,Valid,有效
+"%d Errors  •  %d Warnings  •  %d Valid","%d Errors  •  %d Warnings  •  %d Valid","%d 个错误  •  %d 个警告  •  %d 条有效记录"
+All parsed records passed validation.,All parsed records passed validation.,所有解析记录均已通过验证。
+Suggested Action: %s,Suggested Action: %s,建议操作：%s
+Row %d,Row %d,第 %d 行
+Level: %s,Level: %s,关卡：%s
+Question: %s,Question: %s,题目：%s
+Field: %s,Field: %s,字段：%s
+Expression: %s,Expression: %s,表达式：%s
+Select MathSmith Course CSV,Select MathSmith Course CSV,选择 MathSmith 课程 CSV
+Validate,Validate,验证
+File: %s,File: %s,文件：%s
+Last Updated: %s,Last Updated: %s,最后更新：%s
+Import Course,Import Course,导入课程
+Confirm Import,Confirm Import,确认导入
+"Import %s with %d Levels and %d Questions?","Import %s with %d Levels and %d Questions?","是否导入 %s（%d 个关卡，%d 道题）？"
+this Course,this Course,此课程
+Imported Course Already Exists,Imported Course Already Exists,已存在导入课程
+Safe replacement will be available in the next development step. Existing content was not changed.,Safe replacement will be available in the next development step. Existing content was not changed.,安全替换功能将在下一开发步骤中提供。现有内容未被修改。
+Import Failed,Import Failed,导入失败
+The Imported Course could not be saved. Existing content was not changed.,The Imported Course could not be saved. Existing content was not changed.,无法保存导入课程。现有内容未被修改。
+Import Complete,Import Complete,导入完成
+The Imported Course is saved and now available to players.,The Imported Course is saved and now available to players.,导入课程已保存，玩家现在可以使用。
