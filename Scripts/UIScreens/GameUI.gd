@@ -53,6 +53,7 @@ const ZEN_SOLVED_ICON: Texture2D = preload("res://Assets/Icons/correct.svg")
 @onready var zenTimerLabel: Label = $"../MainMargin/MainLayout/TopBar/ZenTimerGroup/ZenTimerLabel"
 @onready var survivalLivesGroup: HBoxContainer = $"../MainMargin/MainLayout/TopBar/SurvivalLivesGroup"
 @onready var survivalLivesLabel: Label = $"../MainMargin/MainLayout/TopBar/SurvivalLivesGroup/SurvivalLivesLabel"
+@onready var teacherPreviewLabel: Label = $"../MainMargin/MainLayout/TopBar/TeacherPreviewLabel"
 @onready var scoreLabel: Label = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreLabel"
 @onready var scoreIcon: TextureRect = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreIcon"
 @onready var scoreGainLabel: Label = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreGainLabel"
@@ -96,6 +97,7 @@ var displayedLevelScore: int = 0
 var scoreTween: Tween = null
 var zenModeActive: bool = false
 var survivalModeActive: bool = false
+var teacherPreviewActive: bool = false
 var suppressFillValueTracking: bool = false
 
 #endregion
@@ -296,16 +298,19 @@ func UpdateScore(_currentScore: int, levelScore: int) -> void:
 	else:
 		scoreGainLabel.visible = false
 
-# Switches shared header controls between Levels and both replay modes.
+# Switches shared header controls between player sessions and isolated Teacher Preview.
 func SetReplayMode(replayModeId: String) -> void:
 	zenModeActive = replayModeId == "zen"
 	survivalModeActive = replayModeId == "survival"
+	teacherPreviewActive = replayModeId == "teacher_preview"
 	var replayModeActive := zenModeActive or survivalModeActive
 	zenTimerGroup.visible = zenModeActive
 	survivalLivesGroup.visible = survivalModeActive
+	teacherPreviewLabel.visible = teacherPreviewActive
 	progressBar.visible = not replayModeActive
-	tutorialButton.visible = not replayModeActive
+	tutorialButton.visible = not replayModeActive and not teacherPreviewActive
 	hintButton.visible = not replayModeActive
+	topLobbyButton.text = tr("Return to Dashboard") if teacherPreviewActive else tr("Back to Lobby")
 	scoreIcon.texture = ZEN_SOLVED_ICON if replayModeActive else SCORE_ICON
 	scoreGainLabel.visible = false
 
@@ -696,9 +701,12 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 	var scorePercentage: int = summaryData.get("percentage", 0)
 	var starCount: int = summaryData.get("stars", 0)
 	var isPracticeSession: bool = summaryData.get("isPracticeSession", false)
-	var levelCompleted := starCount >= 1
+	var isTeacherPreview: bool = summaryData.get("isTeacherPreview", false)
+	var levelCompleted := starCount >= 1 or isTeacherPreview
 
-	if isPracticeSession:
+	if isTeacherPreview:
+		completeLabel.text = tr("PREVIEW COMPLETE")
+	elif isPracticeSession:
 		completeLabel.text = tr("PRACTICE COMPLETE")
 	elif levelCompleted:
 		completeLabel.text = tr("LEVEL COMPLETE")
@@ -717,7 +725,7 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 		else Color(1, 0.68, 0.34, 1)
 	)
 	completeIcon.visible = levelCompleted or isPracticeSession
-	starsLabel.visible = not isPracticeSession
+	starsLabel.visible = not isPracticeSession and not isTeacherPreview
 	starsLabel.text = "★".repeat(starCount) + "☆".repeat(3 - starCount)
 	sessionMetaLabel.text = "%s\n%s" % [
 		tr(summaryData.get("levelTitle", "Untitled Level")),
@@ -736,17 +744,25 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 			summaryData.get("hintsUsed", 0)
 		]
 	)
-	bestScoreLabel.visible = not isPracticeSession
+	bestScoreLabel.visible = not isPracticeSession and not isTeacherPreview
 	bestScoreLabel.text = "%s  %d / %d" % [
 		tr("Best Score"),
 		summaryData.get("bestScore", levelScore),
 		maxLevelScore
 	]
 	newBestLabel.text = tr("NEW BEST")
-	newBestLabel.visible = not isPracticeSession and summaryData.get("isNewBest", false)
+	newBestLabel.visible = (
+		not isPracticeSession
+		and not isTeacherPreview
+		and summaryData.get("isNewBest", false)
+	)
 	nextLevelButton.visible = levelCompleted and summaryData.get("hasNextLevel", false)
+	reviewMistakesButton.visible = not isTeacherPreview
+	lobbyButton.text = tr("Return to Dashboard") if isTeacherPreview else tr("Back to Lobby")
 
-	if isPracticeSession:
+	if isTeacherPreview:
+		retryButton.text = tr("Preview Again")
+	elif isPracticeSession:
 		retryButton.text = tr("Practice Again")
 	elif levelCompleted:
 		retryButton.text = tr("Play Again")

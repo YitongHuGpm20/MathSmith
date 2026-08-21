@@ -15,6 +15,7 @@ extends Control
 @onready var studioMetadataLabel: Label = %StudioMetadataLabel
 @onready var importCsvButton: Button = %ImportCsvButton
 @onready var validationResultsButton: Button = %ValidationResultsButton
+@onready var importedPreviewButton: Button = %ImportedPreviewButton
 @onready var csvFileDialog: FileDialog = %CsvFileDialog
 @onready var validationOverlay: PanelContainer = %ValidationOverlay
 @onready var validationStatusLabel: Label = %ValidationStatusLabel
@@ -26,6 +27,10 @@ extends Control
 @onready var confirmValidatedImportButton: Button = %ConfirmValidatedImportButton
 @onready var confirmImportDialog: ConfirmationDialog = %ConfirmImportDialog
 @onready var importNoticeDialog: AcceptDialog = %ImportNoticeDialog
+@onready var importedPreviewPopup: PopupPanel = %ImportedPreviewPopup
+@onready var importedPreviewLevelOption: OptionButton = %ImportedPreviewLevelOption
+@onready var startImportedPreviewButton: Button = %StartImportedPreviewButton
+@onready var cancelImportedPreviewButton: Button = %CancelImportedPreviewButton
 @onready var settingsPanel = $SettingsPanel
 
 #endregion
@@ -36,6 +41,7 @@ var csvParser := preload("res://Scripts/Gameplay/CourseCsvParser.gd").new()
 var csvValidator := preload("res://Scripts/Gameplay/CourseCsvValidator.gd").new()
 var lastParseResult: Dictionary = {}
 var lastValidationReport: Dictionary = {}
+var pendingImportIsReplacement: bool = false
 
 #endregion
 
@@ -51,6 +57,9 @@ func _ready() -> void:
 	closeValidationButton.pressed.connect(CloseValidationResults)
 	confirmValidatedImportButton.pressed.connect(RequestValidatedImport)
 	confirmImportDialog.confirmed.connect(CommitValidatedImport)
+	importedPreviewButton.pressed.connect(OpenImportedPreviewSelection)
+	startImportedPreviewButton.pressed.connect(StartSelectedImportedPreview)
+	cancelImportedPreviewButton.pressed.connect(importedPreviewPopup.hide)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
 	RefreshCourseStatus()
 	UpdateResponsiveLayout()
@@ -73,6 +82,7 @@ func RefreshCourseStatus() -> void:
 		if courseSourceId == "imported_course":
 			importedStatusLabel.text = tr("Current Imported Course") if available else tr("No Imported Course")
 			importedMetadataLabel.text = BuildMetadataText(available, levelCount, questionCount, metadata)
+			importedPreviewButton.disabled = not available
 		elif courseSourceId == "studio_course":
 			studioStatusLabel.text = tr("Current Studio Course") if available else tr("No Studio Course")
 			studioMetadataLabel.text = BuildMetadataText(available, levelCount, questionCount, metadata)
@@ -229,17 +239,48 @@ func CloseValidationResults() -> void:
 	validationOverlay.visible = false
 	validationResultsButton.grab_focus()
 
+# Presents every Imported Level with its authored Gameplay Mode for QA selection.
+func OpenImportedPreviewSelection() -> void:
+	importedPreviewLevelOption.clear()
+	for levelValue in GameManager.GetCourseSourceLevels("imported_course"):
+		var levelData: Dictionary = levelValue
+		var levelTitle: String = levelData.get("title", "Untitled Level")
+		var levelTypeId: String = levelData.get("levelTypeId", "")
+		importedPreviewLevelOption.add_item("%s  •  %s" % [levelTitle, levelTypeId])
+		importedPreviewLevelOption.set_item_metadata(
+			importedPreviewLevelOption.item_count - 1,
+			levelData.get("id", "")
+		)
+
+	startImportedPreviewButton.disabled = importedPreviewLevelOption.item_count == 0
+	importedPreviewPopup.popup_centered(Vector2i(680, 310))
+
+# Launches the selected Imported Level through the real isolated Game Scene.
+func StartSelectedImportedPreview() -> void:
+	var selectedIndex: int = importedPreviewLevelOption.selected
+	if selectedIndex < 0 or selectedIndex >= importedPreviewLevelOption.item_count:
+		return
+	var levelId: String = str(importedPreviewLevelOption.get_item_metadata(selectedIndex))
+	# Closes the popup while this Dashboard still belongs to the active SceneTree.
+	importedPreviewPopup.hide()
+	GameManager.StartImportedCoursePreview(levelId)
+
 # Requests first-import confirmation while deferring replacement to the next step.
 func RequestValidatedImport() -> void:
 	if GameManager.HasCourseSourceContent("imported_course"):
-		importNoticeDialog.title = tr("Imported Course Already Exists")
-		importNoticeDialog.dialog_text = tr(
-			"Safe replacement will be available in the next development step. Existing content was not changed."
+		pendingImportIsReplacement = true
+		confirmImportDialog.title = tr("Replace Imported Course")
+		confirmImportDialog.ok_button_text = tr("Replace Course")
+		confirmImportDialog.dialog_text = tr(
+			"An Imported Course already exists. Replace it with the validated Course? Imported player data will reset only if the Course content changed."
 		)
-		importNoticeDialog.popup_centered()
+		confirmImportDialog.popup_centered()
 		return
 
+	pendingImportIsReplacement = false
 	var metadata: Dictionary = lastParseResult.get("metadata", {})
+	confirmImportDialog.title = tr("Confirm Import")
+	confirmImportDialog.ok_button_text = tr("Import Course")
 	confirmImportDialog.dialog_text = tr(
 		"Import %s with %d Levels and %d Questions?"
 	) % [
@@ -254,11 +295,19 @@ func CommitValidatedImport() -> void:
 	if lastValidationReport.is_empty() or not lastValidationReport.get("isValid", false):
 		return
 
-	var savedSuccessfully := GameManager.SaveFirstImportedCourse(
-		lastParseResult.get("content", {}),
-		lastParseResult.get("metadata", {})
-	)
-	if not savedSuccessfully:
+	var importResult: Dictionary
+	if pendingImportIsReplacement:
+		importResult = GameManager.ReplaceImportedCourse(
+			lastParseResult.get("content", {}),
+			lastParseResult.get("metadata", {})
+		)
+	else:
+		importResult = GameManager.SaveFirstImportedCourse(
+			lastParseResult.get("content", {}),
+			lastParseResult.get("metadata", {})
+		)
+
+	if not importResult.get("succeeded", false):
 		importNoticeDialog.title = tr("Import Failed")
 		importNoticeDialog.dialog_text = tr("The Imported Course could not be saved. Existing content was not changed.")
 		importNoticeDialog.popup_centered()
@@ -266,9 +315,16 @@ func CommitValidatedImport() -> void:
 
 	RefreshCourseStatus()
 	CloseValidationResults()
-	importNoticeDialog.title = tr("Import Complete")
-	importNoticeDialog.dialog_text = tr("The Imported Course is saved and now available to players.")
+	importNoticeDialog.title = (
+		tr("Replacement Complete") if pendingImportIsReplacement else tr("Import Complete")
+	)
+	importNoticeDialog.dialog_text = (
+		tr("The Imported Course was replaced and its player data was reset because the content changed.")
+		if importResult.get("playerDataReset", false)
+		else tr("The Imported Course is saved and now available to players.")
+	)
 	importNoticeDialog.popup_centered()
+	pendingImportIsReplacement = false
 
 #endregion
 

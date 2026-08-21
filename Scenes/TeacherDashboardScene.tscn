@@ -182,7 +182,8 @@ size_flags_horizontal = 3
 disabled = true
 text = "Validation Results"
 
-[node name="PreviewButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+[node name="ImportedPreviewButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -460,6 +461,61 @@ ok_button_text = "Import Course"
 unique_name_in_owner = true
 initial_position = 2
 size = Vector2i(620, 240)
+
+[node name="ImportedPreviewPopup" type="PopupPanel" parent="."]
+unique_name_in_owner = true
+title = "Preview Imported Course"
+initial_position = 2
+size = Vector2i(680, 310)
+
+[node name="Margin" type="MarginContainer" parent="ImportedPreviewPopup"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = 26.0
+offset_right = -30.0
+offset_bottom = -26.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Content" type="VBoxContainer" parent="ImportedPreviewPopup/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="ImportedPreviewPopup/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Preview Imported Course"
+
+[node name="Description" type="Label" parent="ImportedPreviewPopup/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.67, 0.78, 1)
+theme_override_font_sizes/font_size = 16
+text = "Select a Level to play with its authored Gameplay Mode. Preview results are not saved."
+autowrap_mode = 2
+
+[node name="ImportedPreviewLevelOption" type="OptionButton" parent="ImportedPreviewPopup/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="ImportedPreviewPopup/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 2
+
+[node name="CancelImportedPreviewButton" type="Button" parent="ImportedPreviewPopup/Margin/Content/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+text = "Cancel"
+
+[node name="StartImportedPreviewButton" type="Button" parent="ImportedPreviewPopup/Margin/Content/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 48)
+layout_mode = 2
+text = "Start Preview"
 
 [node name="SettingsPanel" parent="." instance=ExtResource("5_settings_panel")]
 layout_mode = 1

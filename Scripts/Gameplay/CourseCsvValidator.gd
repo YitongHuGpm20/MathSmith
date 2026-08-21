@@ -471,7 +471,7 @@ func ValidateIntegerArithmetic(expressionNode: Dictionary) -> Dictionary:
 					"message": "Division creates a decimal intermediate result.",
 					"suggestedAction": "Use values that divide evenly into whole numbers."
 				}
-			return {"valid": true, "value": int(leftValue / rightValue)}
+			return {"valid": true, "value": int(float(leftValue) / float(rightValue))}
 
 	return {
 		"valid": false,

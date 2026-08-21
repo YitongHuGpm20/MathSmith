@@ -90,6 +90,12 @@ func GetCurrentCourseContent() -> Dictionary:
 		return {}
 	return courseSources[currentCourseSourceId]["content"].duplicate(true)
 
+# Returns isolated content for one explicitly requested Course Source.
+func GetCourseContent(courseSourceId: String) -> Dictionary:
+	if not IsCourseSourceAvailable(courseSourceId):
+		return {}
+	return courseSources[courseSourceId]["content"].duplicate(true)
+
 # Returns player-facing metadata for every supported Course Source.
 func GetCourseSourceSummaries() -> Array[Dictionary]:
 	var summaries: Array[Dictionary] = []

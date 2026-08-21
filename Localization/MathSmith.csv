@@ -244,3 +244,15 @@ Import Failed,Import Failed,导入失败
 The Imported Course could not be saved. Existing content was not changed.,The Imported Course could not be saved. Existing content was not changed.,无法保存导入课程。现有内容未被修改。
 Import Complete,Import Complete,导入完成
 The Imported Course is saved and now available to players.,The Imported Course is saved and now available to players.,导入课程已保存，玩家现在可以使用。
+Replace Imported Course,Replace Imported Course,替换导入课程
+Replace Course,Replace Course,替换课程
+An Imported Course already exists. Replace it with the validated Course? Imported player data will reset only if the Course content changed.,An Imported Course already exists. Replace it with the validated Course? Imported player data will reset only if the Course content changed.,已存在一门导入课程。是否用已验证的课程替换？仅当课程内容发生变化时才会重置导入课程的玩家数据。
+Replacement Complete,Replacement Complete,替换完成
+The Imported Course was replaced and its player data was reset because the content changed.,The Imported Course was replaced and its player data was reset because the content changed.,导入课程已替换；由于课程内容发生变化，其玩家数据已被重置。
+TEACHER PREVIEW,TEACHER PREVIEW,教师预览
+Return to Dashboard,Return to Dashboard,返回教师控制台
+PREVIEW COMPLETE,PREVIEW COMPLETE,预览完成
+Preview Again,Preview Again,再次预览
+Preview Imported Course,Preview Imported Course,预览导入课程
+Select a Level to play with its authored Gameplay Mode. Preview results are not saved.,Select a Level to play with its authored Gameplay Mode. Preview results are not saved.,选择一个关卡并使用其设定的玩法模式试玩。预览结果不会保存。
+Start Preview,Start Preview,开始预览

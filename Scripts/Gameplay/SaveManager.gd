@@ -278,7 +278,8 @@ func GetPersistedCourseContent(courseSourceId: String) -> Dictionary:
 func SetPersistedCourseContent(
 	courseSourceId: String,
 	contentData: Dictionary,
-	metadata: Dictionary
+	metadata: Dictionary,
+	resetCoursePlayerData: bool = false
 ) -> bool:
 	if courseSourceId not in [IMPORTED_COURSE_SOURCE_ID, STUDIO_COURSE_SOURCE_ID]:
 		return false
@@ -289,15 +290,22 @@ func SetPersistedCourseContent(
 		courseSourceId,
 		GetDefaultPersistedCourseContent()
 	).duplicate(true)
+	var previousPlayerData: Dictionary = saveData["courseData"].get(
+		courseSourceId,
+		GetDefaultCoursePlayerData()
+	).duplicate(true)
 	saveData["courseContent"][courseSourceId] = {
 		"content": contentData.duplicate(true),
 		"metadata": metadata.duplicate(true)
 	}
+	if resetCoursePlayerData:
+		saveData["courseData"][courseSourceId] = GetDefaultCoursePlayerData()
 	if SaveLocalData():
 		return true
 
 	# Restore in-memory state when disk persistence fails.
 	saveData["courseContent"][courseSourceId] = previousCourseContent
+	saveData["courseData"][courseSourceId] = previousPlayerData
 	return false
 
 # Reports whether one replaceable Course Source has saved runtime content.

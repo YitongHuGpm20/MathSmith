@@ -22,9 +22,9 @@ const MISTAKE_PRACTICE_SESSION_TYPE: String = "mistake_practice"
 const ADAPTIVE_PRACTICE_SESSION_TYPE: String = "adaptive_practice"
 const ZEN_SESSION_TYPE: String = "zen"
 const SURVIVAL_SESSION_TYPE: String = "survival"
+const TEACHER_PREVIEW_SESSION_TYPE: String = "teacher_preview"
 const OTHER_LOBBY_CATEGORY_ID: String = "other"
 const IMPORTED_COURSE_SOURCE_ID: String = "imported_course"
-const STUDIO_COURSE_SOURCE_ID: String = "studio_course"
 const MISTAKE_PRACTICE_QUESTION_COUNT: int = 10
 const MAX_QUESTION_SCORE: int = 100
 const INCORRECT_ATTEMPT_PENALTY: int = 15
@@ -40,6 +40,7 @@ const ADVANCED_LEVEL_HINT_BUDGET: int = 5
 var gameUI: Node = null
 var levelLoader := preload("res://Scripts/Gameplay/LevelLoader.gd").new()
 var courseManager := preload("res://Scripts/Gameplay/CourseManager.gd").new()
+var courseImportManager := preload("res://Scripts/Gameplay/CourseImportManager.gd").new()
 var stepGenerator := preload("res://Scripts/Math/StepGenerator.gd").new()
 var choiceGenerator := preload("res://Scripts/Math/ChoiceGenerator.gd").new()
 var progressManager := preload("res://Scripts/Gameplay/ProgressManager.gd").new()
@@ -79,6 +80,7 @@ var remainingHints: int = 0
 var levelHintBudget: int = 0
 var activeSessionType: String = STANDARD_SESSION_TYPE
 var lobbyCategoryId: String = DEFAULT_LEVEL_TYPE_ID
+var sceneChangePending: bool = false
 
 #endregion
 
@@ -161,9 +163,18 @@ func OpenGame() -> void:
 func QuitGame() -> void:
 	get_tree().quit()
 
-# Changes scenes through one guarded navigation entry point.
+# Queues scene navigation until the current input callback has finished.
 func ChangeScene(scenePath: String) -> void:
+	if sceneChangePending:
+		return
+
+	sceneChangePending = true
+	call_deferred("CompleteSceneChange", scenePath)
+
+# Performs a queued scene change outside the UI input dispatch cycle.
+func CompleteSceneChange(scenePath: String) -> void:
 	var changeError := get_tree().change_scene_to_file(scenePath)
+	sceneChangePending = false
 
 	if changeError != OK:
 		push_error("Failed to open scene '%s' with error %d." % [scenePath, changeError])
@@ -184,14 +195,17 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	gameUI.nextLevelRequested.connect(OpenNextLevel)
 	gameUI.lobbyRequested.connect(BackToLobby)
 	gameUI.orderChanged.connect(UpdateHintAvailability)
-	gameUI.stepDragStarted.connect(learningManager.RecordStepDragStarted)
-	gameUI.stepReordered.connect(learningManager.RecordStepReordered)
-	gameUI.stepDragCompleted.connect(learningManager.RecordStepDragCompleted)
 	gameUI.choiceSelected.connect(SelectMultipleChoice)
-	gameUI.fillValueChanged.connect(learningManager.RecordFillValueChanged)
 	gameUI.tutorialDismissed.connect(RecordTutorialViewed)
 	gameUI.tutorialRequested.connect(ShowCurrentTutorial)
 	gameUI.reviewMistakesRequested.connect(OpenMistakeBook)
+
+	# Teacher Preview accepts real interactions without recording learning behavior.
+	if not IsTeacherPreviewActive():
+		gameUI.stepDragStarted.connect(learningManager.RecordStepDragStarted)
+		gameUI.stepReordered.connect(learningManager.RecordStepReordered)
+		gameUI.stepDragCompleted.connect(learningManager.RecordStepDragCompleted)
+		gameUI.fillValueChanged.connect(learningManager.RecordFillValueChanged)
 
 	# Surface content errors only after a visual UI is available.
 	if levels.is_empty():
@@ -284,43 +298,34 @@ func GetCourseSourceSummaries() -> Array[Dictionary]:
 func HasCourseSourceContent(courseSourceId: String) -> bool:
 	return courseManager.IsCourseSourceAvailable(courseSourceId)
 
+# Returns isolated Levels for teacher-facing selection without changing player context.
+func GetCourseSourceLevels(courseSourceId: String) -> Array:
+	return courseManager.GetCourseContent(courseSourceId).get("levels", []).duplicate(true)
+
 # Restores replaceable Course Sources saved during earlier application sessions.
 func RestorePersistedCourseSources() -> void:
-	for courseSourceId in [IMPORTED_COURSE_SOURCE_ID, STUDIO_COURSE_SOURCE_ID]:
-		var persistedCourse: Dictionary = SaveManager.GetPersistedCourseContent(courseSourceId)
-		var persistedContent: Dictionary = persistedCourse.get("content", {})
-		var persistedMetadata: Dictionary = persistedCourse.get("metadata", {})
-		if persistedContent.is_empty():
-			continue
-		if not courseManager.RegisterCourseContent(courseSourceId, persistedContent, persistedMetadata):
-			push_warning("Saved Course content could not be restored: " + courseSourceId)
+	courseImportManager.RestorePersistedCourseSources(courseManager)
 
 # Registers and persists the first validated Imported Course atomically.
-func SaveFirstImportedCourse(contentData: Dictionary, metadata: Dictionary) -> bool:
-	if courseManager.IsCourseSourceAvailable(IMPORTED_COURSE_SOURCE_ID):
-		return false
+func SaveFirstImportedCourse(contentData: Dictionary, metadata: Dictionary) -> Dictionary:
+	return courseImportManager.SaveFirstImportedCourse(courseManager, contentData, metadata)
 
-	var persistedMetadata := metadata.duplicate(true)
-	var currentUnixMs := int(Time.get_unix_time_from_system() * 1000.0)
-	persistedMetadata["importedAtUnixMs"] = currentUnixMs
-	persistedMetadata["lastModifiedAtUnixMs"] = currentUnixMs
-
-	if not courseManager.RegisterCourseContent(
-		IMPORTED_COURSE_SOURCE_ID,
+# Safely replaces confirmed Imported content and refreshes an active runtime context.
+func ReplaceImportedCourse(contentData: Dictionary, metadata: Dictionary) -> Dictionary:
+	var importResult: Dictionary = courseImportManager.ReplaceImportedCourse(
+		courseManager,
 		contentData,
-		persistedMetadata
+		metadata
+	)
+	if (
+		importResult.get("succeeded", false)
+		and courseManager.GetCurrentCourseSourceId() == IMPORTED_COURSE_SOURCE_ID
 	):
-		return false
-
-	if not SaveManager.SetPersistedCourseContent(
-		IMPORTED_COURSE_SOURCE_ID,
-		contentData,
-		persistedMetadata
-	):
-		courseManager.ClearCourseContent(IMPORTED_COURSE_SOURCE_ID)
-		return false
-
-	return true
+		ApplyCurrentCourseContent()
+		progressManager.ReloadPersistentProgress()
+		learningManager.Initialize()
+		ResetLevelScoring()
+	return importResult
 
 # Selects one available Course Source and publishes its independent content.
 func SelectCourseSource(courseSourceId: String) -> bool:
@@ -505,6 +510,51 @@ func GetWeakSkillRecommendations() -> Array[Dictionary]:
 
 #endregion
 
+#region ========== Teacher Preview ==========
+
+# Starts one Imported Level through the real Game Scene without selecting it for players.
+func StartImportedCoursePreview(levelId: String) -> bool:
+	var importedContent := courseManager.GetCourseContent(IMPORTED_COURSE_SOURCE_ID)
+	var importedLevels: Array = importedContent.get("levels", [])
+	var previewLevel: Dictionary = {}
+	for levelValue in importedLevels:
+		if levelValue.get("id", "") == levelId:
+			previewLevel = levelValue.duplicate(true)
+			break
+
+	if previewLevel.is_empty():
+		return false
+
+	var previewLevelTypeId: String = previewLevel.get("levelTypeId", "")
+	var importedLevelTypes: Dictionary = importedContent.get("level_types", {})
+	if not importedLevelTypes.has(previewLevelTypeId):
+		return false
+
+	set_process(false)
+	activeSessionType = TEACHER_PREVIEW_SESSION_TYPE
+	levelTypes = importedLevelTypes.duplicate(true)
+	levels = importedLevels.duplicate(true)
+	selectedLevelTypeId = previewLevelTypeId
+	currentLevel = previewLevel
+	currentQuestionIndex = 0
+	ResetLevelScoring()
+	OpenGame()
+	return true
+
+# Returns whether the current Game Scene is isolated teacher-facing QA.
+func IsTeacherPreviewActive() -> bool:
+	return activeSessionType == TEACHER_PREVIEW_SESSION_TYPE
+
+# Restores the selected player Course context before returning to the Dashboard.
+func ReturnFromTeacherPreview() -> void:
+	set_process(false)
+	activeSessionType = STANDARD_SESSION_TYPE
+	ApplyCurrentCourseContent()
+	ResetLevelScoring()
+	OpenTeacherDashboard()
+
+#endregion
+
 #region ========== Replay Sessions ==========
 
 # Builds one randomized review session from up to ten unique saved mistakes.
@@ -686,6 +736,8 @@ func GetTutorialData(levelTypeId: String) -> Dictionary:
 
 # Persists that the current Level Type tutorial has been dismissed once.
 func RecordTutorialViewed() -> void:
+	if IsTeacherPreviewActive():
+		return
 	var tutorialState: Dictionary = SaveManager.GetSection("tutorialState")
 	tutorialState[selectedLevelTypeId] = true
 	SaveManager.SetSection("tutorialState", tutorialState)
@@ -766,7 +818,8 @@ func LoadQuestion(questionIndex: int) -> void:
 		)
 
 	# Begin timing only after the Question and its controls are fully presented.
-	learningManager.BeginQuestion(BuildTelemetryQuestionContext(currentQuestion))
+	if not IsTeacherPreviewActive():
+		learningManager.BeginQuestion(BuildTelemetryQuestionContext(currentQuestion))
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 	gameUI.UpdateHintCount(remainingHints)
@@ -839,7 +892,8 @@ func CheckAnswer() -> void:
 	if selectedLevelTypeId == MULTIPLE_CHOICE_LEVEL_TYPE_ID:
 		return
 
-	learningManager.RecordCheckSubmission(selectedLevelTypeId)
+	if not IsTeacherPreviewActive():
+		learningManager.RecordCheckSubmission(selectedLevelTypeId)
 
 	if selectedLevelTypeId == FILL_PROCESS_LEVEL_TYPE_ID:
 		CheckFillProcess()
@@ -1018,7 +1072,8 @@ func RegisterIncorrectAttempt() -> String:
 	consecutiveIncorrectAttempts += 1
 	incorrectAttempts += 1
 	currentLevelIncorrectAttempts += 1
-	learningManager.RecordIncorrectAttempt(selectedLevelTypeId)
+	if not IsTeacherPreviewActive():
+		learningManager.RecordIncorrectAttempt(selectedLevelTypeId)
 
 	# Survival consumes one life for each mode-specific incorrect attempt.
 	if activeSessionType == SURVIVAL_SESSION_TYPE:
@@ -1119,7 +1174,8 @@ func SelectMultipleChoice(choiceText: String) -> void:
 	if questionCompleted or currentChoiceStage >= correctSteps.size():
 		return
 
-	learningManager.RecordChoiceSelection()
+	if not IsTeacherPreviewActive():
+		learningManager.RecordChoiceSelection()
 
 	var correctStep := correctSteps[currentChoiceStage]
 
@@ -1193,6 +1249,26 @@ func GoToNextQuestion() -> void:
 		var starCount := CalculateStarRating(currentLevelScore, maxLevelScore)
 		var scorePercentage := roundi(float(currentLevelScore) / float(maxLevelScore) * 100.0)
 
+		# Teacher Preview shows a local summary without writing any player result.
+		if IsTeacherPreviewActive():
+			gameUI.ShowEndMenu({
+				"isTeacherPreview": true,
+				"levelTitle": currentLevel.get("title", "Teacher Preview"),
+				"levelTypeTitle": GetLevelTypeById(selectedLevelTypeId).get("title", "Unknown Mode"),
+				"score": currentLevelScore,
+				"maxScore": maxLevelScore,
+				"percentage": scorePercentage,
+				"stars": 0,
+				"questionsCompleted": questions.size(),
+				"questionCount": questions.size(),
+				"incorrectAttempts": currentLevelIncorrectAttempts,
+				"hintsUsed": currentLevelHintsUsed,
+				"bestScore": currentLevelScore,
+				"isNewBest": false,
+				"hasNextLevel": false
+			})
+			return
+
 		# Practice sessions use shared scoring without changing normal Level progress.
 		if activeSessionType in [MISTAKE_PRACTICE_SESSION_TYPE, ADAPTIVE_PRACTICE_SESSION_TYPE]:
 			gameUI.ShowEndMenu({
@@ -1260,7 +1336,8 @@ func RegisterHintUsed() -> void:
 	currentLevelHintsUsed += 1
 	remainingHints = maxi(0, remainingHints - 1)
 	currentQuestionScore = maxi(0, currentQuestionScore - HINT_SCORE_PENALTY)
-	learningManager.RecordHintUse()
+	if not IsTeacherPreviewActive():
+		learningManager.RecordHintUse()
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 	gameUI.UpdateHintCount(remainingHints)
 
@@ -1282,7 +1359,8 @@ func UpdateMistakeBookEntry() -> void:
 		MISTAKE_PRACTICE_SESSION_TYPE,
 		ADAPTIVE_PRACTICE_SESSION_TYPE,
 		ZEN_SESSION_TYPE,
-		SURVIVAL_SESSION_TYPE
+		SURVIVAL_SESSION_TYPE,
+		TEACHER_PREVIEW_SESSION_TYPE
 	]:
 		return
 
@@ -1352,19 +1430,20 @@ func CompleteQuestion() -> void:
 	elif activeSessionType == SURVIVAL_SESSION_TYPE:
 		survivalModeManager.RecordSolvedQuestion()
 
-	learningManager.CompleteQuestion({
-		"completed": true,
-		"questionScore": currentQuestionScore,
-		"incorrectAttempts": incorrectAttempts,
-		"hintsUsed": hintsUsed
-	})
+	if not IsTeacherPreviewActive():
+		learningManager.CompleteQuestion({
+			"completed": true,
+			"questionScore": currentQuestionScore,
+			"incorrectAttempts": incorrectAttempts,
+			"hintsUsed": hintsUsed
+		})
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
 	# Standard Levels finish automatically after their final correct-answer state is drawn.
 	var questions: Array = currentLevel.get("questions", [])
 	var isFinalStandardQuestion := (
-		activeSessionType == STANDARD_SESSION_TYPE
+		activeSessionType in [STANDARD_SESSION_TYPE, TEACHER_PREVIEW_SESSION_TYPE]
 		and not questions.is_empty()
 		and currentQuestionIndex >= questions.size() - 1
 	)
@@ -1402,6 +1481,12 @@ func RestartLevel() -> void:
 	if activeSessionType == ADAPTIVE_PRACTICE_SESSION_TYPE:
 		StartAdaptivePractice()
 		return
+	if IsTeacherPreviewActive():
+		gameUI.HideEndMenu()
+		currentLevel = GetLevelById(currentLevel.get("id", "")).duplicate(true)
+		ResetLevelScoring()
+		LoadQuestion(0)
+		return
 
 	gameUI.HideEndMenu()
 	currentLevel = CreateShuffledLevel(GetLevelById(currentLevel.get("id", "")))
@@ -1422,6 +1507,9 @@ func OpenNextLevel() -> void:
 # Returns to the Lobby while preserving current-session Level progress.
 func BackToLobby() -> void:
 	set_process(false)
+	if IsTeacherPreviewActive():
+		ReturnFromTeacherPreview()
+		return
 	OpenLobby()
 
 #endregion
