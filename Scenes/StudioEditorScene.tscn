@@ -1,0 +1,232 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UIScreens/StudioEditorUI.gd" id="1_script"]
+[ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/back.svg" id="3_back"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="5_settings_panel"]
+
+[node name="StudioEditorScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.018, 0.027, 0.055, 1)
+
+[node name="MainMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 58.0
+offset_top = 38.0
+offset_right = -58.0
+offset_bottom = -38.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PageLayout" type="VBoxContainer" parent="MainMargin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Header" type="HBoxContainer" parent="MainMargin/PageLayout"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Brand" type="VBoxContainer" parent="MainMargin/PageLayout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Eyebrow" type="Label" parent="MainMargin/PageLayout/Header/Brand"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.76, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "MATHSMITH STUDIO"
+
+[node name="CourseNameLabel" type="Label" parent="MainMargin/PageLayout/Header/Brand"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Untitled Studio Course"
+
+[node name="SavedState" type="Label" parent="MainMargin/PageLayout/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.88, 0.7, 1)
+text = "SAVED"
+vertical_alignment = 1
+
+[node name="SettingsButton" type="Button" parent="MainMargin/PageLayout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(142, 48)
+layout_mode = 2
+text = "Settings"
+icon = ExtResource("4_settings")
+icon_max_width = 18
+
+[node name="DashboardButton" type="Button" parent="MainMargin/PageLayout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 48)
+layout_mode = 2
+text = "Back to Dashboard"
+icon = ExtResource("3_back")
+icon_max_width = 18
+
+[node name="Divider" type="HSeparator" parent="MainMargin/PageLayout"]
+layout_mode = 2
+
+[node name="Workspace" type="HBoxContainer" parent="MainMargin/PageLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="LevelPanel" type="PanelContainer" parent="MainMargin/PageLayout/Workspace"]
+custom_minimum_size = Vector2(430, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/Workspace/LevelPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 22
+
+[node name="Content" type="VBoxContainer" parent="MainMargin/PageLayout/Workspace/LevelPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleRow" type="HBoxContainer" parent="MainMargin/PageLayout/Workspace/LevelPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="MainMargin/PageLayout/Workspace/LevelPanel/Margin/Content/TitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "LEVELS"
+
+[node name="LevelCountLabel" type="Label" parent="MainMargin/PageLayout/Workspace/LevelPanel/Margin/Content/TitleRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.72, 0.92, 1)
+text = "0 Levels"
+
+[node name="LevelScroll" type="ScrollContainer" parent="MainMargin/PageLayout/Workspace/LevelPanel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="LevelList" type="VBoxContainer" parent="MainMargin/PageLayout/Workspace/LevelPanel/Margin/Content/LevelScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="EmptyLevelLabel" type="Label" parent="MainMargin/PageLayout/Workspace/LevelPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+text = "No Levels yet. Level editing is the next M6 step."
+autowrap_mode = 2
+
+[node name="AddLevelButton" type="Button" parent="MainMargin/PageLayout/Workspace/LevelPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+disabled = true
+text = "+ Add Level"
+
+[node name="DetailPanel" type="PanelContainer" parent="MainMargin/PageLayout/Workspace"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/Workspace/DetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 26
+
+[node name="Content" type="VBoxContainer" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.76, 1, 1)
+text = "CURRENT LEVEL"
+
+[node name="LevelTitleLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "No Level Selected"
+
+[node name="MetadataGrid" type="GridContainer" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="ModeLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/MetadataGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+text = "Gameplay Mode"
+
+[node name="LevelTypeValue" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/MetadataGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "—"
+
+[node name="SkillLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/MetadataGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+text = "Skills"
+
+[node name="SkillValue" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/MetadataGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "—"
+
+[node name="QuestionDivider" type="HSeparator" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="QuestionTitle" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "QUESTIONS"
+
+[node name="QuestionScroll" type="ScrollContainer" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="QuestionList" type="VBoxContainer" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="EmptyQuestionLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+text = "No Questions in this Level."
+
+[node name="AddQuestionButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+disabled = true
+text = "+ Add Question"
+
+[node name="SettingsPanel" parent="." instance=ExtResource("5_settings_panel")]
+layout_mode = 1

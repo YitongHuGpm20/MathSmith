@@ -23,6 +23,12 @@ func RestorePersistedCourseSources(courseManager: RefCounted) -> void:
 		var persistedMetadata: Dictionary = persistedCourse.get("metadata", {})
 		if persistedContent.is_empty():
 			continue
+		# Studio working data may intentionally remain incomplete between edits.
+		if (
+			courseSourceId == STUDIO_COURSE_SOURCE_ID
+			and not courseManager.IsUsableContent(persistedContent)
+		):
+			continue
 		if not courseManager.RegisterCourseContent(courseSourceId, persistedContent, persistedMetadata):
 			push_warning("Saved Course content could not be restored: " + courseSourceId)
 

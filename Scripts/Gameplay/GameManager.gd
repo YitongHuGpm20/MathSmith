@@ -11,6 +11,7 @@ const HOME_SCENE_PATH: String = "res://Scenes/HomeScene.tscn"
 const COURSE_SELECTION_SCENE_PATH: String = "res://Scenes/CourseSelectionScene.tscn"
 const TEACHER_ACCESS_SCENE_PATH: String = "res://Scenes/TeacherAccessScene.tscn"
 const TEACHER_DASHBOARD_SCENE_PATH: String = "res://Scenes/TeacherDashboardScene.tscn"
+const STUDIO_EDITOR_SCENE_PATH: String = "res://Scenes/StudioEditorScene.tscn"
 const LOBBY_SCENE_PATH: String = "res://Scenes/LobbyScene.tscn"
 const GAME_SCENE_PATH: String = "res://Scenes/GameScene.tscn"
 const MISTAKE_BOOK_SCENE_PATH: String = "res://Scenes/MistakeBookScene.tscn"
@@ -25,6 +26,7 @@ const SURVIVAL_SESSION_TYPE: String = "survival"
 const TEACHER_PREVIEW_SESSION_TYPE: String = "teacher_preview"
 const OTHER_LOBBY_CATEGORY_ID: String = "other"
 const IMPORTED_COURSE_SOURCE_ID: String = "imported_course"
+const STUDIO_COURSE_SOURCE_ID: String = "studio_course"
 const MISTAKE_PRACTICE_QUESTION_COUNT: int = 10
 const MAX_QUESTION_SCORE: int = 100
 const INCORRECT_ATTEMPT_PENALTY: int = 15
@@ -41,6 +43,7 @@ var gameUI: Node = null
 var levelLoader := preload("res://Scripts/Gameplay/LevelLoader.gd").new()
 var courseManager := preload("res://Scripts/Gameplay/CourseManager.gd").new()
 var courseImportManager := preload("res://Scripts/Gameplay/CourseImportManager.gd").new()
+var studioCourseManager := preload("res://Scripts/Gameplay/StudioCourseManager.gd").new()
 var stepGenerator := preload("res://Scripts/Math/StepGenerator.gd").new()
 var choiceGenerator := preload("res://Scripts/Math/ChoiceGenerator.gd").new()
 var progressManager := preload("res://Scripts/Gameplay/ProgressManager.gd").new()
@@ -141,6 +144,12 @@ func OpenTeacherTools() -> void:
 # Opens the teacher workspace after the prototype password gate succeeds.
 func OpenTeacherDashboard() -> void:
 	ChangeScene(TEACHER_DASHBOARD_SCENE_PATH)
+
+# Opens the dedicated Studio authoring workspace when a draft exists.
+func OpenStudioEditor() -> void:
+	if not studioCourseManager.HasStudioCourse():
+		return
+	ChangeScene(STUDIO_EDITOR_SCENE_PATH)
 
 # Opens the Lobby Scene while preserving current-session progress.
 func OpenLobby() -> void:
@@ -326,6 +335,41 @@ func ReplaceImportedCourse(contentData: Dictionary, metadata: Dictionary) -> Dic
 		learningManager.Initialize()
 		ResetLevelScoring()
 	return importResult
+
+# Creates the independent empty working dataset used by MathSmith Studio.
+func CreateNewStudioCourse() -> Dictionary:
+	var coreContentData: Dictionary = levelLoader.LoadContentData()
+	return studioCourseManager.CreateNewStudioCourse(
+		coreContentData.get("level_types", {})
+	)
+
+# Returns Studio draft state independently from player-facing availability.
+func GetStudioCourseSummary() -> Dictionary:
+	return studioCourseManager.GetStudioCourseSummary()
+
+# Returns isolated Studio working data for teacher-facing authoring UI.
+func GetStudioCourseData() -> Dictionary:
+	return studioCourseManager.GetStudioCourseData()
+
+# Copies Imported Course content into an independently editable Studio dataset.
+func CopyImportedCourseToStudio(replaceExisting: bool) -> Dictionary:
+	var importedCourse := SaveManager.GetPersistedCourseContent(
+		IMPORTED_COURSE_SOURCE_ID
+	)
+	var copyResult: Dictionary = studioCourseManager.CopyImportedCourseToStudio(
+		courseManager,
+		importedCourse.get("content", {}),
+		importedCourse.get("metadata", {}),
+		replaceExisting
+	)
+	if (
+		copyResult.get("succeeded", false)
+		and courseManager.GetCurrentCourseSourceId() == STUDIO_COURSE_SOURCE_ID
+	):
+		ApplyCurrentCourseContent()
+		progressManager.ReloadPersistentProgress()
+		learningManager.Initialize()
+	return copyResult
 
 # Selects one available Course Source and publishes its independent content.
 func SelectCourseSource(courseSourceId: String) -> bool:

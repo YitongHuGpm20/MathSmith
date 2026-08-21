@@ -274,11 +274,10 @@ theme_override_font_sizes/font_size = 15
 text = "Create or import content to make this Course available."
 
 [node name="PrimaryAction" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
-disabled = true
 text = "Open Visual Course Editor"
-tooltip_text = "MathSmith Studio will be implemented in a later M6 step."
 
 [node name="ActionGrid" type="GridContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
 layout_mode = 2
@@ -287,17 +286,18 @@ theme_override_constants/v_separation = 10
 columns = 2
 
 [node name="CreateButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
-disabled = true
+disabled = false
 text = "Create New Studio Course"
 
 [node name="CopyButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
-disabled = true
 text = "Copy Imported Course"
 
 [node name="PreviewButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
@@ -461,6 +461,14 @@ ok_button_text = "Import Course"
 unique_name_in_owner = true
 initial_position = 2
 size = Vector2i(620, 240)
+
+[node name="ConfirmStudioCopyDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Replace Studio Course"
+initial_position = 2
+size = Vector2i(660, 280)
+ok_button_text = "Replace Studio Course"
+dialog_text = "Studio Course already contains content. Replace it with an independent copy of Imported Course?"
 
 [node name="ImportedPreviewPopup" type="PopupPanel" parent="."]
 unique_name_in_owner = true

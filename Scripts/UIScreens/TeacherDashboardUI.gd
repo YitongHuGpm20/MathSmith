@@ -16,6 +16,9 @@ extends Control
 @onready var importCsvButton: Button = %ImportCsvButton
 @onready var validationResultsButton: Button = %ValidationResultsButton
 @onready var importedPreviewButton: Button = %ImportedPreviewButton
+@onready var createStudioCourseButton: Button = %CreateButton
+@onready var copyImportedCourseButton: Button = %CopyButton
+@onready var openStudioEditorButton: Button = %PrimaryAction
 @onready var csvFileDialog: FileDialog = %CsvFileDialog
 @onready var validationOverlay: PanelContainer = %ValidationOverlay
 @onready var validationStatusLabel: Label = %ValidationStatusLabel
@@ -31,6 +34,7 @@ extends Control
 @onready var importedPreviewLevelOption: OptionButton = %ImportedPreviewLevelOption
 @onready var startImportedPreviewButton: Button = %StartImportedPreviewButton
 @onready var cancelImportedPreviewButton: Button = %CancelImportedPreviewButton
+@onready var confirmStudioCopyDialog: ConfirmationDialog = %ConfirmStudioCopyDialog
 @onready var settingsPanel = $SettingsPanel
 
 #endregion
@@ -58,6 +62,10 @@ func _ready() -> void:
 	confirmValidatedImportButton.pressed.connect(RequestValidatedImport)
 	confirmImportDialog.confirmed.connect(CommitValidatedImport)
 	importedPreviewButton.pressed.connect(OpenImportedPreviewSelection)
+	createStudioCourseButton.pressed.connect(CreateNewStudioCourse)
+	copyImportedCourseButton.pressed.connect(RequestImportedCourseCopy)
+	openStudioEditorButton.pressed.connect(GameManager.OpenStudioEditor)
+	confirmStudioCopyDialog.confirmed.connect(CommitImportedCourseCopy.bind(true))
 	startImportedPreviewButton.pressed.connect(StartSelectedImportedPreview)
 	cancelImportedPreviewButton.pressed.connect(importedPreviewPopup.hide)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
@@ -83,9 +91,50 @@ func RefreshCourseStatus() -> void:
 			importedStatusLabel.text = tr("Current Imported Course") if available else tr("No Imported Course")
 			importedMetadataLabel.text = BuildMetadataText(available, levelCount, questionCount, metadata)
 			importedPreviewButton.disabled = not available
+			copyImportedCourseButton.disabled = not available
 		elif courseSourceId == "studio_course":
-			studioStatusLabel.text = tr("Current Studio Course") if available else tr("No Studio Course")
-			studioMetadataLabel.text = BuildMetadataText(available, levelCount, questionCount, metadata)
+			var studioSummary: Dictionary = GameManager.GetStudioCourseSummary()
+			var studioExists: bool = studioSummary.get("exists", false)
+			studioStatusLabel.text = tr("Current Studio Course") if studioExists else tr("No Studio Course")
+			studioMetadataLabel.text = BuildMetadataText(
+				studioExists,
+				studioSummary.get("levelCount", levelCount),
+				studioSummary.get("questionCount", questionCount),
+				studioSummary.get("metadata", metadata)
+			)
+			createStudioCourseButton.disabled = studioExists
+			openStudioEditorButton.disabled = not studioExists
+
+# Creates the persistent blank authoring model used by the later Visual Editor.
+func CreateNewStudioCourse() -> void:
+	var createResult: Dictionary = GameManager.CreateNewStudioCourse()
+	if not createResult.get("succeeded", false):
+		return
+	RefreshCourseStatus()
+	importNoticeDialog.title = tr("Studio Course Created")
+	importNoticeDialog.dialog_text = tr("The empty Studio Course is saved and ready for editing.")
+	importNoticeDialog.popup_centered()
+
+# Copies immediately into an empty workspace or confirms replacement first.
+func RequestImportedCourseCopy() -> void:
+	if GameManager.GetStudioCourseSummary().get("exists", false):
+		confirmStudioCopyDialog.popup_centered()
+		return
+	CommitImportedCourseCopy(false)
+
+# Completes the explicit deep copy while leaving Imported content unchanged.
+func CommitImportedCourseCopy(replaceExisting: bool) -> void:
+	var copyResult: Dictionary = GameManager.CopyImportedCourseToStudio(
+		replaceExisting
+	)
+	if not copyResult.get("succeeded", false):
+		return
+	RefreshCourseStatus()
+	importNoticeDialog.title = tr("Copied to Studio")
+	importNoticeDialog.dialog_text = tr(
+		"Imported Course was copied into an independent Studio Course."
+	)
+	importNoticeDialog.popup_centered()
 
 # Builds consistent lightweight metadata for both authoring workspaces.
 func BuildMetadataText(
