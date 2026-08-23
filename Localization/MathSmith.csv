@@ -313,3 +313,9 @@ Preview the Question and review its readability.,Preview the Question and review
 GENERATED SOLUTION,GENERATED SOLUTION,生成的解题过程
 Production StepGenerator output,Production StepGenerator output,正式 StepGenerator 输出
 Enter a valid Expression to preview its generated solution.,Enter a valid Expression to preview its generated solution.,输入有效表达式以预览生成的解题过程。
+Preview Question,Preview Question,预览题目
+Return to Editor,Return to Editor,返回编辑器
+Preview Level,Preview Level,预览关卡
+Preview Unavailable,Preview Unavailable,无法预览
+Add at least one valid Question before previewing this Level.,Add at least one valid Question before previewing this Level.,请至少添加一道有效题目后再预览此关卡。
+Question %s: %s,Question %s: %s,题目 %s：%s

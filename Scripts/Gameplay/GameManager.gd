@@ -84,6 +84,7 @@ var levelHintBudget: int = 0
 var activeSessionType: String = STANDARD_SESSION_TYPE
 var lobbyCategoryId: String = DEFAULT_LEVEL_TYPE_ID
 var sceneChangePending: bool = false
+var teacherPreviewReturnScenePath: String = TEACHER_DASHBOARD_SCENE_PATH
 
 #endregion
 
@@ -210,7 +211,7 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	gameUI.reviewMistakesRequested.connect(OpenMistakeBook)
 
 	# Teacher Preview accepts real interactions without recording learning behavior.
-	if not IsTeacherPreviewActive():
+	if CanWritePlayerLearningData():
 		gameUI.stepDragStarted.connect(learningManager.RecordStepDragStarted)
 		gameUI.stepReordered.connect(learningManager.RecordStepReordered)
 		gameUI.stepDragCompleted.connect(learningManager.RecordStepDragCompleted)
@@ -531,6 +532,11 @@ func GetLevelProgress(levelId: String) -> Dictionary:
 
 # Records the completed session as Level Complete or Needs Practice.
 func RecordLevelResult(starCount: int) -> Dictionary:
+	if not CanWritePlayerLearningData():
+		return {
+			"bestScore": currentLevelScore,
+			"isNewBest": false
+		}
 	var levelId: String = GetSelectedLevelId()
 	return progressManager.RecordLevelResult(
 		selectedLevelTypeId,
@@ -594,12 +600,85 @@ func StartImportedCoursePreview(levelId: String) -> bool:
 	if not importedLevelTypes.has(previewLevelTypeId):
 		return false
 
+	return StartTeacherPreviewSession(
+		previewLevel,
+		importedLevelTypes,
+		importedLevels,
+		TEACHER_DASHBOARD_SCENE_PATH
+	)
+
+# Starts the selected saved Studio Question through the real Game Scene.
+func StartStudioQuestionPreview(levelId: String, questionId: String) -> bool:
+	var studioCourse: Dictionary = studioCourseManager.GetStudioCourseData()
+	var studioContent: Dictionary = studioCourse.get("content", {})
+	var studioLevels: Array = studioContent.get("levels", [])
+	var previewLevel: Dictionary = {}
+	for levelValue in studioLevels:
+		if levelValue.get("id", "") == levelId:
+			previewLevel = levelValue.duplicate(true)
+			break
+	if previewLevel.is_empty():
+		return false
+
+	var previewQuestion: Dictionary = {}
+	for questionValue in previewLevel.get("questions", []):
+		if questionValue.get("id", "") == questionId:
+			previewQuestion = questionValue.duplicate(true)
+			break
+	if previewQuestion.is_empty():
+		return false
+
+	var studioLevelTypes: Dictionary = studioContent.get("level_types", {})
+	var previewLevelTypeId: String = previewLevel.get("levelTypeId", "")
+	if not studioLevelTypes.has(previewLevelTypeId):
+		return false
+	previewLevel["questions"] = [previewQuestion]
+	return StartTeacherPreviewSession(
+		previewLevel,
+		studioLevelTypes,
+		[previewLevel],
+		STUDIO_EDITOR_SCENE_PATH
+	)
+
+# Starts the complete selected Studio Level from its first authored Question.
+func StartStudioLevelPreview(levelId: String) -> bool:
+	var studioCourse: Dictionary = studioCourseManager.GetStudioCourseData()
+	var studioContent: Dictionary = studioCourse.get("content", {})
+	var studioLevels: Array = studioContent.get("levels", [])
+	var previewLevel: Dictionary = {}
+	for levelValue in studioLevels:
+		if levelValue.get("id", "") == levelId:
+			previewLevel = levelValue.duplicate(true)
+			break
+	if previewLevel.is_empty() or previewLevel.get("questions", []).is_empty():
+		return false
+
+	var studioLevelTypes: Dictionary = studioContent.get("level_types", {})
+	var previewLevelTypeId: String = previewLevel.get("levelTypeId", "")
+	if not studioLevelTypes.has(previewLevelTypeId):
+		return false
+	return StartTeacherPreviewSession(
+		previewLevel,
+		studioLevelTypes,
+		[previewLevel],
+		STUDIO_EDITOR_SCENE_PATH
+	)
+
+# Configures one isolated real-gameplay preview with a contextual return target.
+func StartTeacherPreviewSession(
+	previewLevel: Dictionary,
+	previewLevelTypes: Dictionary,
+	previewLevels: Array,
+	returnScenePath: String
+) -> bool:
 	set_process(false)
 	activeSessionType = TEACHER_PREVIEW_SESSION_TYPE
-	levelTypes = importedLevelTypes.duplicate(true)
-	levels = importedLevels.duplicate(true)
-	selectedLevelTypeId = previewLevelTypeId
-	currentLevel = previewLevel
+	SaveManager.SetCoursePlayerDataWritesBlocked(true)
+	teacherPreviewReturnScenePath = returnScenePath
+	levelTypes = previewLevelTypes.duplicate(true)
+	levels = previewLevels.duplicate(true)
+	selectedLevelTypeId = previewLevel.get("levelTypeId", "")
+	currentLevel = previewLevel.duplicate(true)
 	currentQuestionIndex = 0
 	ResetLevelScoring()
 	OpenGame()
@@ -609,13 +688,26 @@ func StartImportedCoursePreview(levelId: String) -> bool:
 func IsTeacherPreviewActive() -> bool:
 	return activeSessionType == TEACHER_PREVIEW_SESSION_TYPE
 
-# Restores the selected player Course context before returning to the Dashboard.
+# Centralizes whether gameplay systems may mutate persistent learning state.
+func CanWritePlayerLearningData() -> bool:
+	return not IsTeacherPreviewActive()
+
+# Returns the navigation label matching the active teacher authoring workflow.
+func GetTeacherPreviewReturnLabel() -> String:
+	return (
+		"Return to Editor"
+		if teacherPreviewReturnScenePath == STUDIO_EDITOR_SCENE_PATH
+		else "Return to Dashboard"
+	)
+
+# Restores player Course context before returning to the originating authoring UI.
 func ReturnFromTeacherPreview() -> void:
 	set_process(false)
+	SaveManager.SetCoursePlayerDataWritesBlocked(false)
 	activeSessionType = STANDARD_SESSION_TYPE
 	ApplyCurrentCourseContent()
 	ResetLevelScoring()
-	OpenTeacherDashboard()
+	ChangeScene(teacherPreviewReturnScenePath)
 
 #endregion
 
@@ -882,7 +974,7 @@ func LoadQuestion(questionIndex: int) -> void:
 		)
 
 	# Begin timing only after the Question and its controls are fully presented.
-	if not IsTeacherPreviewActive():
+	if CanWritePlayerLearningData():
 		learningManager.BeginQuestion(BuildTelemetryQuestionContext(currentQuestion))
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
@@ -956,7 +1048,7 @@ func CheckAnswer() -> void:
 	if selectedLevelTypeId == MULTIPLE_CHOICE_LEVEL_TYPE_ID:
 		return
 
-	if not IsTeacherPreviewActive():
+	if CanWritePlayerLearningData():
 		learningManager.RecordCheckSubmission(selectedLevelTypeId)
 
 	if selectedLevelTypeId == FILL_PROCESS_LEVEL_TYPE_ID:
@@ -1136,7 +1228,7 @@ func RegisterIncorrectAttempt() -> String:
 	consecutiveIncorrectAttempts += 1
 	incorrectAttempts += 1
 	currentLevelIncorrectAttempts += 1
-	if not IsTeacherPreviewActive():
+	if CanWritePlayerLearningData():
 		learningManager.RecordIncorrectAttempt(selectedLevelTypeId)
 
 	# Survival consumes one life for each mode-specific incorrect attempt.
@@ -1238,7 +1330,7 @@ func SelectMultipleChoice(choiceText: String) -> void:
 	if questionCompleted or currentChoiceStage >= correctSteps.size():
 		return
 
-	if not IsTeacherPreviewActive():
+	if CanWritePlayerLearningData():
 		learningManager.RecordChoiceSelection()
 
 	var correctStep := correctSteps[currentChoiceStage]
@@ -1400,7 +1492,7 @@ func RegisterHintUsed() -> void:
 	currentLevelHintsUsed += 1
 	remainingHints = maxi(0, remainingHints - 1)
 	currentQuestionScore = maxi(0, currentQuestionScore - HINT_SCORE_PENALTY)
-	if not IsTeacherPreviewActive():
+	if CanWritePlayerLearningData():
 		learningManager.RecordHintUse()
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 	gameUI.UpdateHintCount(remainingHints)
@@ -1494,7 +1586,7 @@ func CompleteQuestion() -> void:
 	elif activeSessionType == SURVIVAL_SESSION_TYPE:
 		survivalModeManager.RecordSolvedQuestion()
 
-	if not IsTeacherPreviewActive():
+	if CanWritePlayerLearningData():
 		learningManager.CompleteQuestion({
 			"completed": true,
 			"questionScore": currentQuestionScore,

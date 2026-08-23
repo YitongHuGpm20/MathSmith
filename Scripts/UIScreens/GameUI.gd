@@ -310,7 +310,11 @@ func SetReplayMode(replayModeId: String) -> void:
 	progressBar.visible = not replayModeActive
 	tutorialButton.visible = not replayModeActive and not teacherPreviewActive
 	hintButton.visible = not replayModeActive
-	topLobbyButton.text = tr("Return to Dashboard") if teacherPreviewActive else tr("Back to Lobby")
+	topLobbyButton.text = (
+		tr(GameManager.GetTeacherPreviewReturnLabel())
+		if teacherPreviewActive
+		else tr("Back to Lobby")
+	)
 	scoreIcon.texture = ZEN_SOLVED_ICON if replayModeActive else SCORE_ICON
 	scoreGainLabel.visible = false
 
@@ -758,7 +762,11 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 	)
 	nextLevelButton.visible = levelCompleted and summaryData.get("hasNextLevel", false)
 	reviewMistakesButton.visible = not isTeacherPreview
-	lobbyButton.text = tr("Return to Dashboard") if isTeacherPreview else tr("Back to Lobby")
+	lobbyButton.text = (
+		tr(GameManager.GetTeacherPreviewReturnLabel())
+		if isTeacherPreview
+		else tr("Back to Lobby")
+	)
 
 	if isTeacherPreview:
 		retryButton.text = tr("Preview Again")

@@ -21,6 +21,7 @@ extends Control
 @onready var levelTypeOption: OptionButton = %LevelTypeOption
 @onready var skillTagsEdit: LineEdit = %SkillTagsEdit
 @onready var saveLevelButton: Button = %SaveLevelButton
+@onready var previewLevelButton: Button = %PreviewLevelButton
 @onready var moveLevelUpButton: Button = %MoveLevelUpButton
 @onready var moveLevelDownButton: Button = %MoveLevelDownButton
 @onready var deleteLevelButton: Button = %DeleteLevelButton
@@ -32,6 +33,7 @@ extends Control
 @onready var expressionValidationLabel: Label = %ExpressionValidationLabel
 @onready var saveQuestionButton: Button = %SaveQuestionButton
 @onready var duplicateQuestionButton: Button = %DuplicateQuestionButton
+@onready var previewQuestionButton: Button = %PreviewQuestionButton
 @onready var deleteQuestionButton: Button = %DeleteQuestionButton
 @onready var confirmDeleteLevelDialog: ConfirmationDialog = %ConfirmDeleteLevelDialog
 @onready var confirmDeleteQuestionDialog: ConfirmationDialog = %ConfirmDeleteQuestionDialog
@@ -64,6 +66,7 @@ func _ready() -> void:
 	settingsButton.pressed.connect(settingsPanel.Open)
 	addLevelButton.pressed.connect(AddLevel)
 	saveLevelButton.pressed.connect(SaveSelectedLevel)
+	previewLevelButton.pressed.connect(PreviewSelectedLevel)
 	moveLevelUpButton.pressed.connect(MoveSelectedLevel.bind(-1))
 	moveLevelDownButton.pressed.connect(MoveSelectedLevel.bind(1))
 	deleteLevelButton.pressed.connect(confirmDeleteLevelDialog.popup_centered)
@@ -71,6 +74,7 @@ func _ready() -> void:
 	addQuestionButton.pressed.connect(AddQuestion)
 	saveQuestionButton.pressed.connect(SaveSelectedQuestion)
 	duplicateQuestionButton.pressed.connect(DuplicateSelectedQuestion)
+	previewQuestionButton.pressed.connect(PreviewSelectedQuestion)
 	deleteQuestionButton.pressed.connect(confirmDeleteQuestionDialog.popup_centered)
 	confirmDeleteQuestionDialog.confirmed.connect(DeleteSelectedQuestion)
 	expressionEdit.text_changed.connect(ValidateExpressionLive)
@@ -148,10 +152,16 @@ func AddLevel() -> void:
 	PersistStudioChanges()
 
 # Saves the current Level fields while preserving all of its Questions.
-func SaveSelectedLevel() -> void:
+func SaveSelectedLevel() -> bool:
+	if not ApplySelectedLevelFields():
+		return false
+	return PersistStudioChanges()
+
+# Applies current Level controls to working memory without writing separately.
+func ApplySelectedLevelFields() -> bool:
 	var courseLevels: Array = studioContent.get("levels", [])
 	if selectedLevelIndex < 0 or selectedLevelIndex >= courseLevels.size():
-		return
+		return false
 	var levelData: Dictionary = courseLevels[selectedLevelIndex]
 	var levelTitle := levelNameEdit.text.strip_edges()
 	levelData["title"] = tr("Untitled Level") if levelTitle.is_empty() else levelTitle
@@ -161,7 +171,7 @@ func SaveSelectedLevel() -> void:
 	levelData["skills"] = ParseSkillTags(skillTagsEdit.text)
 	courseLevels[selectedLevelIndex] = levelData
 	studioContent["levels"] = courseLevels
-	PersistStudioChanges()
+	return true
 
 # Moves the complete selected Level without breaking its Question ownership.
 func MoveSelectedLevel(direction: int) -> void:
@@ -187,7 +197,7 @@ func DeleteSelectedLevel() -> void:
 	PersistStudioChanges()
 
 # Writes authoring changes and rebuilds the editor from the saved snapshot.
-func PersistStudioChanges() -> void:
+func PersistStudioChanges() -> bool:
 	var saveResult: Dictionary = GameManager.SaveStudioCourse(
 		studioContent,
 		studioMetadata
@@ -199,12 +209,13 @@ func PersistStudioChanges() -> void:
 		studioMetadata = persistedCourse.get("metadata", {})
 		SetSaveState(false)
 		RefreshLevelList()
-		return
+		return false
 	var studioCourse: Dictionary = GameManager.GetStudioCourseData()
 	studioContent = studioCourse.get("content", {})
 	studioMetadata = studioCourse.get("metadata", {})
 	SetSaveState(true)
 	RefreshLevelList()
+	return true
 
 # Shows whether the latest synchronous autosave reached persistent storage.
 func SetSaveState(savedSuccessfully: bool) -> void:
@@ -299,10 +310,16 @@ func AddQuestion() -> void:
 	PersistStudioChanges()
 
 # Saves the selected Question after enforcing Course-wide ID uniqueness.
-func SaveSelectedQuestion() -> void:
+func SaveSelectedQuestion() -> bool:
+	if not ApplySelectedQuestionFields():
+		return false
+	return PersistStudioChanges()
+
+# Applies valid Question controls to working memory without a separate write.
+func ApplySelectedQuestionFields() -> bool:
 	var questions := GetSelectedLevelQuestions()
 	if selectedQuestionIndex < 0 or selectedQuestionIndex >= questions.size():
-		return
+		return false
 	var questionId := questionIdEdit.text.strip_edges()
 	if questionId.is_empty() or IsQuestionIdUsedElsewhere(
 		questionId,
@@ -312,19 +329,77 @@ func SaveSelectedQuestion() -> void:
 		ShowQuestionNotice(
 			tr("Question ID Required") if questionId.is_empty() else tr("Duplicate Question ID")
 		)
-		return
+		return false
 	currentExpressionValidation = expressionValidator.ValidateExpressionForAuthoring(
 		expressionEdit.text
 	)
 	if not currentExpressionValidation.get("valid", false):
 		ShowQuestionNotice(currentExpressionValidation.get("message", tr("Invalid Expression")))
-		return
+		return false
 	var questionData: Dictionary = questions[selectedQuestionIndex]
 	questionData["id"] = questionId
 	questionData["expression"] = expressionEdit.text.strip_edges()
 	questions[selectedQuestionIndex] = questionData
 	SetSelectedLevelQuestions(questions)
-	PersistStudioChanges()
+	return true
+
+# Saves and launches only the selected Question in isolated real gameplay.
+func PreviewSelectedQuestion() -> void:
+	if not ApplySelectedLevelFields() or not ApplySelectedQuestionFields():
+		return
+	if not PersistStudioChanges():
+		return
+	var courseLevels: Array = studioContent.get("levels", [])
+	if selectedLevelIndex < 0 or selectedLevelIndex >= courseLevels.size():
+		return
+	var questions := GetSelectedLevelQuestions()
+	if selectedQuestionIndex < 0 or selectedQuestionIndex >= questions.size():
+		return
+	GameManager.StartStudioQuestionPreview(
+		courseLevels[selectedLevelIndex].get("id", ""),
+		questions[selectedQuestionIndex].get("id", "")
+	)
+
+# Validates and launches every Question in the selected Level from the start.
+func PreviewSelectedLevel() -> void:
+	if not ApplySelectedLevelFields():
+		return
+	if selectedQuestionIndex >= 0 and not ApplySelectedQuestionFields():
+		return
+	var courseLevels: Array = studioContent.get("levels", [])
+	var levelData: Dictionary = courseLevels[selectedLevelIndex]
+	if not ValidateLevelForPreview(levelData):
+		return
+	if not PersistStudioChanges():
+		return
+	GameManager.StartStudioLevelPreview(levelData.get("id", ""))
+
+# Requires every authored Question to pass the shared production validator.
+func ValidateLevelForPreview(levelData: Dictionary) -> bool:
+	var questions: Array = levelData.get("questions", [])
+	if questions.is_empty():
+		ShowPreviewNotice(tr("Add at least one valid Question before previewing this Level."))
+		return false
+	for questionValue in questions:
+		var questionData: Dictionary = questionValue
+		var validationResult: Dictionary = expressionValidator.ValidateExpressionForAuthoring(
+			questionData.get("expression", "")
+		)
+		if not validationResult.get("valid", false):
+			ShowPreviewNotice(
+				tr("Question %s: %s") % [
+					questionData.get("id", ""),
+					tr(validationResult.get("message", "Invalid Expression"))
+				]
+			)
+			return false
+	return true
+
+# Shows why a Level cannot enter real-gameplay Preview yet.
+func ShowPreviewNotice(message: String) -> void:
+	questionNoticeDialog.title = tr("Preview Unavailable")
+	questionNoticeDialog.dialog_text = message
+	questionNoticeDialog.popup_centered()
 
 # Creates an independent copy with a generated unique Question ID.
 func DuplicateSelectedQuestion() -> void:
@@ -397,6 +472,7 @@ func IsQuestionIdUsedElsewhere(
 
 # Shows a focused authoring error without mutating the current draft.
 func ShowQuestionNotice(message: String) -> void:
+	questionNoticeDialog.title = tr("Question Cannot Be Saved")
 	questionNoticeDialog.dialog_text = message
 	questionNoticeDialog.popup_centered()
 
@@ -503,6 +579,7 @@ func SetLevelEditingEnabled(enabled: bool) -> void:
 	levelTypeOption.disabled = not enabled
 	skillTagsEdit.editable = enabled
 	saveLevelButton.disabled = not enabled
+	previewLevelButton.disabled = not enabled
 	moveLevelUpButton.disabled = not enabled
 	moveLevelDownButton.disabled = not enabled
 	deleteLevelButton.disabled = not enabled
@@ -527,6 +604,7 @@ func SetQuestionEditingEnabled(enabled: bool) -> void:
 	expressionEdit.editable = enabled
 	saveQuestionButton.disabled = not enabled
 	duplicateQuestionButton.disabled = not enabled
+	previewQuestionButton.disabled = not enabled
 	deleteQuestionButton.disabled = not enabled
 
 # Removes dynamically generated editor rows safely between refreshes.

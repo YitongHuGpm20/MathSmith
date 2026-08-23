@@ -24,6 +24,7 @@ const COURSE_SOURCE_IDS: Array[String] = [
 
 var saveData: Dictionary = {}
 var activeCourseSourceId: String = CORE_CURRICULUM_SOURCE_ID
+var coursePlayerDataWritesBlocked: bool = false
 
 #endregion
 
@@ -240,6 +241,8 @@ func SetCourseSection(
 	sectionData: Variant,
 	saveImmediately: bool = true
 ) -> bool:
+	if coursePlayerDataWritesBlocked:
+		return false
 	var defaultCourseData := GetDefaultCoursePlayerData()
 	if not defaultCourseData.has(sectionName):
 		push_error("Cannot save unknown Course player-data section: " + sectionName)
@@ -259,6 +262,8 @@ func SetCourseSection(
 
 # Clears player-learning data for exactly one Course Source.
 func ResetCoursePlayerData(courseSourceId: String) -> bool:
+	if coursePlayerDataWritesBlocked:
+		return false
 	if courseSourceId not in COURSE_SOURCE_IDS:
 		return false
 
@@ -284,6 +289,8 @@ func SetPersistedCourseContent(
 	if courseSourceId not in [IMPORTED_COURSE_SOURCE_ID, STUDIO_COURSE_SOURCE_ID]:
 		return false
 	if contentData.is_empty():
+		return false
+	if resetCoursePlayerData and coursePlayerDataWritesBlocked:
 		return false
 
 	var previousCourseContent: Dictionary = saveData["courseContent"].get(
@@ -314,12 +321,16 @@ func HasPersistedCourseContent(courseSourceId: String) -> bool:
 
 # Restores the default schema after a confirmed Reset Progress action.
 func ResetAllData() -> bool:
+	if coursePlayerDataWritesBlocked:
+		return false
 	saveData = GetDefaultSaveData()
 	activeCourseSourceId = CORE_CURRICULUM_SOURCE_ID
 	return SaveLocalData()
 
 # Clears player learning records while preserving current preferences.
 func ResetPlayerProgress() -> bool:
+	if coursePlayerDataWritesBlocked:
+		return false
 	var settingsData: Dictionary = GetSection("settings")
 	var courseState: Dictionary = GetSection("courseState")
 	var courseContent: Dictionary = GetSection("courseContent")
@@ -332,5 +343,9 @@ func ResetPlayerProgress() -> bool:
 		CORE_CURRICULUM_SOURCE_ID
 	)
 	return SaveLocalData()
+
+# Blocks every Course-scoped player-data mutation during isolated QA sessions.
+func SetCoursePlayerDataWritesBlocked(writesBlocked: bool) -> void:
+	coursePlayerDataWritesBlocked = writesBlocked
 
 #endregion
