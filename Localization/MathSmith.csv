@@ -310,3 +310,6 @@ Division creates a decimal intermediate result.,Division creates a decimal inter
 Use values that divide evenly into whole numbers.,Use values that divide evenly into whole numbers.,请使用能够整除并得到整数的数值。
 Generated solution is unusually long (%d steps).,Generated solution is unusually long (%d steps).,生成的解题过程异常冗长（%d 步）。
 Preview the Question and review its readability.,Preview the Question and review its readability.,请预览题目并检查步骤的可读性。
+GENERATED SOLUTION,GENERATED SOLUTION,生成的解题过程
+Production StepGenerator output,Production StepGenerator output,正式 StepGenerator 输出
+Enter a valid Expression to preview its generated solution.,Enter a valid Expression to preview its generated solution.,输入有效表达式以预览生成的解题过程。

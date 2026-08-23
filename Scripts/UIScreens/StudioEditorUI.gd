@@ -9,6 +9,7 @@ extends Control
 @onready var dashboardButton: Button = %DashboardButton
 @onready var settingsButton: Button = %SettingsButton
 @onready var courseNameLabel: Label = %CourseNameLabel
+@onready var savedStateLabel: Label = %SavedState
 @onready var levelCountLabel: Label = %LevelCountLabel
 @onready var levelList: VBoxContainer = %LevelList
 @onready var emptyLevelLabel: Label = %EmptyLevelLabel
@@ -35,6 +36,9 @@ extends Control
 @onready var confirmDeleteLevelDialog: ConfirmationDialog = %ConfirmDeleteLevelDialog
 @onready var confirmDeleteQuestionDialog: ConfirmationDialog = %ConfirmDeleteQuestionDialog
 @onready var questionNoticeDialog: AcceptDialog = %QuestionNoticeDialog
+@onready var solutionExpressionLabel: Label = %SolutionExpressionLabel
+@onready var solutionStepList: VBoxContainer = %SolutionStepList
+@onready var solutionEmptyLabel: Label = %SolutionEmptyLabel
 @onready var settingsPanel = $SettingsPanel
 
 #endregion
@@ -83,6 +87,7 @@ func LoadStudioCourse() -> void:
 	studioContent = studioCourse.get("content", {})
 	studioMetadata = studioCourse.get("metadata", {})
 	courseNameLabel.text = studioMetadata.get("courseName", tr("Untitled Studio Course"))
+	SetSaveState(true)
 	RefreshLevelList()
 
 # Rebuilds the Level navigator without modifying Studio working data.
@@ -188,11 +193,28 @@ func PersistStudioChanges() -> void:
 		studioMetadata
 	)
 	if not saveResult.get("succeeded", false):
+		# Restore the last persisted snapshot so failed writes never look saved.
+		var persistedCourse: Dictionary = GameManager.GetStudioCourseData()
+		studioContent = persistedCourse.get("content", {})
+		studioMetadata = persistedCourse.get("metadata", {})
+		SetSaveState(false)
+		RefreshLevelList()
 		return
 	var studioCourse: Dictionary = GameManager.GetStudioCourseData()
 	studioContent = studioCourse.get("content", {})
 	studioMetadata = studioCourse.get("metadata", {})
+	SetSaveState(true)
 	RefreshLevelList()
+
+# Shows whether the latest synchronous autosave reached persistent storage.
+func SetSaveState(savedSuccessfully: bool) -> void:
+	savedStateLabel.text = tr("SAVED") if savedSuccessfully else tr("ERROR")
+	savedStateLabel.add_theme_color_override(
+		"font_color",
+		Color(0.32, 0.88, 0.7, 1)
+		if savedSuccessfully
+		else Color(1.0, 0.4, 0.42, 1)
+	)
 
 # Builds the supported Gameplay Mode selector from the real Course schema.
 func BuildLevelTypeOptions(selectedLevelTypeId: String) -> void:
@@ -413,6 +435,47 @@ func ValidateExpressionLive(expression: String) -> void:
 				"font_color",
 				Color(1.0, 0.4, 0.42, 1)
 			)
+	RefreshGeneratedSolutionPreview(expression, currentExpressionValidation)
+
+# Displays the real generated teaching sequence for the current Expression.
+func RefreshGeneratedSolutionPreview(
+	expression: String,
+	validationResult: Dictionary
+) -> void:
+	ClearGeneratedStepRows()
+	var normalizedExpression := expression.strip_edges()
+	solutionExpressionLabel.text = normalizedExpression if not normalizedExpression.is_empty() else "—"
+	var generatedSteps: Array = validationResult.get("generatedSteps", [])
+	var canPreview: bool = (
+		bool(validationResult.get("valid", false))
+		and not generatedSteps.is_empty()
+	)
+	solutionEmptyLabel.visible = not canPreview
+	if not canPreview:
+		return
+
+	for generatedStepValue in generatedSteps:
+		var generatedStep: String = generatedStepValue
+		var stepLabel := Label.new()
+		stepLabel.text = generatedStep
+		stepLabel.add_theme_font_size_override("font_size", 18)
+		stepLabel.add_theme_color_override(
+			"font_color",
+			Color(0.82, 0.9, 0.98, 1)
+		)
+		stepLabel.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		solutionStepList.add_child(stepLabel)
+
+# Clears generated preview rows immediately during rapid text editing.
+func ClearGeneratedStepRows() -> void:
+	for child in solutionStepList.get_children():
+		child.free()
+
+# Restores the generated-solution empty state when no Question is selected.
+func ClearGeneratedSolutionPreview() -> void:
+	ClearGeneratedStepRows()
+	solutionExpressionLabel.text = "—"
+	solutionEmptyLabel.visible = true
 
 # Presents the empty editor state before the first Level is authored.
 func ClearLevelDetails() -> void:
@@ -455,6 +518,7 @@ func ClearQuestionDetails() -> void:
 		Color(0.52, 0.62, 0.74, 1)
 	)
 	currentExpressionValidation.clear()
+	ClearGeneratedSolutionPreview()
 	SetQuestionEditingEnabled(false)
 
 # Enables Question actions only while one authored Question is selected.

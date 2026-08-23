@@ -62,6 +62,7 @@ theme_override_font_sizes/font_size = 32
 text = "Untitled Studio Course"
 
 [node name="SavedState" type="Label" parent="MainMargin/PageLayout/Header"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.32, 0.88, 0.7, 1)
 text = "SAVED"
@@ -359,6 +360,65 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 42)
 layout_mode = 2
 text = "Delete Question"
+
+[node name="SolutionPanel" type="PanelContainer" parent="MainMargin/PageLayout/Workspace"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/Workspace/SolutionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="MainMargin/PageLayout/Workspace/SolutionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionLabel" type="Label" parent="MainMargin/PageLayout/Workspace/SolutionPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.88, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "GENERATED SOLUTION"
+
+[node name="Description" type="Label" parent="MainMargin/PageLayout/Workspace/SolutionPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+text = "Production StepGenerator output"
+
+[node name="SolutionExpressionLabel" type="Label" parent="MainMargin/PageLayout/Workspace/SolutionPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "—"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Divider" type="HSeparator" parent="MainMargin/PageLayout/Workspace/SolutionPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="SolutionScroll" type="ScrollContainer" parent="MainMargin/PageLayout/Workspace/SolutionPanel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="SolutionStepList" type="VBoxContainer" parent="MainMargin/PageLayout/Workspace/SolutionPanel/Margin/Content/SolutionScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="SolutionEmptyLabel" type="Label" parent="MainMargin/PageLayout/Workspace/SolutionPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+text = "Enter a valid Expression to preview its generated solution."
+autowrap_mode = 2
 
 [node name="SettingsPanel" parent="." instance=ExtResource("5_settings_panel")]
 layout_mode = 1
