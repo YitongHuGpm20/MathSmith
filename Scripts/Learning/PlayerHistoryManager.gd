@@ -6,7 +6,7 @@ extends RefCounted
 
 #region ========== Configuration ==========
 
-const PLAYER_HISTORY_SCHEMA_VERSION: int = 1
+const PLAYER_HISTORY_SCHEMA_VERSION: int = 2
 const MAX_HISTORY_RECORDS: int = 1000
 const ENABLE_CONSOLE_OUTPUT: bool = false
 
@@ -44,6 +44,7 @@ func BuildHistoryRecord(telemetryRecord: Dictionary) -> Dictionary:
 	return {
 		"historySchemaVersion": PLAYER_HISTORY_SCHEMA_VERSION,
 		"telemetrySchemaVersion": telemetryRecord.get("telemetrySchemaVersion", 1),
+		"courseSourceId": telemetryRecord.get("courseSourceId", "core_curriculum"),
 		"questionId": telemetryRecord.get("questionId", ""),
 		"levelId": telemetryRecord.get("levelId", ""),
 		"levelTitle": telemetryRecord.get("levelTitle", ""),

@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UIScreens/TeacherAccessUI.gd" id="1_script"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/back.svg" id="3_back"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]
 [ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="5_settings_panel"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/next.svg" id="6_continue"]
 
 [node name="TeacherAccessScene" type="Control"]
 layout_mode = 3
@@ -67,7 +68,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="AccessPanel" type="PanelContainer" parent="MainMargin/PageLayout/Center"]
-custom_minimum_size = Vector2(560, 390)
+custom_minimum_size = Vector2(590, 420)
 layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="MainMargin/PageLayout/Center/AccessPanel"]
@@ -132,6 +133,8 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 text = "Continue"
+icon = ExtResource("6_continue")
+icon_max_width = 18
 
 [node name="PrototypeNote" type="Label" parent="MainMargin/PageLayout/Center/AccessPanel/Margin/Content"]
 layout_mode = 2

@@ -1,7 +1,7 @@
 ## Presents the Teacher Dashboard and its M6 content-management entry points.
 ##
-## This UI binds authoring services and displays validation feedback. Parsing
-## and validation remain focused services; no selected CSV is persisted yet.
+## This UI binds authoring workflows, Course operations, preview entry points,
+## and structured validation feedback without owning content transformation.
 extends Control
 
 #region ========== References ==========
@@ -50,9 +50,7 @@ extends Control
 
 #region ========== Variables ==========
 
-var csvParser := preload("res://Scripts/Gameplay/CourseCsvParser.gd").new()
-var csvValidator := preload("res://Scripts/Gameplay/CourseCsvValidator.gd").new()
-var csvExporter := preload("res://Scripts/Gameplay/CourseCsvExporter.gd").new()
+var authoringManager := preload("res://Scripts/Gameplay/AuthoringManager.gd").new()
 var lastParseResult: Dictionary = {}
 var lastValidationReport: Dictionary = {}
 var lastValidationPurpose: String = "import"
@@ -109,7 +107,11 @@ func RefreshCourseStatus() -> void:
 
 		if courseSourceId == "imported_course":
 			importedStatusLabel.text = tr("Current Imported Course") if available else tr("No Imported Course")
-			importedMetadataLabel.text = BuildMetadataText(available, levelCount, questionCount, metadata)
+			importedMetadataLabel.text = (
+				BuildMetadataText(true, levelCount, questionCount, metadata)
+				if available
+				else tr("Import a UTF-8 CSV Course to make it available to players.")
+			)
 			importedPreviewButton.disabled = not available
 			copyImportedCourseButton.disabled = not available
 			removeImportedCourseButton.disabled = not available
@@ -123,6 +125,10 @@ func RefreshCourseStatus() -> void:
 				studioSummary.get("questionCount", questionCount),
 				studioSummary.get("metadata", metadata)
 			)
+			if not studioExists:
+				studioMetadataLabel.text = tr(
+					"Create a new Studio Course or copy the current Imported Course."
+				)
 			createStudioCourseButton.disabled = studioExists
 			openStudioEditorButton.disabled = not studioExists
 			studioExportButton.disabled = not studioExists
@@ -211,12 +217,13 @@ func RequestStudioCourseExport() -> void:
 	var studioCourse: Dictionary = GameManager.GetStudioCourseData()
 	var studioContent: Dictionary = studioCourse.get("content", {})
 	var studioMetadata: Dictionary = studioCourse.get("metadata", {})
-	lastParseResult = csvExporter.BuildParseResult(
+	var workflowResult: Dictionary = authoringManager.BuildAndValidateStudioExport(
 		studioContent,
 		studioMetadata,
 		BuildStudioExportFilename(studioMetadata)
 	)
-	lastValidationReport = csvValidator.ValidateParseResult(lastParseResult)
+	lastParseResult = workflowResult.get("parseResult", {})
+	lastValidationReport = workflowResult.get("validationReport", {})
 	lastValidationPurpose = "studio_export"
 	validationResultsButton.disabled = false
 
@@ -431,7 +438,7 @@ func StartSelectedImportedPreview() -> void:
 	importedPreviewPopup.hide()
 	GameManager.StartImportedCoursePreview(levelId)
 
-# Requests first-import confirmation while deferring replacement to the next step.
+# Requests first-import or safe-replacement confirmation without changing content.
 func RequestValidatedImport() -> void:
 	if lastValidationPurpose != "import":
 		return
@@ -500,17 +507,19 @@ func CommitValidatedImport() -> void:
 
 # Parses and validates one selected file without registering or persisting it.
 func _on_csv_file_selected(filePath: String) -> void:
-	lastParseResult = csvParser.ParseFile(filePath)
-	lastValidationReport = csvValidator.ValidateParseResult(lastParseResult)
+	var workflowResult: Dictionary = authoringManager.ParseAndValidateCourseCsv(filePath)
+	lastParseResult = workflowResult.get("parseResult", {})
+	lastValidationReport = workflowResult.get("validationReport", {})
 	lastValidationPurpose = "import"
 	validationResultsButton.disabled = false
 	PresentValidationReport()
 
 # Writes the exact validated in-memory rows selected by the teacher.
 func _on_studio_export_file_selected(filePath: String) -> void:
-	var exportResult: Dictionary = csvExporter.ExportParseResult(
+	var exportResult: Dictionary = authoringManager.ExportValidatedCourseCsv(
 		filePath,
-		lastParseResult
+		lastParseResult,
+		lastValidationReport
 	)
 	if exportResult.get("succeeded", false):
 		importNoticeDialog.title = tr("Export Complete")

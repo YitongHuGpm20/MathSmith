@@ -55,20 +55,45 @@ func RefreshCourseCards() -> void:
 
 		var courseButton: Button = courseButtons[courseSourceId]
 		var available: bool = courseSummary.get("available", false)
+		var exists: bool = courseSummary.get("exists", available)
+		var descriptionLabel: Label = courseButton.get_node("CardMargin/CardLayout/DescriptionLabel")
 		var metadataLabel: Label = courseButton.get_node("CardMargin/CardLayout/MetadataLabel")
 		var statusLabel: Label = courseButton.get_node("CardMargin/CardLayout/StatusLabel")
 		courseButton.disabled = not available
-		metadataLabel.text = (
-			tr("%d Levels  •  %d Questions") % [
+		if available:
+			metadataLabel.text = tr("%d Levels  •  %d Questions") % [
 				int(courseSummary.get("levelCount", 0)),
 				int(courseSummary.get("questionCount", 0))
 			]
-			if available
-			else tr("Not available yet")
+		else:
+			ApplyEmptyCourseState(
+				courseSourceId,
+				exists,
+				descriptionLabel,
+				metadataLabel
+			)
+		statusLabel.text = tr("AVAILABLE") if available else tr("UNAVAILABLE")
+		statusLabel.add_theme_color_override(
+			"font_color",
+			Color(0.35, 0.9, 0.72, 1.0) if available else Color(0.55, 0.62, 0.72, 1.0)
 		)
-		statusLabel.text = (
-			tr("AVAILABLE") if available else tr("UNAVAILABLE")
-		)
+
+# Gives each unavailable Course Source a precise player-facing explanation.
+func ApplyEmptyCourseState(
+	courseSourceId: String,
+	exists: bool,
+	descriptionLabel: Label,
+	metadataLabel: Label
+) -> void:
+	if courseSourceId == "imported_course":
+		descriptionLabel.text = tr("No course imported yet.")
+		metadataLabel.text = tr("Use Teacher Tools to import a CSV Course.")
+	elif courseSourceId == "studio_course" and exists:
+		descriptionLabel.text = tr("This Studio Course has no playable Levels yet.")
+		metadataLabel.text = tr("Add valid content in MathSmith Studio.")
+	else:
+		descriptionLabel.text = tr("No Studio Course created yet.")
+		metadataLabel.text = tr("Use Teacher Tools to create a Studio Course.")
 
 # Keeps three cards readable on wide screens and stacked on narrow screens.
 func UpdateResponsiveLayout() -> void:

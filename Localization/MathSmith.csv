@@ -178,7 +178,6 @@ Teacher-authored CSV content,Teacher-authored CSV content,教师通过 CSV 编�
 Studio Course,Studio Course,工作室课程
 Content created in MathSmith Studio,Content created in MathSmith Studio,在 MathSmith Studio 中创建的内容
 %d Levels  •  %d Questions,%d Levels  •  %d Questions,%d 个关卡  •  %d 道题
-Not available yet,Not available yet,暂不可用
 AVAILABLE,AVAILABLE,可用
 UNAVAILABLE,UNAVAILABLE,不可用
 Course authoring is available separately through Teacher Tools.,Course authoring is available separately through Teacher Tools.,课程创作功能将在独立的教师工具中提供。
@@ -194,7 +193,6 @@ Incorrect password.,Incorrect password.,密码错误。
 Local prototype access — not production authentication.,Local prototype access — not production authentication.,本地原型入口——并非生产级身份验证。
 TEACHER DASHBOARD,TEACHER DASHBOARD,教师控制台
 Teacher Dashboard,Teacher Dashboard,教师控制台
-Course authoring controls will be added in the next development step.,Course authoring controls will be added in the next development step.,课程创作控件将在下一开发步骤中加入。
 Manage imported content and build editable courses in MathSmith Studio.,Manage imported content and build editable courses in MathSmith Studio.,管理导入内容并在 MathSmith Studio 中创建可编辑课程。
 IMPORTED COURSE,IMPORTED COURSE,导入课程
 CSV Course Workspace,CSV Course Workspace,CSV 课程工作区
@@ -239,7 +237,6 @@ Confirm Import,Confirm Import,确认导入
 "Import %s with %d Levels and %d Questions?","Import %s with %d Levels and %d Questions?","是否导入 %s（%d 个关卡，%d 道题）？"
 this Course,this Course,此课程
 Imported Course Already Exists,Imported Course Already Exists,已存在导入课程
-Safe replacement will be available in the next development step. Existing content was not changed.,Safe replacement will be available in the next development step. Existing content was not changed.,安全替换功能将在下一开发步骤中提供。现有内容未被修改。
 Import Failed,Import Failed,导入失败
 The Imported Course could not be saved. Existing content was not changed.,The Imported Course could not be saved. Existing content was not changed.,无法保存导入课程。现有内容未被修改。
 Import Complete,Import Complete,导入完成
@@ -267,7 +264,6 @@ Untitled Studio Course,Untitled Studio Course,未命名 Studio 课程
 SAVED,SAVED,已保存
 Back to Dashboard,Back to Dashboard,返回教师控制台
 %d Levels,%d Levels,%d 个关卡
-No Levels yet. Level editing is the next M6 step.,No Levels yet. Level editing is the next M6 step.,尚无关卡。下一步将加入关卡编辑。
 CURRENT LEVEL,CURRENT LEVEL,当前关卡
 No Level Selected,No Level Selected,未选择关卡
 Gameplay Mode,Gameplay Mode,玩法模式
@@ -343,3 +339,15 @@ Remove Failed,Remove Failed,移除失败
 Reset Failed,Reset Failed,重置失败
 Delete Failed,Delete Failed,删除失败
 The requested Course operation could not be completed.,The requested Course operation could not be completed.,无法完成请求的课程操作。
+No course imported yet.,No course imported yet.,尚未导入课程。
+Use Teacher Tools to import a CSV Course.,Use Teacher Tools to import a CSV Course.,请通过教师工具导入 CSV 课程。
+This Studio Course has no playable Levels yet.,This Studio Course has no playable Levels yet.,此 Studio 课程还没有可玩的关卡。
+Add valid content in MathSmith Studio.,Add valid content in MathSmith Studio.,请在 MathSmith Studio 中添加有效内容。
+No Studio Course created yet.,No Studio Course created yet.,尚未创建 Studio 课程。
+Use Teacher Tools to create a Studio Course.,Use Teacher Tools to create a Studio Course.,请通过教师工具创建 Studio 课程。
+Import a UTF-8 CSV Course to make it available to players.,Import a UTF-8 CSV Course to make it available to players.,导入 UTF-8 CSV 课程后即可供玩家使用。
+Create a new Studio Course or copy the current Imported Course.,Create a new Studio Course or copy the current Imported Course.,创建新的 Studio 课程或复制当前导入课程。
+No Levels yet. Add a Level to begin authoring.,No Levels yet. Add a Level to begin authoring.,暂无关卡。添加一个关卡以开始创作。
+Select and validate a MathSmith Course CSV. Existing content changes only after confirmation.,Select and validate a MathSmith Course CSV. Existing content changes only after confirmation.,选择并验证 MathSmith 课程 CSV。只有确认后才会更改现有内容。
+Edit Levels and Questions in the persistent Studio workspace.,Edit Levels and Questions in the persistent Studio workspace.,在持久保存的 Studio 工作区中编辑关卡和题目。
+Validate and export the current Studio Course as CSV.,Validate and export the current Studio Course as CSV.,验证当前 Studio 课程并将其导出为 CSV。

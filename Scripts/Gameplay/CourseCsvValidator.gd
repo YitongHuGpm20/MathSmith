@@ -76,7 +76,7 @@ func ValidateParseResult(parseResult: Dictionary) -> Dictionary:
 	ValidateCourseComposition(parseResult, report)
 	return FinalizeReport(report, parseResult)
 
-# Creates the stable report contract consumed by the later Validation Results UI.
+# Creates the stable report contract consumed by Validation Results UI.
 func CreateValidationReport(parseResult: Dictionary) -> Dictionary:
 	return {
 		"filename": parseResult.get("filename", ""),
@@ -451,7 +451,7 @@ func ValidateExpressionForAuthoring(expression: String) -> Dictionary:
 		generatedSteps
 	)
 
-# Builds one reusable live-validation response for Studio and later previews.
+# Builds one reusable live-validation response for Studio editing and previews.
 func CreateExpressionValidationResult(
 	valid: bool,
 	severity: String,

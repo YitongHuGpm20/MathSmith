@@ -304,7 +304,24 @@ func GetCurrentCourseSourceId() -> String:
 
 # Returns availability and metadata for the three supported Course Sources.
 func GetCourseSourceSummaries() -> Array[Dictionary]:
-	return courseManager.GetCourseSourceSummaries()
+	var courseSummaries: Array[Dictionary] = courseManager.GetCourseSourceSummaries()
+	var studioSummary: Dictionary = studioCourseManager.GetStudioCourseSummary()
+
+	# Expose authoring-workspace existence separately from player availability.
+	for summaryIndex in range(courseSummaries.size()):
+		var courseSummary: Dictionary = courseSummaries[summaryIndex]
+		var courseSourceId: String = courseSummary.get("id", "")
+		courseSummary["exists"] = (
+			true
+			if courseSourceId == "core_curriculum"
+			else SaveManager.HasPersistedCourseContent(courseSourceId)
+		)
+		if courseSourceId == STUDIO_COURSE_SOURCE_ID and studioSummary.get("exists", false):
+			courseSummary["levelCount"] = studioSummary.get("levelCount", 0)
+			courseSummary["questionCount"] = studioSummary.get("questionCount", 0)
+			courseSummary["metadata"] = studioSummary.get("metadata", {}).duplicate(true)
+		courseSummaries[summaryIndex] = courseSummary
+	return courseSummaries
 
 # Returns whether one Course Source currently contains registered runtime content.
 func HasCourseSourceContent(courseSourceId: String) -> bool:
@@ -1087,6 +1104,7 @@ func BuildTelemetryQuestionContext(currentQuestion: Dictionary) -> Dictionary:
 		sourceLevel.get("skills", currentLevel.get("skills", []))
 	)
 	return {
+		"courseSourceId": courseManager.GetCurrentCourseSourceId(),
 		"questionId": currentQuestion.get(
 			"sourceQuestionId",
 			currentQuestion.get("id", "")

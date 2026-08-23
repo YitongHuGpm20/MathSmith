@@ -214,7 +214,7 @@ func IsEmptyCsvRow(csvValues: PackedStringArray) -> bool:
 			return false
 	return true
 
-# Returns the canonical header contract for authoring UI and later validation.
+# Returns the canonical header contract for authoring UI and validation.
 func GetExpectedHeaders() -> PackedStringArray:
 	return EXPECTED_HEADERS.duplicate()
 

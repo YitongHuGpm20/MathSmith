@@ -1,10 +1,18 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UIScreens/TeacherDashboardUI.gd" id="1_script"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/home.svg" id="3_home"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]
 [ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="5_settings_panel"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/course_imported.svg" id="6_imported"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/info.svg" id="7_info"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/play.svg" id="8_play"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/course_studio.svg" id="9_studio"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/next.svg" id="10_export"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/replay.svg" id="11_reset"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/incorrect.svg" id="12_delete"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/steps.svg" id="13_editor"]
 
 [node name="TeacherDashboardScene" type="Control"]
 layout_mode = 3
@@ -93,7 +101,7 @@ theme_override_constants/v_separation = 22
 columns = 2
 
 [node name="ImportedCoursePanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid"]
-custom_minimum_size = Vector2(600, 610)
+custom_minimum_size = Vector2(600, 540)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -159,20 +167,15 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 text = "Import / Replace CSV"
-tooltip_text = "Select and validate a MathSmith Course CSV. Existing content will not be replaced yet."
+tooltip_text = "Select and validate a MathSmith Course CSV. Existing content changes only after confirmation."
+icon = ExtResource("6_imported")
+icon_max_width = 19
 
 [node name="ActionGrid" type="GridContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
 layout_mode = 2
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 2
-
-[node name="ViewButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
-custom_minimum_size = Vector2(0, 46)
-layout_mode = 2
-size_flags_horizontal = 3
-disabled = true
-text = "View Current Course"
 
 [node name="ValidationResultsButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
 unique_name_in_owner = true
@@ -181,6 +184,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "Validation Results"
+icon = ExtResource("7_info")
+icon_max_width = 18
 
 [node name="ImportedPreviewButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
 unique_name_in_owner = true
@@ -189,20 +194,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "Preview"
-
-[node name="ImportStudioButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
-custom_minimum_size = Vector2(0, 46)
-layout_mode = 2
-size_flags_horizontal = 3
-disabled = true
-text = "Import to Studio"
-
-[node name="ExportButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
-custom_minimum_size = Vector2(0, 46)
-layout_mode = 2
-size_flags_horizontal = 3
-disabled = true
-text = "Export"
+icon = ExtResource("8_play")
+icon_max_width = 18
 
 [node name="RemoveButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
 unique_name_in_owner = true
@@ -212,9 +205,11 @@ size_flags_horizontal = 3
 disabled = true
 text = "Remove Imported Course"
 theme_override_colors/font_color = Color(1, 0.42, 0.46, 1)
+icon = ExtResource("12_delete")
+icon_max_width = 18
 
 [node name="StudioCoursePanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid"]
-custom_minimum_size = Vector2(600, 610)
+custom_minimum_size = Vector2(600, 540)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -280,6 +275,9 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 text = "Open Visual Course Editor"
+tooltip_text = "Edit Levels and Questions in the persistent Studio workspace."
+icon = ExtResource("13_editor")
+icon_max_width = 20
 
 [node name="ActionGrid" type="GridContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
 layout_mode = 2
@@ -294,6 +292,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 disabled = false
 text = "Create New Studio Course"
+icon = ExtResource("9_studio")
+icon_max_width = 18
 
 [node name="CopyButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
 unique_name_in_owner = true
@@ -301,13 +301,8 @@ custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Copy Imported Course"
-
-[node name="PreviewButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
-custom_minimum_size = Vector2(0, 46)
-layout_mode = 2
-size_flags_horizontal = 3
-disabled = true
-text = "Preview"
+icon = ExtResource("6_imported")
+icon_max_width = 18
 
 [node name="StudioExportButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
 unique_name_in_owner = true
@@ -316,6 +311,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "Export"
+tooltip_text = "Validate and export the current Studio Course as CSV."
+icon = ExtResource("10_export")
+icon_max_width = 18
 
 [node name="ResetButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
 unique_name_in_owner = true
@@ -325,6 +323,8 @@ size_flags_horizontal = 3
 disabled = true
 text = "Reset Studio Course"
 theme_override_colors/font_color = Color(1, 0.62, 0.3, 1)
+icon = ExtResource("11_reset")
+icon_max_width = 18
 
 [node name="DeleteButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
 unique_name_in_owner = true
@@ -334,6 +334,8 @@ size_flags_horizontal = 3
 disabled = true
 text = "Delete Studio Course"
 theme_override_colors/font_color = Color(1, 0.42, 0.46, 1)
+icon = ExtResource("12_delete")
+icon_max_width = 18
 
 [node name="ValidationOverlay" type="PanelContainer" parent="."]
 unique_name_in_owner = true

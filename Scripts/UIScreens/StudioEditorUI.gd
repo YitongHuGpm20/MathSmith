@@ -1,7 +1,7 @@
 ## Presents the MathSmith Studio workspace for visual Course authoring.
 ##
-## This first editor shell browses persistent Studio Levels and Questions.
-## Focused editing actions are added in the following M6 development steps.
+## This screen edits persistent Studio Levels and Questions, provides live
+## validation, and launches isolated previews through production gameplay.
 extends Control
 
 #region ========== References ==========
@@ -51,8 +51,8 @@ var studioContent: Dictionary = {}
 var studioMetadata: Dictionary = {}
 var selectedLevelIndex: int = -1
 var selectedQuestionIndex: int = -1
-var expressionValidator := preload(
-	"res://Scripts/Gameplay/CourseCsvValidator.gd"
+var authoringManager := preload(
+	"res://Scripts/Gameplay/AuthoringManager.gd"
 ).new()
 var currentExpressionValidation: Dictionary = {}
 
@@ -353,7 +353,7 @@ func ApplySelectedQuestionFields() -> bool:
 			tr("Question ID Required") if questionId.is_empty() else tr("Duplicate Question ID")
 		)
 		return false
-	currentExpressionValidation = expressionValidator.ValidateExpressionForAuthoring(
+	currentExpressionValidation = authoringManager.ValidateExpression(
 		expressionEdit.text
 	)
 	if not currentExpressionValidation.get("valid", false):
@@ -412,7 +412,7 @@ func ValidateLevelForPreview(levelData: Dictionary) -> bool:
 		return false
 	for questionValue in questions:
 		var questionData: Dictionary = questionValue
-		var validationResult: Dictionary = expressionValidator.ValidateExpressionForAuthoring(
+		var validationResult: Dictionary = authoringManager.ValidateExpression(
 			questionData.get("expression", "")
 		)
 		if not validationResult.get("valid", false):
@@ -508,7 +508,7 @@ func ShowQuestionNotice(message: String) -> void:
 
 # Updates deterministic validation feedback after every Expression edit.
 func ValidateExpressionLive(expression: String) -> void:
-	currentExpressionValidation = expressionValidator.ValidateExpressionForAuthoring(
+	currentExpressionValidation = authoringManager.ValidateExpression(
 		expression
 	)
 	var severity: String = currentExpressionValidation.get("severity", "Error")

@@ -6,7 +6,7 @@ extends RefCounted
 
 #region ========== Configuration ==========
 
-const TELEMETRY_SCHEMA_VERSION: int = 1
+const TELEMETRY_SCHEMA_VERSION: int = 2
 const ENABLE_CONSOLE_OUTPUT: bool = false
 const MAX_MEMORY_RECORDS: int = 200
 const MAX_EVENTS_PER_QUESTION: int = 500
@@ -37,6 +37,7 @@ func BeginQuestion(questionContext: Dictionary) -> void:
 	uniqueEditedBlankIds.clear()
 	activeQuestion = {
 		"telemetrySchemaVersion": TELEMETRY_SCHEMA_VERSION,
+		"courseSourceId": questionContext.get("courseSourceId", "core_curriculum"),
 		"questionId": questionContext.get("questionId", ""),
 		"levelId": questionContext.get("levelId", ""),
 		"levelTitle": questionContext.get("levelTitle", ""),

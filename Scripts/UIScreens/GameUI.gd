@@ -166,6 +166,10 @@ func RefreshAnalyticsOverlay() -> void:
 	if activeTelemetry.is_empty():
 		activeLines.append("No active Question")
 	else:
+		activeLines.append("Course: %s" % activeTelemetry.get(
+			"courseSourceId",
+			GameManager.GetCurrentCourseSourceId()
+		))
 		activeLines.append("Question: %s" % activeTelemetry.get("questionId", ""))
 		activeLines.append("Mode: %s" % activeTelemetry.get("levelTypeId", ""))
 		activeLines.append("Elapsed: %d ms" % activeTelemetry.get("elapsedTimeMs", 0))

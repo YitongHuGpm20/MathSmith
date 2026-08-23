@@ -80,7 +80,7 @@ func SelectCourseSource(courseSourceId: String) -> bool:
 	currentCourseSourceId = courseSourceId
 	return true
 
-# Returns the reliable active Course Source context used by later M6 systems.
+# Returns the reliable active Course Source context used by dependent systems.
 func GetCurrentCourseSourceId() -> String:
 	return currentCourseSourceId
 

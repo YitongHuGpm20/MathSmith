@@ -194,12 +194,12 @@ text = "Imported Course"
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.66, 0.72, 0.82, 1)
-text = "Teacher-authored CSV content"
+text = "No course imported yet."
 autowrap_mode = 2
 
 [node name="MetadataLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin/CardLayout"]
 layout_mode = 2
-text = "Not available yet"
+text = "Use Teacher Tools to import a CSV Course."
 
 [node name="StatusLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin/CardLayout"]
 layout_mode = 2
@@ -245,12 +245,12 @@ text = "Studio Course"
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.66, 0.72, 0.82, 1)
-text = "Content created in MathSmith Studio"
+text = "No Studio Course created yet."
 autowrap_mode = 2
 
 [node name="MetadataLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin/CardLayout"]
 layout_mode = 2
-text = "Not available yet"
+text = "Use Teacher Tools to create a Studio Course."
 
 [node name="StatusLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin/CardLayout"]
 layout_mode = 2

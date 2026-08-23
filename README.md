@@ -6,7 +6,7 @@ MathSmith is a Godot-based portfolio project created by **Yitong Hu** to demonst
 
 Players rebuild mathematical reasoning through three interaction types, receive progressively more useful feedback, review saved mistakes, and replay the full question pool through focused challenge modes.
 
-> **Project Status:** M1–M4 Complete  
+> **Project Status:** M1–M6 Complete
 > **Engine:** Godot 4.7.1  
 > **Target Resolution:** 1920 × 1080  
 > **Languages:** English / Simplified Chinese
@@ -1322,7 +1322,7 @@ Future milestones would explore systems that build on this foundation rather tha
 
 **Goal: Observe player behavior and adapt practice**
 
-Potential systems:
+Completed systems:
 
 - Behavior tracking
 - Time-to-first-action
@@ -1338,7 +1338,7 @@ Potential systems:
 - Weighted Question selection
 - Developer / Analytics Overlay
 
-The purpose of this milestone would be to answer:
+This milestone answers:
 
 > **What can player behavior tell us about where the learner is struggling?**
 
@@ -1350,21 +1350,23 @@ Teacher Tools currently use a local prototype password gate (`teacher`) for port
 
 **Goal: Allow educators and content specialists to create and validate content**
 
-Potential systems:
+Completed systems:
 
-- Downloadable CSV template
-- CSV upload
-- CSV validation
-- Human-readable validation errors
-- CSV → Runtime Level Data
-- Visual Content Editor
-- Add / delete / edit Questions
-- Teacher Preview Mode
-- Editor → Preview → Revise workflow
+- Independent Core Curriculum, Imported Course, and Studio Course Sources
+- Course-scoped progress, mistakes, Mastery, history, and analytics
+- Repository CSV template, example, and authoring guide
+- CSV parsing with blocking Errors and non-blocking Warnings
+- Safe Imported Course persistence and replacement
+- MathSmith Studio Level and Question editing
+- Live expression validation and generated solution preview
+- Isolated Question, Level, and Imported Course previews
+- Return-to-Editor selection preservation
+- Validated Studio CSV export
+- Confirmed Course reset, removal, and deletion flows
 
-The purpose would be to move content creation away from direct project-file editing.
+Content creation no longer requires editing gameplay code or runtime JSON directly.
 
-The target workflow would become:
+The implemented workflow is:
 
 ```text
 Author
@@ -1372,7 +1374,7 @@ Author
 → Preview
 → Play
 → Revise
-→ Publish
+→ Export / Deliver
 ```
 
 ---
