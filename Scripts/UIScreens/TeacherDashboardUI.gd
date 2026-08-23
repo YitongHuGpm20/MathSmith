@@ -16,10 +16,15 @@ extends Control
 @onready var importCsvButton: Button = %ImportCsvButton
 @onready var validationResultsButton: Button = %ValidationResultsButton
 @onready var importedPreviewButton: Button = %ImportedPreviewButton
+@onready var removeImportedCourseButton: Button = %RemoveButton
 @onready var createStudioCourseButton: Button = %CreateButton
 @onready var copyImportedCourseButton: Button = %CopyButton
 @onready var openStudioEditorButton: Button = %PrimaryAction
+@onready var studioExportButton: Button = %StudioExportButton
+@onready var resetStudioCourseButton: Button = %ResetButton
+@onready var deleteStudioCourseButton: Button = %DeleteButton
 @onready var csvFileDialog: FileDialog = %CsvFileDialog
+@onready var studioExportFileDialog: FileDialog = %StudioExportFileDialog
 @onready var validationOverlay: PanelContainer = %ValidationOverlay
 @onready var validationStatusLabel: Label = %ValidationStatusLabel
 @onready var validationCountsLabel: Label = %ValidationCountsLabel
@@ -35,6 +40,10 @@ extends Control
 @onready var startImportedPreviewButton: Button = %StartImportedPreviewButton
 @onready var cancelImportedPreviewButton: Button = %CancelImportedPreviewButton
 @onready var confirmStudioCopyDialog: ConfirmationDialog = %ConfirmStudioCopyDialog
+@onready var confirmWarningExportDialog: ConfirmationDialog = %ConfirmWarningExportDialog
+@onready var confirmRemoveImportedDialog: ConfirmationDialog = %ConfirmRemoveImportedDialog
+@onready var confirmResetStudioDialog: ConfirmationDialog = %ConfirmResetStudioDialog
+@onready var confirmDeleteStudioDialog: ConfirmationDialog = %ConfirmDeleteStudioDialog
 @onready var settingsPanel = $SettingsPanel
 
 #endregion
@@ -43,8 +52,10 @@ extends Control
 
 var csvParser := preload("res://Scripts/Gameplay/CourseCsvParser.gd").new()
 var csvValidator := preload("res://Scripts/Gameplay/CourseCsvValidator.gd").new()
+var csvExporter := preload("res://Scripts/Gameplay/CourseCsvExporter.gd").new()
 var lastParseResult: Dictionary = {}
 var lastValidationReport: Dictionary = {}
+var lastValidationPurpose: String = "import"
 var pendingImportIsReplacement: bool = false
 
 #endregion
@@ -62,9 +73,18 @@ func _ready() -> void:
 	confirmValidatedImportButton.pressed.connect(RequestValidatedImport)
 	confirmImportDialog.confirmed.connect(CommitValidatedImport)
 	importedPreviewButton.pressed.connect(OpenImportedPreviewSelection)
+	removeImportedCourseButton.pressed.connect(confirmRemoveImportedDialog.popup_centered)
 	createStudioCourseButton.pressed.connect(CreateNewStudioCourse)
 	copyImportedCourseButton.pressed.connect(RequestImportedCourseCopy)
 	openStudioEditorButton.pressed.connect(GameManager.OpenStudioEditor)
+	studioExportButton.pressed.connect(RequestStudioCourseExport)
+	studioExportFileDialog.file_selected.connect(_on_studio_export_file_selected)
+	confirmWarningExportDialog.confirmed.connect(OpenStudioExportFileDialog)
+	resetStudioCourseButton.pressed.connect(confirmResetStudioDialog.popup_centered)
+	deleteStudioCourseButton.pressed.connect(confirmDeleteStudioDialog.popup_centered)
+	confirmRemoveImportedDialog.confirmed.connect(RemoveImportedCourse)
+	confirmResetStudioDialog.confirmed.connect(ResetStudioCourse)
+	confirmDeleteStudioDialog.confirmed.connect(DeleteStudioCourse)
 	confirmStudioCopyDialog.confirmed.connect(CommitImportedCourseCopy.bind(true))
 	startImportedPreviewButton.pressed.connect(StartSelectedImportedPreview)
 	cancelImportedPreviewButton.pressed.connect(importedPreviewPopup.hide)
@@ -92,6 +112,7 @@ func RefreshCourseStatus() -> void:
 			importedMetadataLabel.text = BuildMetadataText(available, levelCount, questionCount, metadata)
 			importedPreviewButton.disabled = not available
 			copyImportedCourseButton.disabled = not available
+			removeImportedCourseButton.disabled = not available
 		elif courseSourceId == "studio_course":
 			var studioSummary: Dictionary = GameManager.GetStudioCourseSummary()
 			var studioExists: bool = studioSummary.get("exists", false)
@@ -104,6 +125,9 @@ func RefreshCourseStatus() -> void:
 			)
 			createStudioCourseButton.disabled = studioExists
 			openStudioEditorButton.disabled = not studioExists
+			studioExportButton.disabled = not studioExists
+			resetStudioCourseButton.disabled = not studioExists
+			deleteStudioCourseButton.disabled = not studioExists
 
 # Creates the persistent blank authoring model used by the later Visual Editor.
 func CreateNewStudioCourse() -> void:
@@ -135,6 +159,96 @@ func CommitImportedCourseCopy(replaceExisting: bool) -> void:
 		"Imported Course was copied into an independent Studio Course."
 	)
 	importNoticeDialog.popup_centered()
+
+# Removes only the Imported Course after the destructive-action confirmation.
+func RemoveImportedCourse() -> void:
+	var removeResult: Dictionary = GameManager.RemoveImportedCourse()
+	PresentCourseOperationResult(
+		removeResult.get("succeeded", false),
+		"Imported Course Removed",
+		"Imported Course and its player progress were removed.",
+		"Remove Failed"
+	)
+
+# Clears Studio content while preserving the editable Studio workspace.
+func ResetStudioCourse() -> void:
+	var resetResult: Dictionary = GameManager.ResetStudioCourse()
+	PresentCourseOperationResult(
+		resetResult.get("succeeded", false),
+		"Studio Course Reset",
+		"Studio Levels, Questions, and player progress were cleared.",
+		"Reset Failed"
+	)
+
+# Permanently removes the complete Studio workspace after confirmation.
+func DeleteStudioCourse() -> void:
+	var deleteResult: Dictionary = GameManager.DeleteStudioCourse()
+	PresentCourseOperationResult(
+		deleteResult.get("succeeded", false),
+		"Studio Course Deleted",
+		"Studio Course and its player progress were deleted.",
+		"Delete Failed"
+	)
+
+# Refreshes availability and presents consistent completion or failure feedback.
+func PresentCourseOperationResult(
+	succeeded: bool,
+	successTitle: String,
+	successMessage: String,
+	failureTitle: String
+) -> void:
+	if succeeded:
+		RefreshCourseStatus()
+		importNoticeDialog.title = tr(successTitle)
+		importNoticeDialog.dialog_text = tr(successMessage)
+	else:
+		importNoticeDialog.title = tr(failureTitle)
+		importNoticeDialog.dialog_text = tr("The requested Course operation could not be completed.")
+	importNoticeDialog.popup_centered()
+
+# Validates the current Studio snapshot before opening any save destination.
+func RequestStudioCourseExport() -> void:
+	var studioCourse: Dictionary = GameManager.GetStudioCourseData()
+	var studioContent: Dictionary = studioCourse.get("content", {})
+	var studioMetadata: Dictionary = studioCourse.get("metadata", {})
+	lastParseResult = csvExporter.BuildParseResult(
+		studioContent,
+		studioMetadata,
+		BuildStudioExportFilename(studioMetadata)
+	)
+	lastValidationReport = csvValidator.ValidateParseResult(lastParseResult)
+	lastValidationPurpose = "studio_export"
+	validationResultsButton.disabled = false
+
+	# Errors show the reusable detailed report and block file selection.
+	if not lastValidationReport.get("isValid", false):
+		PresentValidationReport()
+		confirmValidatedImportButton.visible = false
+		return
+
+	var warningCount: int = int(lastValidationReport.get("warningCount", 0))
+	if warningCount > 0:
+		confirmWarningExportDialog.dialog_text = tr(
+			"This Studio Course has %d validation warnings. Review them if needed, or continue to export."
+		) % warningCount
+		confirmWarningExportDialog.popup_centered()
+		return
+	OpenStudioExportFileDialog()
+
+# Opens the save picker only after successful validation or warning confirmation.
+func OpenStudioExportFileDialog() -> void:
+	studioExportFileDialog.current_file = lastParseResult.get(
+		"filename",
+		"mathsmith_studio_course.csv"
+	)
+	studioExportFileDialog.popup_centered_ratio(0.72)
+
+# Creates a safe default filename without changing the authored Course name.
+func BuildStudioExportFilename(studioMetadata: Dictionary) -> String:
+	var courseId: String = String(studioMetadata.get("courseId", "studio_course"))
+	if courseId.is_empty():
+		courseId = "studio_course"
+	return "%s.csv" % courseId
 
 # Builds consistent lightweight metadata for both authoring workspaces.
 func BuildMetadataText(
@@ -190,7 +304,10 @@ func PresentValidationReport() -> void:
 		"font_color",
 		GetSeverityColor(lastValidationReport.get("status", "Error"))
 	)
-	confirmValidatedImportButton.visible = lastValidationReport.get("isValid", false)
+	confirmValidatedImportButton.visible = (
+		lastValidationPurpose == "import"
+		and lastValidationReport.get("isValid", false)
+	)
 
 	var issues: Array = lastValidationReport.get("issues", [])
 	validationEmptyLabel.visible = issues.is_empty()
@@ -316,6 +433,8 @@ func StartSelectedImportedPreview() -> void:
 
 # Requests first-import confirmation while deferring replacement to the next step.
 func RequestValidatedImport() -> void:
+	if lastValidationPurpose != "import":
+		return
 	if GameManager.HasCourseSourceContent("imported_course"):
 		pendingImportIsReplacement = true
 		confirmImportDialog.title = tr("Replace Imported Course")
@@ -383,7 +502,22 @@ func CommitValidatedImport() -> void:
 func _on_csv_file_selected(filePath: String) -> void:
 	lastParseResult = csvParser.ParseFile(filePath)
 	lastValidationReport = csvValidator.ValidateParseResult(lastParseResult)
+	lastValidationPurpose = "import"
 	validationResultsButton.disabled = false
 	PresentValidationReport()
+
+# Writes the exact validated in-memory rows selected by the teacher.
+func _on_studio_export_file_selected(filePath: String) -> void:
+	var exportResult: Dictionary = csvExporter.ExportParseResult(
+		filePath,
+		lastParseResult
+	)
+	if exportResult.get("succeeded", false):
+		importNoticeDialog.title = tr("Export Complete")
+		importNoticeDialog.dialog_text = tr("Studio Course CSV was exported successfully.")
+	else:
+		importNoticeDialog.title = tr("Export Failed")
+		importNoticeDialog.dialog_text = tr("The Studio Course CSV could not be written.")
+	importNoticeDialog.popup_centered()
 
 #endregion

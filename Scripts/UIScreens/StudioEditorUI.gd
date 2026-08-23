@@ -91,8 +91,31 @@ func LoadStudioCourse() -> void:
 	studioContent = studioCourse.get("content", {})
 	studioMetadata = studioCourse.get("metadata", {})
 	courseNameLabel.text = studioMetadata.get("courseName", tr("Untitled Studio Course"))
+	RestorePreviewSelection(GameManager.ConsumeStudioEditorReturnSelection())
 	SetSaveState(true)
 	RefreshLevelList()
+
+# Resolves stable IDs back into editor indices after returning from Preview.
+func RestorePreviewSelection(returnSelection: Dictionary) -> void:
+	selectedLevelIndex = -1
+	selectedQuestionIndex = -1
+	var returnLevelId: String = returnSelection.get("levelId", "")
+	var returnQuestionId: String = returnSelection.get("questionId", "")
+	if returnLevelId.is_empty():
+		return
+
+	var courseLevels: Array = studioContent.get("levels", [])
+	for levelIndex in range(courseLevels.size()):
+		var levelData: Dictionary = courseLevels[levelIndex]
+		if levelData.get("id", "") != returnLevelId:
+			continue
+		selectedLevelIndex = levelIndex
+		var questions: Array = levelData.get("questions", [])
+		for questionIndex in range(questions.size()):
+			if questions[questionIndex].get("id", "") == returnQuestionId:
+				selectedQuestionIndex = questionIndex
+				break
+		return
 
 # Rebuilds the Level navigator without modifying Studio working data.
 func RefreshLevelList() -> void:
@@ -372,7 +395,14 @@ func PreviewSelectedLevel() -> void:
 		return
 	if not PersistStudioChanges():
 		return
-	GameManager.StartStudioLevelPreview(levelData.get("id", ""))
+	var returnQuestionId := ""
+	var questions: Array = levelData.get("questions", [])
+	if selectedQuestionIndex >= 0 and selectedQuestionIndex < questions.size():
+		returnQuestionId = questions[selectedQuestionIndex].get("id", "")
+	GameManager.StartStudioLevelPreview(
+		levelData.get("id", ""),
+		returnQuestionId
+	)
 
 # Requires every authored Question to pass the shared production validator.
 func ValidateLevelForPreview(levelData: Dictionary) -> bool:

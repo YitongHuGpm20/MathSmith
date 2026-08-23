@@ -319,6 +319,32 @@ func SetPersistedCourseContent(
 func HasPersistedCourseContent(courseSourceId: String) -> bool:
 	return not GetPersistedCourseContent(courseSourceId).get("content", {}).is_empty()
 
+# Removes one replaceable Course and its isolated player data atomically.
+func ClearPersistedCourseContent(courseSourceId: String) -> bool:
+	if courseSourceId not in [IMPORTED_COURSE_SOURCE_ID, STUDIO_COURSE_SOURCE_ID]:
+		return false
+	if coursePlayerDataWritesBlocked:
+		return false
+
+	var previousCourseContent: Dictionary = saveData["courseContent"][courseSourceId].duplicate(true)
+	var previousPlayerData: Dictionary = saveData["courseData"][courseSourceId].duplicate(true)
+	var previousCourseState: Dictionary = saveData["courseState"].duplicate(true)
+	var previousActiveCourseSourceId: String = activeCourseSourceId
+	saveData["courseContent"][courseSourceId] = GetDefaultPersistedCourseContent()
+	saveData["courseData"][courseSourceId] = GetDefaultCoursePlayerData()
+	if activeCourseSourceId == courseSourceId:
+		activeCourseSourceId = CORE_CURRICULUM_SOURCE_ID
+		saveData["courseState"]["selectedCourseSource"] = CORE_CURRICULUM_SOURCE_ID
+	if SaveLocalData():
+		return true
+
+	# Restore every affected section if the save file could not be written.
+	saveData["courseContent"][courseSourceId] = previousCourseContent
+	saveData["courseData"][courseSourceId] = previousPlayerData
+	saveData["courseState"] = previousCourseState
+	activeCourseSourceId = previousActiveCourseSourceId
+	return false
+
 # Restores the default schema after a confirmed Reset Progress action.
 func ResetAllData() -> bool:
 	if coursePlayerDataWritesBlocked:

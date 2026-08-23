@@ -149,6 +149,40 @@ func SaveStudioCourse(
 		courseManager.ClearCourseContent(STUDIO_COURSE_SOURCE_ID)
 	return CreateOperationResult(true)
 
+# Restores one existing Studio workspace to an empty authoring draft.
+func ResetStudioCourse(courseManager: RefCounted, levelTypes: Dictionary) -> Dictionary:
+	if not HasStudioCourse():
+		return CreateOperationResult(false)
+
+	var studioCourse: Dictionary = GetStudioCourseData()
+	var studioMetadata: Dictionary = studioCourse.get("metadata", {}).duplicate(true)
+	var currentUnixMs: int = int(Time.get_unix_time_from_system() * 1000.0)
+	studioMetadata["lastModifiedAtUnixMs"] = currentUnixMs
+	studioMetadata["levelCount"] = 0
+	studioMetadata["questionCount"] = 0
+	var emptyStudioContent := {
+		"level_types": levelTypes.duplicate(true),
+		"levels": []
+	}
+	if not SaveManager.SetPersistedCourseContent(
+		STUDIO_COURSE_SOURCE_ID,
+		emptyStudioContent,
+		studioMetadata,
+		true
+	):
+		return CreateOperationResult(false)
+	courseManager.ClearCourseContent(STUDIO_COURSE_SOURCE_ID)
+	return CreateOperationResult(true)
+
+# Deletes the complete Studio workspace and its isolated player records.
+func DeleteStudioCourse(courseManager: RefCounted) -> Dictionary:
+	if not HasStudioCourse():
+		return CreateOperationResult(false)
+	if not SaveManager.ClearPersistedCourseContent(STUDIO_COURSE_SOURCE_ID):
+		return CreateOperationResult(false)
+	courseManager.ClearCourseContent(STUDIO_COURSE_SOURCE_ID)
+	return CreateOperationResult(true)
+
 # Counts authored Questions without requiring the draft to be playable yet.
 func CountQuestions(courseLevels: Array) -> int:
 	var questionCount := 0

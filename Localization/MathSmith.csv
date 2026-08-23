@@ -319,3 +319,27 @@ Preview Level,Preview Level,预览关卡
 Preview Unavailable,Preview Unavailable,无法预览
 Add at least one valid Question before previewing this Level.,Add at least one valid Question before previewing this Level.,请至少添加一道有效题目后再预览此关卡。
 Question %s: %s,Question %s: %s,题目 %s：%s
+Export Complete,Export Complete,导出完成
+Export Failed,Export Failed,导出失败
+Export Studio Course CSV,Export Studio Course CSV,导出 Studio 课程 CSV
+Export with Warnings,Export with Warnings,带警告导出
+Continue to Export,Continue to Export,继续导出
+Studio Course CSV was exported successfully.,Studio Course CSV was exported successfully.,Studio 课程 CSV 已成功导出。
+The Studio Course CSV could not be written.,The Studio Course CSV could not be written.,无法写入 Studio 课程 CSV。
+"This Studio Course has %d validation warnings. Review them if needed, or continue to export.","This Studio Course has %d validation warnings. Review them if needed, or continue to export.","此 Studio 课程有 %d 条验证警告。你可以先检查警告，也可以继续导出。"
+Remove Imported Course?,Remove Imported Course?,移除导入课程？
+This removes the Imported Course and its player progress. Core Curriculum and Studio Course will not be changed.,This removes the Imported Course and its player progress. Core Curriculum and Studio Course will not be changed.,这会移除导入课程及其玩家进度。核心课程和 Studio 课程不会改变。
+Reset Studio Course?,Reset Studio Course?,重置 Studio 课程？
+"This clears every Studio Level and Question while keeping the Studio Course workspace. This cannot be undone.","This clears every Studio Level and Question while keeping the Studio Course workspace. This cannot be undone.","这会清空全部 Studio 关卡和题目，但保留 Studio 课程工作区。此操作无法撤销。"
+Delete Studio Course?,Delete Studio Course?,删除 Studio 课程？
+This permanently deletes the Studio Course and its player progress. Core Curriculum and Imported Course will not be changed.,This permanently deletes the Studio Course and its player progress. Core Curriculum and Imported Course will not be changed.,这会永久删除 Studio 课程及其玩家进度。核心课程和导入课程不会改变。
+Imported Course Removed,Imported Course Removed,已移除导入课程
+Imported Course and its player progress were removed.,Imported Course and its player progress were removed.,已移除导入课程及其玩家进度。
+Studio Course Reset,Studio Course Reset,已重置 Studio 课程
+"Studio Levels, Questions, and player progress were cleared.","Studio Levels, Questions, and player progress were cleared.","已清空 Studio 关卡、题目和玩家进度。"
+Studio Course Deleted,Studio Course Deleted,已删除 Studio 课程
+Studio Course and its player progress were deleted.,Studio Course and its player progress were deleted.,已删除 Studio 课程及其玩家进度。
+Remove Failed,Remove Failed,移除失败
+Reset Failed,Reset Failed,重置失败
+Delete Failed,Delete Failed,删除失败
+The requested Course operation could not be completed.,The requested Course operation could not be completed.,无法完成请求的课程操作。

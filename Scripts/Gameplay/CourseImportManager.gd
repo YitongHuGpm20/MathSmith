@@ -115,6 +115,15 @@ func BuildImportMetadata(metadata: Dictionary, previousMetadata: Dictionary) -> 
 func HasMaterialContentChange(previousContent: Dictionary, newContent: Dictionary) -> bool:
 	return JSON.stringify(previousContent) != JSON.stringify(newContent)
 
+# Removes Imported content and only its Course-scoped player records.
+func RemoveImportedCourse(courseManager: RefCounted) -> Dictionary:
+	if not SaveManager.HasPersistedCourseContent(IMPORTED_COURSE_SOURCE_ID):
+		return CreateImportResult(false, false)
+	if not SaveManager.ClearPersistedCourseContent(IMPORTED_COURSE_SOURCE_ID):
+		return CreateImportResult(false, false)
+	courseManager.ClearCourseContent(IMPORTED_COURSE_SOURCE_ID)
+	return CreateImportResult(true, true)
+
 # Returns consistent operation feedback for the Teacher Dashboard.
 func CreateImportResult(succeeded: bool, playerDataReset: bool) -> Dictionary:
 	return {

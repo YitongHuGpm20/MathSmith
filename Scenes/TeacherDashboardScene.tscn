@@ -205,11 +205,13 @@ disabled = true
 text = "Export"
 
 [node name="RemoveButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/ActionGrid"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "Remove Imported Course"
+theme_override_colors/font_color = Color(1, 0.42, 0.46, 1)
 
 [node name="StudioCoursePanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid"]
 custom_minimum_size = Vector2(600, 610)
@@ -307,7 +309,8 @@ size_flags_horizontal = 3
 disabled = true
 text = "Preview"
 
-[node name="ExportButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+[node name="StudioExportButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -315,18 +318,22 @@ disabled = true
 text = "Export"
 
 [node name="ResetButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "Reset Studio Course"
+theme_override_colors/font_color = Color(1, 0.62, 0.3, 1)
 
 [node name="DeleteButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/ActionGrid"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "Delete Studio Course"
+theme_override_colors/font_color = Color(1, 0.42, 0.46, 1)
 
 [node name="ValidationOverlay" type="PanelContainer" parent="."]
 unique_name_in_owner = true
@@ -449,6 +456,47 @@ ok_button_text = "Validate"
 file_mode = 0
 access = 2
 filters = PackedStringArray("*.csv ; CSV Files")
+
+[node name="StudioExportFileDialog" type="FileDialog" parent="."]
+unique_name_in_owner = true
+title = "Export Studio Course CSV"
+initial_position = 2
+size = Vector2i(1100, 720)
+ok_button_text = "Export"
+file_mode = 4
+access = 2
+filters = PackedStringArray("*.csv ; CSV Files")
+
+[node name="ConfirmWarningExportDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Export with Warnings"
+initial_position = 2
+size = Vector2i(660, 280)
+ok_button_text = "Continue to Export"
+
+[node name="ConfirmRemoveImportedDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Remove Imported Course?"
+initial_position = 2
+size = Vector2i(680, 290)
+ok_button_text = "Remove Imported Course"
+dialog_text = "This removes the Imported Course and its player progress. Core Curriculum and Studio Course will not be changed."
+
+[node name="ConfirmResetStudioDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Reset Studio Course?"
+initial_position = 2
+size = Vector2i(680, 290)
+ok_button_text = "Reset Studio Course"
+dialog_text = "This clears every Studio Level and Question while keeping the Studio Course workspace. This cannot be undone."
+
+[node name="ConfirmDeleteStudioDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Delete Studio Course?"
+initial_position = 2
+size = Vector2i(680, 290)
+ok_button_text = "Delete Studio Course"
+dialog_text = "This permanently deletes the Studio Course and its player progress. Core Curriculum and Imported Course will not be changed."
 
 [node name="ConfirmImportDialog" type="ConfirmationDialog" parent="."]
 unique_name_in_owner = true

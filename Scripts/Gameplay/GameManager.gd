@@ -85,6 +85,8 @@ var activeSessionType: String = STANDARD_SESSION_TYPE
 var lobbyCategoryId: String = DEFAULT_LEVEL_TYPE_ID
 var sceneChangePending: bool = false
 var teacherPreviewReturnScenePath: String = TEACHER_DASHBOARD_SCENE_PATH
+var teacherPreviewReturnLevelId: String = ""
+var teacherPreviewReturnQuestionId: String = ""
 
 #endregion
 
@@ -337,6 +339,19 @@ func ReplaceImportedCourse(contentData: Dictionary, metadata: Dictionary) -> Dic
 		ResetLevelScoring()
 	return importResult
 
+# Removes Imported Course content and returns an active session to Core if needed.
+func RemoveImportedCourse() -> Dictionary:
+	var importedWasActive: bool = (
+		courseManager.GetCurrentCourseSourceId() == IMPORTED_COURSE_SOURCE_ID
+	)
+	var removeResult: Dictionary = courseImportManager.RemoveImportedCourse(courseManager)
+	if removeResult.get("succeeded", false) and importedWasActive:
+		ApplyCurrentCourseContent()
+		progressManager.ReloadPersistentProgress()
+		learningManager.Initialize()
+		ResetLevelScoring()
+	return removeResult
+
 # Creates the independent empty working dataset used by MathSmith Studio.
 func CreateNewStudioCourse() -> Dictionary:
 	var coreContentData: Dictionary = levelLoader.LoadContentData()
@@ -371,6 +386,35 @@ func SaveStudioCourse(studioContent: Dictionary, studioMetadata: Dictionary) -> 
 		progressManager.ReloadPersistentProgress()
 		learningManager.Initialize()
 	return saveResult
+
+# Clears authored Studio content while retaining an empty Studio workspace.
+func ResetStudioCourse() -> Dictionary:
+	var studioWasActive: bool = (
+		courseManager.GetCurrentCourseSourceId() == STUDIO_COURSE_SOURCE_ID
+	)
+	var coreContentData: Dictionary = levelLoader.LoadContentData()
+	var resetResult: Dictionary = studioCourseManager.ResetStudioCourse(
+		courseManager,
+		coreContentData.get("level_types", {})
+	)
+	if resetResult.get("succeeded", false):
+		if studioWasActive:
+			SaveManager.SetActiveCourseSource(courseManager.GetCurrentCourseSourceId())
+		ApplyCurrentCourseContent()
+		progressManager.ReloadPersistentProgress()
+		learningManager.Initialize()
+		ResetLevelScoring()
+	return resetResult
+
+# Deletes the complete Studio workspace and refreshes active Course state.
+func DeleteStudioCourse() -> Dictionary:
+	var deleteResult: Dictionary = studioCourseManager.DeleteStudioCourse(courseManager)
+	if deleteResult.get("succeeded", false):
+		ApplyCurrentCourseContent()
+		progressManager.ReloadPersistentProgress()
+		learningManager.Initialize()
+		ResetLevelScoring()
+	return deleteResult
 
 # Copies Imported Course content into an independently editable Studio dataset.
 func CopyImportedCourseToStudio(replaceExisting: bool) -> Dictionary:
@@ -604,7 +648,9 @@ func StartImportedCoursePreview(levelId: String) -> bool:
 		previewLevel,
 		importedLevelTypes,
 		importedLevels,
-		TEACHER_DASHBOARD_SCENE_PATH
+		TEACHER_DASHBOARD_SCENE_PATH,
+		"",
+		""
 	)
 
 # Starts the selected saved Studio Question through the real Game Scene.
@@ -637,11 +683,13 @@ func StartStudioQuestionPreview(levelId: String, questionId: String) -> bool:
 		previewLevel,
 		studioLevelTypes,
 		[previewLevel],
-		STUDIO_EDITOR_SCENE_PATH
+		STUDIO_EDITOR_SCENE_PATH,
+		levelId,
+		questionId
 	)
 
 # Starts the complete selected Studio Level from its first authored Question.
-func StartStudioLevelPreview(levelId: String) -> bool:
+func StartStudioLevelPreview(levelId: String, questionId: String = "") -> bool:
 	var studioCourse: Dictionary = studioCourseManager.GetStudioCourseData()
 	var studioContent: Dictionary = studioCourse.get("content", {})
 	var studioLevels: Array = studioContent.get("levels", [])
@@ -661,7 +709,9 @@ func StartStudioLevelPreview(levelId: String) -> bool:
 		previewLevel,
 		studioLevelTypes,
 		[previewLevel],
-		STUDIO_EDITOR_SCENE_PATH
+		STUDIO_EDITOR_SCENE_PATH,
+		levelId,
+		questionId
 	)
 
 # Configures one isolated real-gameplay preview with a contextual return target.
@@ -669,12 +719,16 @@ func StartTeacherPreviewSession(
 	previewLevel: Dictionary,
 	previewLevelTypes: Dictionary,
 	previewLevels: Array,
-	returnScenePath: String
+	returnScenePath: String,
+	returnLevelId: String,
+	returnQuestionId: String
 ) -> bool:
 	set_process(false)
 	activeSessionType = TEACHER_PREVIEW_SESSION_TYPE
 	SaveManager.SetCoursePlayerDataWritesBlocked(true)
 	teacherPreviewReturnScenePath = returnScenePath
+	teacherPreviewReturnLevelId = returnLevelId
+	teacherPreviewReturnQuestionId = returnQuestionId
 	levelTypes = previewLevelTypes.duplicate(true)
 	levels = previewLevels.duplicate(true)
 	selectedLevelTypeId = previewLevel.get("levelTypeId", "")
@@ -699,6 +753,16 @@ func GetTeacherPreviewReturnLabel() -> String:
 		if teacherPreviewReturnScenePath == STUDIO_EDITOR_SCENE_PATH
 		else "Return to Dashboard"
 	)
+
+# Returns and clears the Studio selection captured before the latest Preview.
+func ConsumeStudioEditorReturnSelection() -> Dictionary:
+	var returnSelection := {
+		"levelId": teacherPreviewReturnLevelId,
+		"questionId": teacherPreviewReturnQuestionId
+	}
+	teacherPreviewReturnLevelId = ""
+	teacherPreviewReturnQuestionId = ""
+	return returnSelection
 
 # Restores player Course context before returning to the originating authoring UI.
 func ReturnFromTeacherPreview() -> void:
