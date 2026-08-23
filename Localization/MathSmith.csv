@@ -274,3 +274,39 @@ Gameplay Mode,Gameplay Mode,玩法模式
 Skills,Skills,技能
 QUESTIONS,QUESTIONS,题目
 No Questions in this Level.,No Questions in this Level.,该关卡中没有题目。
+Level Name,Level Name,关卡名称
+Skill Tags,Skill Tags,技能标签
+Save Level,Save Level,保存关卡
+Move Up,Move Up,上移
+Move Down,Move Down,下移
+Delete Level,Delete Level,删除关卡
+Delete this Level and all of its Questions? This cannot be undone.,Delete this Level and all of its Questions? This cannot be undone.,删除此关卡及其全部题目？此操作无法撤销。
+Question ID,Question ID,题目 ID
+Expression,Expression,表达式
+Save Question,Save Question,保存题目
+Duplicate Question,Duplicate Question,复制题目
+Delete Question,Delete Question,删除题目
+Delete this Question? This cannot be undone.,Delete this Question? This cannot be undone.,删除此题目？此操作无法撤销。
+Question Cannot Be Saved,Question Cannot Be Saved,无法保存题目
+Question ID Required,Question ID Required,必须填写题目 ID
+Duplicate Question ID,Duplicate Question ID,题目 ID 重复
+VALID,VALID,有效
+WARNING,WARNING,警告
+ERROR,ERROR,错误
+Invalid Expression,Invalid Expression,无效表达式
+Expression is required.,Expression is required.,必须填写表达式。
+Enter a supported arithmetic expression.,Enter a supported arithmetic expression.,请输入受支持的算术表达式。
+Expression contains unsupported syntax.,Expression contains unsupported syntax.,表达式包含不受支持的语法。
+"Use whole numbers, spaces, +, -, *, /, and parentheses only.","Use whole numbers, spaces, +, -, *, /, and parentheses only.","仅使用整数、空格、+、-、*、/ 和括号。"
+ExpressionParser could not parse this expression.,ExpressionParser could not parse this expression.,ExpressionParser 无法解析此表达式。
+"Check operator order, numbers, and matching parentheses.","Check operator order, numbers, and matching parentheses.","请检查运算符顺序、数字和成对括号。"
+StepGenerator could not create a usable solution.,StepGenerator could not create a usable solution.,StepGenerator 无法生成可用的解题过程。
+Use a supported expression containing at least one operation.,Use a supported expression containing at least one operation.,请使用至少包含一种运算的受支持表达式。
+Expression is valid and generates %d solution steps.,Expression is valid and generates %d solution steps.,表达式有效，可生成 %d 个解题步骤。
+Select or add a Question to validate its Expression.,Select or add a Question to validate its Expression.,选择或新增题目以验证其表达式。
+Expression divides by zero.,Expression divides by zero.,表达式包含除以零。
+Change the divisor so it cannot evaluate to zero.,Change the divisor so it cannot evaluate to zero.,请修改除数，使其结果不会为零。
+Division creates a decimal intermediate result.,Division creates a decimal intermediate result.,除法产生了小数中间结果。
+Use values that divide evenly into whole numbers.,Use values that divide evenly into whole numbers.,请使用能够整除并得到整数的数值。
+Generated solution is unusually long (%d steps).,Generated solution is unusually long (%d steps).,生成的解题过程异常冗长（%d 步）。
+Preview the Question and review its readability.,Preview the Question and review its readability.,请预览题目并检查步骤的可读性。

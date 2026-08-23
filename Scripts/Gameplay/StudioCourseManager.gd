@@ -110,6 +110,45 @@ func GetStudioCourseSummary() -> Dictionary:
 func GetStudioCourseData() -> Dictionary:
 	return SaveManager.GetPersistedCourseContent(STUDIO_COURSE_SOURCE_ID)
 
+# Persists an edited Studio draft and refreshes its playable runtime state.
+func SaveStudioCourse(
+	courseManager: RefCounted,
+	studioContent: Dictionary,
+	studioMetadata: Dictionary
+) -> Dictionary:
+	if studioContent.is_empty():
+		return CreateOperationResult(false)
+
+	var previousStudioCourse := GetStudioCourseData()
+	var previousContent: Dictionary = previousStudioCourse.get("content", {})
+	var contentChanged := JSON.stringify(previousContent) != JSON.stringify(studioContent)
+	var updatedMetadata := studioMetadata.duplicate(true)
+	updatedMetadata["courseSource"] = STUDIO_COURSE_SOURCE_ID
+	updatedMetadata["displayName"] = "Studio Course"
+	updatedMetadata["levelCount"] = studioContent.get("levels", []).size()
+	updatedMetadata["questionCount"] = CountQuestions(studioContent.get("levels", []))
+	updatedMetadata["lastModifiedAtUnixMs"] = int(
+		Time.get_unix_time_from_system() * 1000.0
+	)
+	if not SaveManager.SetPersistedCourseContent(
+		STUDIO_COURSE_SOURCE_ID,
+		studioContent,
+		updatedMetadata,
+		contentChanged
+	):
+		return CreateOperationResult(false)
+
+	# Incomplete drafts remain authorable but unavailable to normal players.
+	if courseManager.IsUsableContent(studioContent):
+		courseManager.RegisterCourseContent(
+			STUDIO_COURSE_SOURCE_ID,
+			studioContent,
+			updatedMetadata
+		)
+	else:
+		courseManager.ClearCourseContent(STUDIO_COURSE_SOURCE_ID)
+	return CreateOperationResult(true)
+
 # Counts authored Questions without requiring the draft to be playable yet.
 func CountQuestions(courseLevels: Array) -> int:
 	var questionCount := 0

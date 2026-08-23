@@ -140,9 +140,9 @@ text = "No Levels yet. Level editing is the next M6 step."
 autowrap_mode = 2
 
 [node name="AddLevelButton" type="Button" parent="MainMargin/PageLayout/Workspace/LevelPanel/Margin/Content"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-disabled = true
 text = "+ Add Level"
 
 [node name="DetailPanel" type="PanelContainer" parent="MainMargin/PageLayout/Workspace"]
@@ -197,6 +197,76 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "—"
 
+[node name="EditGrid" type="GridContainer" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="NameLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/EditGrid"]
+layout_mode = 2
+text = "Level Name"
+
+[node name="LevelNameEdit" type="LineEdit" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/EditGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Level Name"
+
+[node name="TypeLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/EditGrid"]
+layout_mode = 2
+text = "Gameplay Mode"
+
+[node name="LevelTypeOption" type="OptionButton" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/EditGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TagsLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/EditGrid"]
+layout_mode = 2
+text = "Skill Tags"
+
+[node name="SkillTagsEdit" type="LineEdit" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/EditGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "addition, decomposition"
+
+[node name="LevelActions" type="HBoxContainer" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SaveLevelButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/LevelActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 44)
+layout_mode = 2
+text = "Save Level"
+
+[node name="MoveLevelUpButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/LevelActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 44)
+layout_mode = 2
+text = "Move Up"
+
+[node name="MoveLevelDownButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/LevelActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 44)
+layout_mode = 2
+text = "Move Down"
+
+[node name="ActionSpacer" type="Control" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/LevelActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DeleteLevelButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/LevelActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 44)
+layout_mode = 2
+text = "Delete Level"
+
 [node name="QuestionDivider" type="HSeparator" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
 layout_mode = 2
 
@@ -223,10 +293,94 @@ theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
 text = "No Questions in this Level."
 
 [node name="AddQuestionButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-disabled = true
 text = "+ Add Question"
+
+[node name="QuestionEditGrid" type="GridContainer" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="IdLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionEditGrid"]
+layout_mode = 2
+text = "Question ID"
+
+[node name="QuestionIdEdit" type="LineEdit" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionEditGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ExpressionLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionEditGrid"]
+layout_mode = 2
+text = "Expression"
+
+[node name="ExpressionEdit" type="LineEdit" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionEditGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "18 + 12 / 3 - 4"
+
+[node name="ExpressionValidationLabel" type="Label" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
+theme_override_font_sizes/font_size = 14
+text = "Select or add a Question to validate its Expression."
+autowrap_mode = 2
+
+[node name="QuestionActions" type="HBoxContainer" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SaveQuestionButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 42)
+layout_mode = 2
+text = "Save Question"
+
+[node name="DuplicateQuestionButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 42)
+layout_mode = 2
+text = "Duplicate Question"
+
+[node name="QuestionActionSpacer" type="Control" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DeleteQuestionButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 42)
+layout_mode = 2
+text = "Delete Question"
 
 [node name="SettingsPanel" parent="." instance=ExtResource("5_settings_panel")]
 layout_mode = 1
+
+[node name="ConfirmDeleteLevelDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Delete Level"
+initial_position = 2
+size = Vector2i(640, 260)
+ok_button_text = "Delete Level"
+dialog_text = "Delete this Level and all of its Questions? This cannot be undone."
+
+[node name="ConfirmDeleteQuestionDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Delete Question"
+initial_position = 2
+size = Vector2i(620, 250)
+ok_button_text = "Delete Question"
+dialog_text = "Delete this Question? This cannot be undone."
+
+[node name="QuestionNoticeDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "Question Cannot Be Saved"
+initial_position = 2
+size = Vector2i(580, 220)

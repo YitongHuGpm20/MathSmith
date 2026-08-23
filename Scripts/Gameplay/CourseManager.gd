@@ -153,12 +153,29 @@ func CreateEmptyCourseSource(courseSourceId: String) -> Dictionary:
 
 # Checks the minimal normalized runtime shape without duplicating validation.
 func IsUsableContent(contentData: Dictionary) -> bool:
-	return (
-		contentData.get("level_types", {}) is Dictionary
-		and not contentData.get("level_types", {}).is_empty()
-		and contentData.get("levels", []) is Array
-		and not contentData.get("levels", []).is_empty()
-	)
+	if not contentData.get("level_types", {}) is Dictionary:
+		return false
+	if contentData.get("level_types", {}).is_empty():
+		return false
+	if not contentData.get("levels", []) is Array:
+		return false
+	var courseLevels: Array = contentData.get("levels", [])
+	if courseLevels.is_empty():
+		return false
+	for levelValue in courseLevels:
+		if not levelValue is Dictionary:
+			return false
+		var questions: Array = levelValue.get("questions", [])
+		if questions.is_empty():
+			return false
+		for questionValue in questions:
+			if not questionValue is Dictionary:
+				return false
+			if str(questionValue.get("id", "")).is_empty():
+				return false
+			if str(questionValue.get("expression", "")).is_empty():
+				return false
+	return true
 
 # Counts Questions across all Levels for lightweight Course metadata.
 func CountQuestions(courseLevels: Array) -> int:

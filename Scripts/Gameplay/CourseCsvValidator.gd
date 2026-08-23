@@ -379,63 +379,94 @@ func ValidateQuestionExpression(questionRecord: Dictionary, report: Dictionary) 
 	var expression: String = fields.get("expression", "")
 	if expression.is_empty():
 		return
+	var validationResult := ValidateExpressionForAuthoring(expression)
+	if validationResult.get("severity", VALID_SEVERITY) == VALID_SEVERITY:
+		return
+	AddRowIssue(
+		report,
+		questionRecord,
+		"expression",
+		validationResult.get("severity", ERROR_SEVERITY),
+		validationResult.get("message", "Expression cannot be validated."),
+		validationResult.get("suggestedAction", "Revise the mathematical expression.")
+	)
 
-	if not MatchesPattern(expression, EXPRESSION_CHARACTER_PATTERN):
-		AddRowIssue(
-			report,
-			questionRecord,
-			"expression",
+# Returns deterministic live authoring feedback using the production math pipeline.
+func ValidateExpressionForAuthoring(expression: String) -> Dictionary:
+	var normalizedExpression := expression.strip_edges()
+	if normalizedExpression.is_empty():
+		return CreateExpressionValidationResult(
+			false,
+			ERROR_SEVERITY,
+			"Expression is required.",
+			"Enter a supported arithmetic expression."
+		)
+	if not MatchesPattern(normalizedExpression, EXPRESSION_CHARACTER_PATTERN):
+		return CreateExpressionValidationResult(
+			false,
 			ERROR_SEVERITY,
 			"Expression contains unsupported syntax.",
 			"Use whole numbers, spaces, +, -, *, /, and parentheses only."
 		)
-		return
 
-	var expressionTree: Dictionary = expressionParser.ParseExpression(expression)
+	var expressionTree: Dictionary = expressionParser.ParseExpression(normalizedExpression)
 	if expressionTree.is_empty():
-		AddRowIssue(
-			report,
-			questionRecord,
-			"expression",
+		return CreateExpressionValidationResult(
+			false,
 			ERROR_SEVERITY,
 			"ExpressionParser could not parse this expression.",
 			"Check operator order, numbers, and matching parentheses."
 		)
-		return
 
 	var arithmeticCheck := ValidateIntegerArithmetic(expressionTree)
 	if not arithmeticCheck.get("valid", false):
-		AddRowIssue(
-			report,
-			questionRecord,
-			"expression",
+		return CreateExpressionValidationResult(
+			false,
 			ERROR_SEVERITY,
 			arithmeticCheck.get("message", "Expression cannot be evaluated safely."),
 			arithmeticCheck.get("suggestedAction", "Revise the mathematical expression.")
 		)
-		return
 
-	var generatedSteps: Array[String] = stepGenerator.GenerateSteps(expression)
+	var generatedSteps: Array[String] = stepGenerator.GenerateSteps(normalizedExpression)
 	if generatedSteps.is_empty():
-		AddRowIssue(
-			report,
-			questionRecord,
-			"expression",
+		return CreateExpressionValidationResult(
+			false,
 			ERROR_SEVERITY,
 			"StepGenerator could not create a usable solution.",
 			"Use a supported expression containing at least one operation."
 		)
-		return
-
 	if generatedSteps.size() > LONG_SOLUTION_STEP_COUNT:
-		AddRowIssue(
-			report,
-			questionRecord,
-			"expression",
+		return CreateExpressionValidationResult(
+			true,
 			WARNING_SEVERITY,
 			"Generated solution is unusually long (%d steps)." % generatedSteps.size(),
-			"Preview the Question and review its readability."
+			"Preview the Question and review its readability.",
+			generatedSteps
 		)
+	return CreateExpressionValidationResult(
+		true,
+		VALID_SEVERITY,
+		"Expression is valid and generates %d solution steps." % generatedSteps.size(),
+		"",
+		generatedSteps
+	)
+
+# Builds one reusable live-validation response for Studio and later previews.
+func CreateExpressionValidationResult(
+	valid: bool,
+	severity: String,
+	message: String,
+	suggestedAction: String,
+	generatedSteps: Array[String] = []
+) -> Dictionary:
+	return {
+		"valid": valid,
+		"severity": severity,
+		"message": message,
+		"suggestedAction": suggestedAction,
+		"generatedSteps": generatedSteps.duplicate(),
+		"stepCount": generatedSteps.size()
+	}
 
 # Recursively rejects division by zero and decimal intermediate results.
 func ValidateIntegerArithmetic(expressionNode: Dictionary) -> Dictionary:

@@ -351,6 +351,26 @@ func GetStudioCourseSummary() -> Dictionary:
 func GetStudioCourseData() -> Dictionary:
 	return studioCourseManager.GetStudioCourseData()
 
+# Persists Studio editor changes and synchronizes any active player context.
+func SaveStudioCourse(studioContent: Dictionary, studioMetadata: Dictionary) -> Dictionary:
+	var studioWasActive := (
+		courseManager.GetCurrentCourseSourceId() == STUDIO_COURSE_SOURCE_ID
+	)
+	var saveResult: Dictionary = studioCourseManager.SaveStudioCourse(
+		courseManager,
+		studioContent,
+		studioMetadata
+	)
+	if not saveResult.get("succeeded", false):
+		return saveResult
+
+	if studioWasActive:
+		SaveManager.SetActiveCourseSource(courseManager.GetCurrentCourseSourceId())
+		ApplyCurrentCourseContent()
+		progressManager.ReloadPersistentProgress()
+		learningManager.Initialize()
+	return saveResult
+
 # Copies Imported Course content into an independently editable Studio dataset.
 func CopyImportedCourseToStudio(replaceExisting: bool) -> Dictionary:
 	var importedCourse := SaveManager.GetPersistedCourseContent(
