@@ -442,7 +442,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(176, 48)
 layout_mode = 2
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
 theme_override_font_sizes/font_size = 17
 text = "Teacher Tools"
 icon = ExtResource("11_teacher")

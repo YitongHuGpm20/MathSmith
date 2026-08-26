@@ -42,6 +42,7 @@ const ALLOWED_RECORD_FIELDS: Dictionary = {
 #region ========== References ==========
 
 var expressionParser := preload("res://Scripts/Math/ExpressionParser.gd").new()
+var expressionFormatter := preload("res://Scripts/Math/ExpressionFormatter.gd").new()
 var stepGenerator := preload("res://Scripts/Math/StepGenerator.gd").new()
 var csvParser := preload("res://Scripts/Gameplay/CourseCsvParser.gd").new()
 
@@ -393,7 +394,8 @@ func ValidateQuestionExpression(questionRecord: Dictionary, report: Dictionary) 
 
 # Returns deterministic live authoring feedback using the production math pipeline.
 func ValidateExpressionForAuthoring(expression: String) -> Dictionary:
-	var normalizedExpression := expression.strip_edges()
+	var formattedExpression := expressionFormatter.FormatForAuthoring(expression)
+	var normalizedExpression := expressionFormatter.ToParserExpression(formattedExpression)
 	if normalizedExpression.is_empty():
 		return CreateExpressionValidationResult(
 			false,
@@ -406,7 +408,7 @@ func ValidateExpressionForAuthoring(expression: String) -> Dictionary:
 			false,
 			ERROR_SEVERITY,
 			"Expression contains unsupported syntax.",
-			"Use whole numbers, spaces, +, -, *, /, and parentheses only."
+			"Use whole numbers, spaces, +, -, x, /, and parentheses only."
 		)
 
 	var expressionTree: Dictionary = expressionParser.ParseExpression(normalizedExpression)
@@ -427,7 +429,7 @@ func ValidateExpressionForAuthoring(expression: String) -> Dictionary:
 			arithmeticCheck.get("suggestedAction", "Revise the mathematical expression.")
 		)
 
-	var generatedSteps: Array[String] = stepGenerator.GenerateSteps(normalizedExpression)
+	var generatedSteps: Array[String] = stepGenerator.GenerateSteps(formattedExpression)
 	if generatedSteps.is_empty():
 		return CreateExpressionValidationResult(
 			false,

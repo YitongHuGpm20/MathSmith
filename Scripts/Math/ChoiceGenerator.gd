@@ -49,8 +49,8 @@ func BuildChoiceOptions(correctStep: String, candidateCount: int) -> Array[Strin
 		var operatorChanges := {
 			" + ": " - ",
 			" - ": " + ",
-			" * ": " + ",
-			" / ": " * "
+			" x ": " + ",
+			" / ": " x "
 		}
 
 		for sourceOperator in operatorChanges:

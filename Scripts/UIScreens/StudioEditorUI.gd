@@ -35,9 +35,9 @@ extends Control
 @onready var duplicateQuestionButton: Button = %DuplicateQuestionButton
 @onready var previewQuestionButton: Button = %PreviewQuestionButton
 @onready var deleteQuestionButton: Button = %DeleteQuestionButton
-@onready var confirmDeleteLevelDialog: ConfirmationDialog = %ConfirmDeleteLevelDialog
-@onready var confirmDeleteQuestionDialog: ConfirmationDialog = %ConfirmDeleteQuestionDialog
-@onready var questionNoticeDialog: AcceptDialog = %QuestionNoticeDialog
+@onready var confirmDeleteLevelDialog = %ConfirmDeleteLevelDialog
+@onready var confirmDeleteQuestionDialog = %ConfirmDeleteQuestionDialog
+@onready var questionNoticeDialog = %QuestionNoticeDialog
 @onready var solutionExpressionLabel: Label = %SolutionExpressionLabel
 @onready var solutionStepList: VBoxContainer = %SolutionStepList
 @onready var solutionEmptyLabel: Label = %SolutionEmptyLabel
@@ -55,6 +55,7 @@ var authoringManager := preload(
 	"res://Scripts/Gameplay/AuthoringManager.gd"
 ).new()
 var currentExpressionValidation: Dictionary = {}
+var formattingExpressionInput: bool = false
 
 #endregion
 
@@ -69,21 +70,29 @@ func _ready() -> void:
 	previewLevelButton.pressed.connect(PreviewSelectedLevel)
 	moveLevelUpButton.pressed.connect(MoveSelectedLevel.bind(-1))
 	moveLevelDownButton.pressed.connect(MoveSelectedLevel.bind(1))
-	deleteLevelButton.pressed.connect(confirmDeleteLevelDialog.popup_centered)
+	deleteLevelButton.pressed.connect(confirmDeleteLevelDialog.Open)
 	confirmDeleteLevelDialog.confirmed.connect(DeleteSelectedLevel)
 	addQuestionButton.pressed.connect(AddQuestion)
 	saveQuestionButton.pressed.connect(SaveSelectedQuestion)
 	duplicateQuestionButton.pressed.connect(DuplicateSelectedQuestion)
 	previewQuestionButton.pressed.connect(PreviewSelectedQuestion)
-	deleteQuestionButton.pressed.connect(confirmDeleteQuestionDialog.popup_centered)
+	deleteQuestionButton.pressed.connect(confirmDeleteQuestionDialog.Open)
 	confirmDeleteQuestionDialog.confirmed.connect(DeleteSelectedQuestion)
 	expressionEdit.text_changed.connect(ValidateExpressionLive)
+	expressionEdit.focus_exited.connect(FormatExpressionInput)
+	ConfigureDialogPresentation()
 	LoadStudioCourse()
 	dashboardButton.grab_focus()
 
 #endregion
 
 #region ========== Functions ==========
+
+# Keeps editor notices and destructive confirmations consistent with M6 UI.
+func ConfigureDialogPresentation() -> void:
+	# Custom Teacher popups own their primary and destructive button hierarchy.
+	pass
+
 
 # Loads an isolated authoring snapshot and builds the editor navigation.
 func LoadStudioCourse() -> void:
@@ -315,7 +324,9 @@ func SelectQuestion(questionIndex: int) -> void:
 	selectedQuestionIndex = questionIndex
 	var questionData: Dictionary = questions[questionIndex]
 	questionIdEdit.text = questionData.get("id", "")
-	expressionEdit.text = questionData.get("expression", "")
+	expressionEdit.text = authoringManager.FormatExpression(
+		questionData.get("expression", "")
+	)
 	ValidateExpressionLive(expressionEdit.text)
 	SetQuestionEditingEnabled(true)
 
@@ -353,6 +364,7 @@ func ApplySelectedQuestionFields() -> bool:
 			tr("Question ID Required") if questionId.is_empty() else tr("Duplicate Question ID")
 		)
 		return false
+	FormatExpressionInput()
 	currentExpressionValidation = authoringManager.ValidateExpression(
 		expressionEdit.text
 	)
@@ -427,9 +439,8 @@ func ValidateLevelForPreview(levelData: Dictionary) -> bool:
 
 # Shows why a Level cannot enter real-gameplay Preview yet.
 func ShowPreviewNotice(message: String) -> void:
-	questionNoticeDialog.title = tr("Preview Unavailable")
-	questionNoticeDialog.dialog_text = message
-	questionNoticeDialog.popup_centered()
+	questionNoticeDialog.SetContent(tr("Preview Unavailable"), message, tr("OK"))
+	questionNoticeDialog.Open()
 
 # Creates an independent copy with a generated unique Question ID.
 func DuplicateSelectedQuestion() -> void:
@@ -502,12 +513,24 @@ func IsQuestionIdUsedElsewhere(
 
 # Shows a focused authoring error without mutating the current draft.
 func ShowQuestionNotice(message: String) -> void:
-	questionNoticeDialog.title = tr("Question Cannot Be Saved")
-	questionNoticeDialog.dialog_text = message
-	questionNoticeDialog.popup_centered()
+	questionNoticeDialog.SetContent(tr("Question Cannot Be Saved"), message, tr("OK"))
+	questionNoticeDialog.Open()
 
 # Updates deterministic validation feedback after every Expression edit.
 func ValidateExpressionLive(expression: String) -> void:
+	if formattingExpressionInput:
+		return
+
+	# Accept familiar multiplication symbols immediately without moving the caret.
+	var normalizedMultiplication := expression.replace("*", "x").replace("X", "x").replace("×", "x")
+	if normalizedMultiplication != expression:
+		var caretPosition := expressionEdit.caret_column
+		formattingExpressionInput = true
+		expressionEdit.text = normalizedMultiplication
+		expressionEdit.caret_column = mini(caretPosition, normalizedMultiplication.length())
+		formattingExpressionInput = false
+		expression = normalizedMultiplication
+
 	currentExpressionValidation = authoringManager.ValidateExpression(
 		expression
 	)
@@ -543,13 +566,24 @@ func ValidateExpressionLive(expression: String) -> void:
 			)
 	RefreshGeneratedSolutionPreview(expression, currentExpressionValidation)
 
+# Applies final spacing when editing finishes or before the Question is saved.
+func FormatExpressionInput() -> void:
+	var formattedExpression: String = authoringManager.FormatExpression(expressionEdit.text)
+	if formattedExpression == expressionEdit.text:
+		return
+	formattingExpressionInput = true
+	expressionEdit.text = formattedExpression
+	expressionEdit.caret_column = formattedExpression.length()
+	formattingExpressionInput = false
+	ValidateExpressionLive(formattedExpression)
+
 # Displays the real generated teaching sequence for the current Expression.
 func RefreshGeneratedSolutionPreview(
 	expression: String,
 	validationResult: Dictionary
 ) -> void:
 	ClearGeneratedStepRows()
-	var normalizedExpression := expression.strip_edges()
+	var normalizedExpression: String = authoringManager.FormatExpression(expression)
 	solutionExpressionLabel.text = normalizedExpression if not normalizedExpression.is_empty() else "—"
 	var generatedSteps: Array = validationResult.get("generatedSteps", [])
 	var canPreview: bool = (

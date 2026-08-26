@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UIScreens/StudioEditorUI.gd" id="1_script"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://Assets/Icons/settings.svg" id="4_settings"]
 [ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="5_settings_panel"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/play.svg" id="6_play"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/TeacherConfirmationPopup.tscn" id="7_confirm_popup"]
 
 [node name="StudioEditorScene" type="Control"]
 layout_mode = 3
@@ -31,20 +32,20 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 58.0
-offset_top = 38.0
-offset_right = -58.0
-offset_bottom = -38.0
+offset_left = 64.0
+offset_top = 40.0
+offset_right = -64.0
+offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PageLayout" type="VBoxContainer" parent="MainMargin"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 24
 
 [node name="Header" type="HBoxContainer" parent="MainMargin/PageLayout"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
 [node name="Brand" type="VBoxContainer" parent="MainMargin/PageLayout/Header"]
 layout_mode = 2
@@ -71,7 +72,7 @@ vertical_alignment = 1
 
 [node name="SettingsButton" type="Button" parent="MainMargin/PageLayout/Header"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(142, 48)
+custom_minimum_size = Vector2(152, 48)
 layout_mode = 2
 text = "Settings"
 icon = ExtResource("4_settings")
@@ -245,6 +246,7 @@ theme_override_constants/separation = 10
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 44)
 layout_mode = 2
+theme_type_variation = &"ButtonPrimary"
 text = "Save Level"
 
 [node name="PreviewLevelButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/LevelActions"]
@@ -275,6 +277,7 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 44)
 layout_mode = 2
+theme_type_variation = &"ButtonDanger"
 text = "Delete Level"
 
 [node name="QuestionDivider" type="HSeparator" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content"]
@@ -352,6 +355,7 @@ theme_override_constants/separation = 10
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 42)
 layout_mode = 2
+theme_type_variation = &"ButtonPrimary"
 text = "Save Question"
 
 [node name="DuplicateQuestionButton" type="Button" parent="MainMargin/PageLayout/Workspace/DetailPanel/Margin/Content/QuestionActions"]
@@ -376,6 +380,7 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 42)
 layout_mode = 2
+theme_type_variation = &"ButtonDanger"
 text = "Delete Question"
 
 [node name="SolutionPanel" type="PanelContainer" parent="MainMargin/PageLayout/Workspace"]
@@ -440,24 +445,22 @@ autowrap_mode = 2
 [node name="SettingsPanel" parent="." instance=ExtResource("5_settings_panel")]
 layout_mode = 1
 
-[node name="ConfirmDeleteLevelDialog" type="ConfirmationDialog" parent="."]
+[node name="ConfirmDeleteLevelDialog" parent="." instance=ExtResource("7_confirm_popup")]
 unique_name_in_owner = true
-title = "Delete Level"
-initial_position = 2
-size = Vector2i(640, 260)
-ok_button_text = "Delete Level"
-dialog_text = "Delete this Level and all of its Questions? This cannot be undone."
+popupTitle = "Delete Level"
+message = "Delete this Level and all of its Questions? This cannot be undone."
+confirmText = "Delete Level"
+dangerous = true
 
-[node name="ConfirmDeleteQuestionDialog" type="ConfirmationDialog" parent="."]
+[node name="ConfirmDeleteQuestionDialog" parent="." instance=ExtResource("7_confirm_popup")]
 unique_name_in_owner = true
-title = "Delete Question"
-initial_position = 2
-size = Vector2i(620, 250)
-ok_button_text = "Delete Question"
-dialog_text = "Delete this Question? This cannot be undone."
+popupTitle = "Delete Question"
+message = "Delete this Question? This cannot be undone."
+confirmText = "Delete Question"
+dangerous = true
 
-[node name="QuestionNoticeDialog" type="AcceptDialog" parent="."]
+[node name="QuestionNoticeDialog" parent="." instance=ExtResource("7_confirm_popup")]
 unique_name_in_owner = true
-title = "Question Cannot Be Saved"
-initial_position = 2
-size = Vector2i(580, 220)
+popupTitle = "Question Cannot Be Saved"
+confirmText = "OK"
+showCancel = false

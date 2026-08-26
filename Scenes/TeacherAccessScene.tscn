@@ -39,9 +39,11 @@ offset_bottom = -40.0
 
 [node name="PageLayout" type="VBoxContainer" parent="MainMargin"]
 layout_mode = 2
+theme_override_constants/separation = 24
 
 [node name="Header" type="HBoxContainer" parent="MainMargin/PageLayout"]
 layout_mode = 2
+theme_override_constants/separation = 12
 
 [node name="BackButton" type="Button" parent="MainMargin/PageLayout/Header"]
 unique_name_in_owner = true
@@ -132,6 +134,7 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
+theme_type_variation = &"ButtonPrimary"
 text = "Continue"
 icon = ExtResource("6_continue")
 icon_max_width = 18

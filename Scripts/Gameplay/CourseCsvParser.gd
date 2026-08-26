@@ -4,6 +4,12 @@
 ## It intentionally does not validate IDs, expressions, pedagogy, or import safety.
 extends RefCounted
 
+#region ========== References ==========
+
+var expressionFormatter := preload("res://Scripts/Math/ExpressionFormatter.gd").new()
+
+#endregion
+
 #region ========== Constants ==========
 
 const CSV_SCHEMA_VERSION: int = 1
@@ -168,7 +174,9 @@ func BuildRuntimeContent(parseResult: Dictionary) -> Dictionary:
 		var levelIndex: int = runtimeLevelIndexes[parentLevelId]
 		runtimeLevels[levelIndex]["questions"].append({
 			"id": fields.get("question_id", ""),
-			"expression": fields.get("expression", "")
+			"expression": expressionFormatter.FormatForAuthoring(
+				fields.get("expression", "")
+			)
 		})
 
 	return {

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UIScreens/TeacherDashboardUI.gd" id="1_script"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" path="res://Assets/Icons/replay.svg" id="11_reset"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/incorrect.svg" id="12_delete"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/steps.svg" id="13_editor"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/TeacherConfirmationPopup.tscn" id="14_confirm_popup"]
 
 [node name="TeacherDashboardScene" type="Control"]
 layout_mode = 3
@@ -45,9 +46,11 @@ offset_bottom = -40.0
 
 [node name="PageLayout" type="VBoxContainer" parent="MainMargin"]
 layout_mode = 2
+theme_override_constants/separation = 24
 
 [node name="Header" type="HBoxContainer" parent="MainMargin/PageLayout"]
 layout_mode = 2
+theme_override_constants/separation = 12
 
 [node name="HomeButton" type="Button" parent="MainMargin/PageLayout/Header"]
 unique_name_in_owner = true
@@ -80,7 +83,7 @@ theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="MainMargin/PageLayout/DashboardContent/TitleBlock"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 46
 text = "Teacher Dashboard"
 
 [node name="Description" type="Label" parent="MainMargin/PageLayout/DashboardContent/TitleBlock"]
@@ -137,6 +140,7 @@ autowrap_mode = 2
 [node name="StatusPanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
 custom_minimum_size = Vector2(0, 132)
 layout_mode = 2
+theme_type_variation = &"PanelInset"
 
 [node name="StatusMargin" type="MarginContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content/StatusPanel"]
 layout_mode = 2
@@ -161,11 +165,13 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
 theme_override_font_sizes/font_size = 15
 text = "Create or import content to make this Course available."
+autowrap_mode = 2
 
 [node name="ImportCsvButton" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/ImportedCoursePanel/Margin/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
+theme_type_variation = &"ButtonPrimary"
 text = "Import / Replace CSV"
 tooltip_text = "Select and validate a MathSmith Course CSV. Existing content changes only after confirmation."
 icon = ExtResource("6_imported")
@@ -203,6 +209,7 @@ custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
+theme_type_variation = &"ButtonDanger"
 text = "Remove Imported Course"
 theme_override_colors/font_color = Color(1, 0.42, 0.46, 1)
 icon = ExtResource("12_delete")
@@ -245,6 +252,7 @@ autowrap_mode = 2
 [node name="StatusPanel" type="PanelContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
 custom_minimum_size = Vector2(0, 132)
 layout_mode = 2
+theme_type_variation = &"PanelInset"
 
 [node name="StatusMargin" type="MarginContainer" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content/StatusPanel"]
 layout_mode = 2
@@ -269,11 +277,13 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.52, 0.62, 0.74, 1)
 theme_override_font_sizes/font_size = 15
 text = "Create or import content to make this Course available."
+autowrap_mode = 2
 
 [node name="PrimaryAction" type="Button" parent="MainMargin/PageLayout/DashboardContent/WorkspaceGrid/StudioCoursePanel/Margin/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
+theme_type_variation = &"ButtonPrimary"
 text = "Open Visual Course Editor"
 tooltip_text = "Edit Levels and Questions in the persistent Studio workspace."
 icon = ExtResource("13_editor")
@@ -291,6 +301,7 @@ custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = false
+theme_type_variation = &"ButtonPrimary"
 text = "Create New Studio Course"
 icon = ExtResource("9_studio")
 icon_max_width = 18
@@ -332,6 +343,7 @@ custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
+theme_type_variation = &"ButtonDanger"
 text = "Delete Studio Course"
 theme_override_colors/font_color = Color(1, 0.42, 0.46, 1)
 icon = ExtResource("12_delete")
@@ -346,6 +358,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_type_variation = &"PanelOverlay"
 
 [node name="OverlayMargin" type="MarginContainer" parent="ValidationOverlay"]
 layout_mode = 2
@@ -451,6 +464,7 @@ text = "Import Course"
 
 [node name="CsvFileDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
+theme = ExtResource("2_theme")
 title = "Select MathSmith Course CSV"
 initial_position = 2
 size = Vector2i(1100, 720)
@@ -461,6 +475,7 @@ filters = PackedStringArray("*.csv ; CSV Files")
 
 [node name="StudioExportFileDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
+theme = ExtResource("2_theme")
 title = "Export Studio Course CSV"
 initial_position = 2
 size = Vector2i(1100, 720)
@@ -469,59 +484,51 @@ file_mode = 4
 access = 2
 filters = PackedStringArray("*.csv ; CSV Files")
 
-[node name="ConfirmWarningExportDialog" type="ConfirmationDialog" parent="."]
+[node name="ConfirmWarningExportDialog" parent="." instance=ExtResource("14_confirm_popup")]
 unique_name_in_owner = true
-title = "Export with Warnings"
-initial_position = 2
-size = Vector2i(660, 280)
-ok_button_text = "Continue to Export"
+popupTitle = "Export with Warnings"
+confirmText = "Continue to Export"
 
-[node name="ConfirmRemoveImportedDialog" type="ConfirmationDialog" parent="."]
+[node name="ConfirmRemoveImportedDialog" parent="." instance=ExtResource("14_confirm_popup")]
 unique_name_in_owner = true
-title = "Remove Imported Course?"
-initial_position = 2
-size = Vector2i(680, 290)
-ok_button_text = "Remove Imported Course"
-dialog_text = "This removes the Imported Course and its player progress. Core Curriculum and Studio Course will not be changed."
+popupTitle = "Remove Imported Course?"
+message = "This removes the Imported Course and its player progress. Core Curriculum and Studio Course will not be changed."
+confirmText = "Remove Imported Course"
+dangerous = true
 
-[node name="ConfirmResetStudioDialog" type="ConfirmationDialog" parent="."]
+[node name="ConfirmResetStudioDialog" parent="." instance=ExtResource("14_confirm_popup")]
 unique_name_in_owner = true
-title = "Reset Studio Course?"
-initial_position = 2
-size = Vector2i(680, 290)
-ok_button_text = "Reset Studio Course"
-dialog_text = "This clears every Studio Level and Question while keeping the Studio Course workspace. This cannot be undone."
+popupTitle = "Reset Studio Course?"
+message = "This clears every Studio Level and Question while keeping the Studio Course workspace. This cannot be undone."
+confirmText = "Reset Studio Course"
+dangerous = true
 
-[node name="ConfirmDeleteStudioDialog" type="ConfirmationDialog" parent="."]
+[node name="ConfirmDeleteStudioDialog" parent="." instance=ExtResource("14_confirm_popup")]
 unique_name_in_owner = true
-title = "Delete Studio Course?"
-initial_position = 2
-size = Vector2i(680, 290)
-ok_button_text = "Delete Studio Course"
-dialog_text = "This permanently deletes the Studio Course and its player progress. Core Curriculum and Imported Course will not be changed."
+popupTitle = "Delete Studio Course?"
+message = "This permanently deletes the Studio Course and its player progress. Core Curriculum and Imported Course will not be changed."
+confirmText = "Delete Studio Course"
+dangerous = true
 
-[node name="ConfirmImportDialog" type="ConfirmationDialog" parent="."]
+[node name="ConfirmImportDialog" parent="." instance=ExtResource("14_confirm_popup")]
 unique_name_in_owner = true
-title = "Confirm Import"
-initial_position = 2
-size = Vector2i(620, 260)
-ok_button_text = "Import Course"
+popupTitle = "Confirm Import"
+confirmText = "Import Course"
 
-[node name="ImportNoticeDialog" type="AcceptDialog" parent="."]
+[node name="ImportNoticeDialog" parent="." instance=ExtResource("14_confirm_popup")]
 unique_name_in_owner = true
-initial_position = 2
-size = Vector2i(620, 240)
+confirmText = "OK"
+showCancel = false
 
-[node name="ConfirmStudioCopyDialog" type="ConfirmationDialog" parent="."]
+[node name="ConfirmStudioCopyDialog" parent="." instance=ExtResource("14_confirm_popup")]
 unique_name_in_owner = true
-title = "Replace Studio Course"
-initial_position = 2
-size = Vector2i(660, 280)
-ok_button_text = "Replace Studio Course"
-dialog_text = "Studio Course already contains content. Replace it with an independent copy of Imported Course?"
+popupTitle = "Replace Studio Course"
+message = "Studio Course already contains content. Replace it with an independent copy of Imported Course?"
+confirmText = "Replace Studio Course"
 
 [node name="ImportedPreviewPopup" type="PopupPanel" parent="."]
 unique_name_in_owner = true
+theme = ExtResource("2_theme")
 title = "Preview Imported Course"
 initial_position = 2
 size = Vector2i(680, 310)

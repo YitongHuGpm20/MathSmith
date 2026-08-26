@@ -149,6 +149,7 @@ autowrap_mode = 2
 [node name="MetadataLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/CoreCourseButton/CardMargin/CardLayout"]
 layout_mode = 2
 text = "12 Levels"
+autowrap_mode = 2
 
 [node name="StatusLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/CoreCourseButton/CardMargin/CardLayout"]
 layout_mode = 2
@@ -200,6 +201,7 @@ autowrap_mode = 2
 [node name="MetadataLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin/CardLayout"]
 layout_mode = 2
 text = "Use Teacher Tools to import a CSV Course."
+autowrap_mode = 2
 
 [node name="StatusLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/ImportedCourseButton/CardMargin/CardLayout"]
 layout_mode = 2
@@ -251,6 +253,7 @@ autowrap_mode = 2
 [node name="MetadataLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin/CardLayout"]
 layout_mode = 2
 text = "Use Teacher Tools to create a Studio Course."
+autowrap_mode = 2
 
 [node name="StatusLabel" type="Label" parent="MainMargin/PageLayout/ContentCenter/CourseContent/CourseGrid/StudioCourseButton/CardMargin/CardLayout"]
 layout_mode = 2

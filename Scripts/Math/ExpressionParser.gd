@@ -35,8 +35,9 @@ func ParseExpression(expression: String) -> Dictionary:
 func TokenizeExpression(expression: String) -> Array[String]:
 	var parsedTokens: Array[String] = []
 	var currentNumber: String = ""
+	var parserExpression := expression.replace("x", "*").replace("X", "*").replace("×", "*")
 
-	for character in expression:
+	for character in parserExpression:
 		if character.is_valid_int():
 			currentNumber += character
 			continue

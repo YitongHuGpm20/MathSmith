@@ -7,6 +7,7 @@ extends RefCounted
 #region ========== References ==========
 
 var csvParser := preload("res://Scripts/Gameplay/CourseCsvParser.gd").new()
+var expressionFormatter := preload("res://Scripts/Math/ExpressionFormatter.gd").new()
 
 #endregion
 
@@ -59,7 +60,9 @@ func BuildParseResult(
 				String(levelData.get("id", "")),
 				"", "", "",
 				String(questionData.get("id", "")),
-				String(questionData.get("expression", ""))
+				expressionFormatter.FormatForAuthoring(
+					String(questionData.get("expression", ""))
+				)
 			]), "QUESTION")
 
 	parseResult["content"] = csvParser.BuildRuntimeContent(parseResult)

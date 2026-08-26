@@ -33,17 +33,17 @@ extends Control
 @onready var validationEmptyLabel: Label = %ValidationEmptyLabel
 @onready var closeValidationButton: Button = %CloseValidationButton
 @onready var confirmValidatedImportButton: Button = %ConfirmValidatedImportButton
-@onready var confirmImportDialog: ConfirmationDialog = %ConfirmImportDialog
-@onready var importNoticeDialog: AcceptDialog = %ImportNoticeDialog
+@onready var confirmImportDialog = %ConfirmImportDialog
+@onready var importNoticeDialog = %ImportNoticeDialog
 @onready var importedPreviewPopup: PopupPanel = %ImportedPreviewPopup
 @onready var importedPreviewLevelOption: OptionButton = %ImportedPreviewLevelOption
 @onready var startImportedPreviewButton: Button = %StartImportedPreviewButton
 @onready var cancelImportedPreviewButton: Button = %CancelImportedPreviewButton
-@onready var confirmStudioCopyDialog: ConfirmationDialog = %ConfirmStudioCopyDialog
-@onready var confirmWarningExportDialog: ConfirmationDialog = %ConfirmWarningExportDialog
-@onready var confirmRemoveImportedDialog: ConfirmationDialog = %ConfirmRemoveImportedDialog
-@onready var confirmResetStudioDialog: ConfirmationDialog = %ConfirmResetStudioDialog
-@onready var confirmDeleteStudioDialog: ConfirmationDialog = %ConfirmDeleteStudioDialog
+@onready var confirmStudioCopyDialog = %ConfirmStudioCopyDialog
+@onready var confirmWarningExportDialog = %ConfirmWarningExportDialog
+@onready var confirmRemoveImportedDialog = %ConfirmRemoveImportedDialog
+@onready var confirmResetStudioDialog = %ConfirmResetStudioDialog
+@onready var confirmDeleteStudioDialog = %ConfirmDeleteStudioDialog
 @onready var settingsPanel = $SettingsPanel
 
 #endregion
@@ -71,15 +71,15 @@ func _ready() -> void:
 	confirmValidatedImportButton.pressed.connect(RequestValidatedImport)
 	confirmImportDialog.confirmed.connect(CommitValidatedImport)
 	importedPreviewButton.pressed.connect(OpenImportedPreviewSelection)
-	removeImportedCourseButton.pressed.connect(confirmRemoveImportedDialog.popup_centered)
+	removeImportedCourseButton.pressed.connect(confirmRemoveImportedDialog.Open)
 	createStudioCourseButton.pressed.connect(CreateNewStudioCourse)
 	copyImportedCourseButton.pressed.connect(RequestImportedCourseCopy)
 	openStudioEditorButton.pressed.connect(GameManager.OpenStudioEditor)
 	studioExportButton.pressed.connect(RequestStudioCourseExport)
 	studioExportFileDialog.file_selected.connect(_on_studio_export_file_selected)
 	confirmWarningExportDialog.confirmed.connect(OpenStudioExportFileDialog)
-	resetStudioCourseButton.pressed.connect(confirmResetStudioDialog.popup_centered)
-	deleteStudioCourseButton.pressed.connect(confirmDeleteStudioDialog.popup_centered)
+	resetStudioCourseButton.pressed.connect(confirmResetStudioDialog.Open)
+	deleteStudioCourseButton.pressed.connect(confirmDeleteStudioDialog.Open)
 	confirmRemoveImportedDialog.confirmed.connect(RemoveImportedCourse)
 	confirmResetStudioDialog.confirmed.connect(ResetStudioCourse)
 	confirmDeleteStudioDialog.confirmed.connect(DeleteStudioCourse)
@@ -87,6 +87,7 @@ func _ready() -> void:
 	startImportedPreviewButton.pressed.connect(StartSelectedImportedPreview)
 	cancelImportedPreviewButton.pressed.connect(importedPreviewPopup.hide)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
+	ConfigureDialogPresentation()
 	RefreshCourseStatus()
 	UpdateResponsiveLayout()
 	homeButton.grab_focus()
@@ -94,6 +95,22 @@ func _ready() -> void:
 #endregion
 
 #region ========== Functions ==========
+
+# Applies the same primary and destructive action hierarchy inside every popup.
+func ConfigureDialogPresentation() -> void:
+	# Reveal the shared black-blue Window panel instead of Godot's gray clear color.
+	for teacherDialog in [
+		csvFileDialog,
+		studioExportFileDialog,
+		importedPreviewPopup
+	]:
+		teacherDialog.transparent_bg = true
+
+	for primaryDialog in [
+		csvFileDialog,
+		studioExportFileDialog
+	]:
+		primaryDialog.get_ok_button().theme_type_variation = &"ButtonPrimary"
 
 # Presents current Imported and Studio availability without mutating Course data.
 func RefreshCourseStatus() -> void:
@@ -107,6 +124,10 @@ func RefreshCourseStatus() -> void:
 
 		if courseSourceId == "imported_course":
 			importedStatusLabel.text = tr("Current Imported Course") if available else tr("No Imported Course")
+			importedStatusLabel.add_theme_color_override(
+				"font_color",
+				Color(0.3, 0.76, 1.0, 1.0) if available else Color(0.58, 0.67, 0.78, 1.0)
+			)
 			importedMetadataLabel.text = (
 				BuildMetadataText(true, levelCount, questionCount, metadata)
 				if available
@@ -119,6 +140,10 @@ func RefreshCourseStatus() -> void:
 			var studioSummary: Dictionary = GameManager.GetStudioCourseSummary()
 			var studioExists: bool = studioSummary.get("exists", false)
 			studioStatusLabel.text = tr("Current Studio Course") if studioExists else tr("No Studio Course")
+			studioStatusLabel.add_theme_color_override(
+				"font_color",
+				Color(0.36, 0.9, 0.72, 1.0) if studioExists else Color(0.58, 0.67, 0.78, 1.0)
+			)
 			studioMetadataLabel.text = BuildMetadataText(
 				studioExists,
 				studioSummary.get("levelCount", levelCount),
@@ -141,14 +166,15 @@ func CreateNewStudioCourse() -> void:
 	if not createResult.get("succeeded", false):
 		return
 	RefreshCourseStatus()
-	importNoticeDialog.title = tr("Studio Course Created")
-	importNoticeDialog.dialog_text = tr("The empty Studio Course is saved and ready for editing.")
-	importNoticeDialog.popup_centered()
+	ShowImportNotice(
+		tr("Studio Course Created"),
+		tr("The empty Studio Course is saved and ready for editing.")
+	)
 
 # Copies immediately into an empty workspace or confirms replacement first.
 func RequestImportedCourseCopy() -> void:
 	if GameManager.GetStudioCourseSummary().get("exists", false):
-		confirmStudioCopyDialog.popup_centered()
+		confirmStudioCopyDialog.Open()
 		return
 	CommitImportedCourseCopy(false)
 
@@ -160,11 +186,10 @@ func CommitImportedCourseCopy(replaceExisting: bool) -> void:
 	if not copyResult.get("succeeded", false):
 		return
 	RefreshCourseStatus()
-	importNoticeDialog.title = tr("Copied to Studio")
-	importNoticeDialog.dialog_text = tr(
-		"Imported Course was copied into an independent Studio Course."
+	ShowImportNotice(
+		tr("Copied to Studio"),
+		tr("Imported Course was copied into an independent Studio Course.")
 	)
-	importNoticeDialog.popup_centered()
 
 # Removes only the Imported Course after the destructive-action confirmation.
 func RemoveImportedCourse() -> void:
@@ -205,12 +230,12 @@ func PresentCourseOperationResult(
 ) -> void:
 	if succeeded:
 		RefreshCourseStatus()
-		importNoticeDialog.title = tr(successTitle)
-		importNoticeDialog.dialog_text = tr(successMessage)
+		ShowImportNotice(tr(successTitle), tr(successMessage))
 	else:
-		importNoticeDialog.title = tr(failureTitle)
-		importNoticeDialog.dialog_text = tr("The requested Course operation could not be completed.")
-	importNoticeDialog.popup_centered()
+		ShowImportNotice(
+			tr(failureTitle),
+			tr("The requested Course operation could not be completed.")
+		)
 
 # Validates the current Studio snapshot before opening any save destination.
 func RequestStudioCourseExport() -> void:
@@ -235,10 +260,10 @@ func RequestStudioCourseExport() -> void:
 
 	var warningCount: int = int(lastValidationReport.get("warningCount", 0))
 	if warningCount > 0:
-		confirmWarningExportDialog.dialog_text = tr(
+		confirmWarningExportDialog.message = tr(
 			"This Studio Course has %d validation warnings. Review them if needed, or continue to export."
 		) % warningCount
-		confirmWarningExportDialog.popup_centered()
+		confirmWarningExportDialog.Open()
 		return
 	OpenStudioExportFileDialog()
 
@@ -444,26 +469,26 @@ func RequestValidatedImport() -> void:
 		return
 	if GameManager.HasCourseSourceContent("imported_course"):
 		pendingImportIsReplacement = true
-		confirmImportDialog.title = tr("Replace Imported Course")
-		confirmImportDialog.ok_button_text = tr("Replace Course")
-		confirmImportDialog.dialog_text = tr(
-			"An Imported Course already exists. Replace it with the validated Course? Imported player data will reset only if the Course content changed."
+		confirmImportDialog.SetContent(
+			tr("Replace Imported Course"),
+			tr("An Imported Course already exists. Replace it with the validated Course? Imported player data will reset only if the Course content changed."),
+			tr("Replace Course")
 		)
-		confirmImportDialog.popup_centered()
+		confirmImportDialog.Open()
 		return
 
 	pendingImportIsReplacement = false
 	var metadata: Dictionary = lastParseResult.get("metadata", {})
-	confirmImportDialog.title = tr("Confirm Import")
-	confirmImportDialog.ok_button_text = tr("Import Course")
-	confirmImportDialog.dialog_text = tr(
-		"Import %s with %d Levels and %d Questions?"
-	) % [
-		metadata.get("courseName", tr("this Course")),
-		int(metadata.get("levelCount", 0)),
-		int(metadata.get("questionCount", 0))
-	]
-	confirmImportDialog.popup_centered()
+	confirmImportDialog.SetContent(
+		tr("Confirm Import"),
+		tr("Import %s with %d Levels and %d Questions?") % [
+			metadata.get("courseName", tr("this Course")),
+			int(metadata.get("levelCount", 0)),
+			int(metadata.get("questionCount", 0))
+		],
+		tr("Import Course")
+	)
+	confirmImportDialog.Open()
 
 # Persists one validated first import and refreshes all availability metadata.
 func CommitValidatedImport() -> void:
@@ -483,23 +508,28 @@ func CommitValidatedImport() -> void:
 		)
 
 	if not importResult.get("succeeded", false):
-		importNoticeDialog.title = tr("Import Failed")
-		importNoticeDialog.dialog_text = tr("The Imported Course could not be saved. Existing content was not changed.")
-		importNoticeDialog.popup_centered()
+		ShowImportNotice(
+			tr("Import Failed"),
+			tr("The Imported Course could not be saved. Existing content was not changed.")
+		)
 		return
 
 	RefreshCourseStatus()
 	CloseValidationResults()
-	importNoticeDialog.title = (
-		tr("Replacement Complete") if pendingImportIsReplacement else tr("Import Complete")
+	ShowImportNotice(
+		tr("Replacement Complete") if pendingImportIsReplacement else tr("Import Complete"),
+		(
+			tr("The Imported Course was replaced and its player data was reset because the content changed.")
+			if importResult.get("playerDataReset", false)
+			else tr("The Imported Course is saved and now available to players.")
+		)
 	)
-	importNoticeDialog.dialog_text = (
-		tr("The Imported Course was replaced and its player data was reset because the content changed.")
-		if importResult.get("playerDataReset", false)
-		else tr("The Imported Course is saved and now available to players.")
-	)
-	importNoticeDialog.popup_centered()
 	pendingImportIsReplacement = false
+
+# Presents one informational result with the shared Preview-style popup.
+func ShowImportNotice(noticeTitle: String, noticeMessage: String) -> void:
+	importNoticeDialog.SetContent(noticeTitle, noticeMessage, tr("OK"))
+	importNoticeDialog.Open()
 
 #endregion
 
@@ -522,11 +552,14 @@ func _on_studio_export_file_selected(filePath: String) -> void:
 		lastValidationReport
 	)
 	if exportResult.get("succeeded", false):
-		importNoticeDialog.title = tr("Export Complete")
-		importNoticeDialog.dialog_text = tr("Studio Course CSV was exported successfully.")
+		ShowImportNotice(
+			tr("Export Complete"),
+			tr("Studio Course CSV was exported successfully.")
+		)
 	else:
-		importNoticeDialog.title = tr("Export Failed")
-		importNoticeDialog.dialog_text = tr("The Studio Course CSV could not be written.")
-	importNoticeDialog.popup_centered()
+		ShowImportNotice(
+			tr("Export Failed"),
+			tr("The Studio Course CSV could not be written.")
+		)
 
 #endregion

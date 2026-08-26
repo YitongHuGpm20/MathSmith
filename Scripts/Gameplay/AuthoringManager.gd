@@ -9,6 +9,7 @@ extends RefCounted
 var csvParser := preload("res://Scripts/Gameplay/CourseCsvParser.gd").new()
 var csvValidator := preload("res://Scripts/Gameplay/CourseCsvValidator.gd").new()
 var csvExporter := preload("res://Scripts/Gameplay/CourseCsvExporter.gd").new()
+var expressionFormatter := preload("res://Scripts/Math/ExpressionFormatter.gd").new()
 
 #endregion
 
@@ -35,6 +36,10 @@ func BuildAndValidateStudioExport(
 # Exposes the shared production-backed expression check to Studio UI.
 func ValidateExpression(expression: String) -> Dictionary:
 	return csvValidator.ValidateExpressionForAuthoring(expression)
+
+# Returns the canonical teacher-facing expression text used by Studio and CSV.
+func FormatExpression(expression: String) -> String:
+	return expressionFormatter.FormatForAuthoring(expression)
 
 # Writes only a validation-approved parser result to the selected destination.
 func ExportValidatedCourseCsv(

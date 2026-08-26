@@ -362,7 +362,7 @@ func GenerateMultiplicationSteps(firstNumber: int, secondNumber: int) -> Array[S
 			productParts.append(placePart * smallerNumber)
 
 		return [
-			"%s * %d" % [FormatPlaceValueDecomposition(placeParts), smallerNumber],
+			"%s x %d" % [FormatPlaceValueDecomposition(placeParts), smallerNumber],
 			JoinProducts(placeParts, smallerNumber),
 			JoinNumbers(productParts),
 			str(finalAnswer)
@@ -372,15 +372,15 @@ func GenerateMultiplicationSteps(firstNumber: int, secondNumber: int) -> Array[S
 	if secondNumber == 1:
 		return [
 			"1 group of %d" % firstNumber,
-			"%d * 1" % firstNumber,
+			"%d x 1" % firstNumber,
 			str(finalAnswer)
 		]
 
 	var firstGroupCount := maxi(floori(secondNumber / 2.0), 1)
 	var secondGroupCount := secondNumber - firstGroupCount
 	return [
-		"%d * (%d + %d)" % [firstNumber, firstGroupCount, secondGroupCount],
-		"(%d * %d) + (%d * %d)" % [
+		"%d x (%d + %d)" % [firstNumber, firstGroupCount, secondGroupCount],
+		"(%d x %d) + (%d x %d)" % [
 			firstNumber,
 			firstGroupCount,
 			firstNumber,
@@ -546,7 +546,8 @@ func FormatNode(
 	var operation: String = expressionNode["operation"]
 	var leftText := FormatNode(expressionNode["left"], operation, false, targetNodeId, replacement)
 	var rightText := FormatNode(expressionNode["right"], operation, true, targetNodeId, replacement)
-	var formattedText := "%s %s %s" % [leftText, operation, rightText]
+	var displayOperation := "x" if operation == "*" else operation
+	var formattedText := "%s %s %s" % [leftText, displayOperation, rightText]
 
 	if NeedsParentheses(operation, parentOperation, isRightChild):
 		return "(" + formattedText + ")"
@@ -604,7 +605,7 @@ func FinalizeSteps(sourceExpression: String, generatedSteps: Array[String]) -> A
 
 # Normalizes spacing for reliable unchanged-expression comparisons.
 func NormalizeExpressionText(expression: String) -> String:
-	return expression.replace(" ", "")
+	return expression.replace("*", "x").replace("X", "x").replace("×", "x").replace(" ", "")
 
 # Adds a step only when it differs from the previously generated display step.
 func AppendUniqueStep(generatedSteps: Array[String], stepText: String) -> void:
@@ -711,7 +712,7 @@ func JoinProducts(placeParts: Array[int], multiplier: int) -> String:
 
 	for placePart in placeParts:
 		if placePart != 0 or placeParts.size() == 1:
-			productTexts.append("(%d * %d)" % [placePart, multiplier])
+			productTexts.append("(%d x %d)" % [placePart, multiplier])
 
 	return " + ".join(productTexts)
 
