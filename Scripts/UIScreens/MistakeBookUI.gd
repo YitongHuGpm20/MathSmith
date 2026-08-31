@@ -10,6 +10,8 @@ extends Control
 @onready var countLabel: Label = $MainMargin/MainLayout/Header/CountLabel
 @onready var emptyLabel: Label = $MainMargin/MainLayout/MistakeScroll/Content/EmptyLabel
 @onready var entryContainer: VBoxContainer = $MainMargin/MainLayout/MistakeScroll/Content/EntryContainer
+@onready var tutorPanel = $TutorPanel
+@onready var tutorBubble: Button = %TutorBubble
 
 #endregion
 
@@ -18,6 +20,8 @@ extends Control
 # Connects navigation and builds every saved review card.
 func _ready() -> void:
 	backButton.pressed.connect(_on_back_button_pressed)
+	tutorBubble.pressed.connect(ToggleTutor)
+	tutorPanel.optionSelected.connect(GameManager.HandleTutorAction)
 	LocalizationManager.languageChanged.connect(_on_language_changed)
 	RefreshEntries()
 
@@ -77,11 +81,31 @@ func CreateCardHeader(entry: Dictionary) -> HBoxContainer:
 	header.add_child(expressionLabel)
 
 	var removeButton := Button.new()
+	var tutorButton := Button.new()
+	tutorButton.text = tr("Ask Tutor")
+	tutorButton.pressed.connect(OpenMistakeTutor.bind(entry))
+	header.add_child(tutorButton)
+
 	removeButton.text = tr("Remove")
 	removeButton.tooltip_text = tr("Remove this Question from the Mistake Book.")
 	removeButton.pressed.connect(_on_remove_button_pressed.bind(entry.get("entryKey", "")))
 	header.add_child(removeButton)
 	return header
+
+# Opens deterministic guidance for the selected saved Question only.
+func OpenMistakeTutor(entry: Dictionary) -> void:
+	tutorPanel.Open(GameManager.GetTutorMistakePage(entry))
+	tutorPanel.move_to_front()
+	tutorBubble.move_to_front()
+
+# Opens the screen overview or closes the active Tutor speech panel.
+func ToggleTutor() -> void:
+	if tutorPanel.visible:
+		tutorPanel.Close()
+		return
+	tutorPanel.Open(GameManager.GetTutorOpeningPage())
+	tutorPanel.move_to_front()
+	tutorBubble.move_to_front()
 
 # Formats the source Level, interaction mode, and translated Skill tags.
 func CreateMetadataLabel(entry: Dictionary) -> Label:

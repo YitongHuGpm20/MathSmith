@@ -90,7 +90,6 @@ func _ready() -> void:
 	ConfigureDialogPresentation()
 	RefreshCourseStatus()
 	UpdateResponsiveLayout()
-	homeButton.grab_focus()
 
 #endregion
 
@@ -350,7 +349,6 @@ func PresentValidationReport() -> void:
 			validationIssueList.add_child(CreateValidationIssueCard(issueValue))
 
 	validationOverlay.visible = true
-	closeValidationButton.grab_focus()
 
 # Creates one readable issue card with source context and a suggested correction.
 func CreateValidationIssueCard(issue: Dictionary) -> PanelContainer:
@@ -435,7 +433,6 @@ func GetSeverityColor(severity: String) -> Color:
 # Closes the report and restores focus to its Dashboard entry point.
 func CloseValidationResults() -> void:
 	validationOverlay.visible = false
-	validationResultsButton.grab_focus()
 
 # Presents every Imported Level with its authored Gameplay Mode for QA selection.
 func OpenImportedPreviewSelection() -> void:

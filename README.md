@@ -6,7 +6,7 @@ MathSmith is a Godot-based portfolio project created by **Yitong Hu** to demonst
 
 Players rebuild mathematical reasoning through three interaction types, receive progressively more useful feedback, review saved mistakes, and replay the full question pool through focused challenge modes.
 
-> **Project Status:** M1–M6 Complete
+> **Project Status:** M1–M7 Implemented — Final Manual Validation Pending
 > **Engine:** Godot 4.7.1  
 > **Target Resolution:** 1920 × 1080  
 > **Languages:** English / Simplified Chinese
@@ -1383,20 +1383,25 @@ Author
 
 **Goal: Connect existing systems into a guided learning experience**
 
-A future MathSmith Tutor could help the player:
+Implemented systems:
 
-- Understand gameplay rules
-- Interpret repeated mistakes
-- Review performance
-- Identify weak Skills
-- Navigate to relevant Levels
-- Open Mistake Practice
-- Start Zen practice
-- Choose context-aware next actions
+- Reusable option-based Tutor bubble and speech panel
+- Course-scoped context for Core, Imported, and Studio Courses
+- Context-specific Home, Lobby, Gameplay, Summary, and Mistake Book options
+- Deterministic gameplay, mistake, correct-process, Score, and Star explanations
+- Performance summaries, recent Question History, and behavior-pattern evidence
+- Existing M5 weak-Skill and relevant-Level recommendations
+- Confirmed navigation to Levels, Mistake Book, Skill Mastery, and replay modes
+- Adaptive Practice, Mistake Practice, Zen, and Survival guidance
+- Isolated Teacher Preview guidance with no player-data writes
+- English and Simplified Chinese Tutor terminology
+- Keyboard navigation, scrolling, responsive layout, and shared UI audio
 
-The Tutor would be introduced after deterministic learning systems, player history, and content architecture are established.
+The Tutor is implemented after deterministic learning systems, player history, and content architecture are established.
 
-This allows AI-assisted guidance to operate on structured and validated learning data rather than replacing the underlying educational systems.
+It operates on structured and validated learning data rather than replacing mathematical correctness, Mastery, adaptive weighting, saving, or progression.
+
+See [M7 Tutor Architecture](Docs/M7_Tutor_Architecture.md) and [M7 Manual Validation](Docs/M7_Tutor_Validation.md).
 
 ---
 

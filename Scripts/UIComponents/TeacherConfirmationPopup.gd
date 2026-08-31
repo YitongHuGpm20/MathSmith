@@ -38,7 +38,6 @@ func _ready() -> void:
 func Open() -> void:
 	RefreshContent()
 	popup_centered(Vector2i(680, 290))
-	cancelButton.grab_focus()
 
 # Updates reusable confirmation content before opening the popup.
 func SetContent(newTitle: String, newMessage: String, newConfirmText: String) -> void:

@@ -19,6 +19,13 @@ This folder is the starting point for creating a MathSmith Course without editin
 7. Review the Validation Results and fix any reported errors.
 8. Preview the Course and revise the CSV when necessary.
 
+## Teacher Preview Validation
+
+- Teacher Preview uses the same gameplay rules and generated solution process as the authored Course.
+- The Tutor can explain the current preview Question and its rule without changing Player History, Skill Mastery, scores, or Mistake Book data.
+- Complete every Question in a Level to verify that the preview reaches the Level Results screen.
+- Return to Teacher Tools after previewing and revise the source content when validation or gameplay reveals an issue.
+
 ## Quick Formatting Notes
 
 - Keep every `course_id`, `level_id`, and `question_id` stable and unique within its scope.

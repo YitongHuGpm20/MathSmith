@@ -39,7 +39,6 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
 	RefreshCourseCards()
 	UpdateResponsiveLayout()
-	coreCourseButton.grab_focus()
 
 #endregion
 

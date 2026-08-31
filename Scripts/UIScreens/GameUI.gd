@@ -83,6 +83,8 @@ const ZEN_SOLVED_ICON: Texture2D = preload("res://Assets/Icons/correct.svg")
 @onready var tutorialInstructionsLabel: Label = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/TutorialInstructionsLabel"
 @onready var closeTutorialButton: Button = $"../TutorialOverlay/CenterContainer/PanelContainer/MarginContainer/Content/Actions/CloseButton"
 @onready var settingsPanel = $"../SettingsPanel"
+@onready var tutorPanel = $"../TutorPanel"
+@onready var tutorBubble: Button = %TutorBubble
 @onready var analyticsOverlay: PanelContainer = $"../AnalyticsOverlay"
 @onready var analyticsText: RichTextLabel = $"../AnalyticsOverlay/MarginContainer/Content/AnalyticsText"
 @onready var closeAnalyticsButton: Button = $"../AnalyticsOverlay/MarginContainer/Content/Header/CloseButton"
@@ -110,7 +112,9 @@ func _ready() -> void:
 	checkButton.pressed.connect(_on_check_button_pressed)
 	topLobbyButton.pressed.connect(_on_lobby_button_pressed)
 	tutorialButton.pressed.connect(_on_tutorial_button_pressed)
-	settingsButton.pressed.connect(settingsPanel.Open)
+	settingsButton.pressed.connect(OpenSettings)
+	tutorBubble.pressed.connect(ToggleTutor)
+	tutorPanel.optionSelected.connect(GameManager.HandleTutorAction)
 	closeAnalyticsButton.pressed.connect(ToggleAnalyticsOverlay)
 	analyticsRefreshTimer.timeout.connect(RefreshAnalyticsOverlay)
 	retryButton.pressed.connect(_on_retry_button_pressed)
@@ -125,6 +129,20 @@ func _ready() -> void:
 
 	# Wait until every sibling UI branch has completed its ready lifecycle.
 	GameManager.call_deferred("RegisterGameUI", self)
+
+# Opens course-scoped gameplay guidance or closes the active speech panel.
+func ToggleTutor() -> void:
+	if tutorPanel.visible:
+		tutorPanel.Close()
+		return
+	tutorPanel.Open(GameManager.GetTutorOpeningPage())
+	tutorPanel.move_to_front()
+	tutorBubble.move_to_front()
+
+# Keeps Settings above the floating Tutor when explicitly requested.
+func OpenSettings() -> void:
+	settingsPanel.move_to_front()
+	settingsPanel.Open()
 
 # Releases this scene's UI reference before its nodes leave the tree.
 func _exit_tree() -> void:
@@ -839,8 +857,8 @@ func HideEndMenu() -> void:
 func ShowTutorial(tutorialTitle: String, instructions: String) -> void:
 	tutorialTitleLabel.text = tr(tutorialTitle)
 	tutorialInstructionsLabel.text = tr(instructions).replace("\\n", "\n")
+	tutorialOverlay.move_to_front()
 	tutorialOverlay.visible = true
-	closeTutorialButton.grab_focus()
 
 # Closes the current tutorial before notifying its persistent state owner.
 func HideTutorial() -> void:

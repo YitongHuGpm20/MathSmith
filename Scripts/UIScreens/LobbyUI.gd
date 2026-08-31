@@ -27,6 +27,8 @@ const LEVEL_CARD_SCENE: PackedScene = preload("res://Scenes/Menus/LevelCard.tscn
 @onready var masteryEmptyLabel: Label = $MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout/MasteryEmptyLabel
 @onready var recommendationLabel: Label = $MainMargin/MainLayout/MasteryPanel/MasteryMargin/MasteryLayout/MasteryHeader/RecommendationLabel
 @onready var settingsPanel = $SettingsPanel
+@onready var tutorPanel = $TutorPanel
+@onready var tutorBubble: Button = %TutorBubble
 
 #endregion
 
@@ -78,7 +80,9 @@ var otherFeatures: Array[Dictionary] = [
 func _ready() -> void:
 	showingOther = GameManager.GetLobbyCategory() == "other"
 	homeButton.pressed.connect(_on_home_button_pressed)
-	settingsButton.pressed.connect(settingsPanel.Open)
+	settingsButton.pressed.connect(OpenSettings)
+	tutorBubble.pressed.connect(ToggleTutor)
+	tutorPanel.optionSelected.connect(GameManager.HandleTutorAction)
 	settingsPanel.progressReset.connect(RefreshLevelCards)
 	settingsPanel.progressReset.connect(RefreshSkillMastery)
 	stepOrderingButton.pressed.connect(_on_step_ordering_button_pressed)
@@ -121,6 +125,20 @@ func ShowSelectedLevelType() -> void:
 		stepOrderingButton.set_pressed_no_signal(false)
 		choiceOrderingButton.set_pressed_no_signal(false)
 		fillProcessButton.set_pressed_no_signal(false)
+
+# Opens the course-scoped Tutor or closes the active speech panel.
+func ToggleTutor() -> void:
+	if tutorPanel.visible:
+		tutorPanel.Close()
+		return
+	tutorPanel.Open(GameManager.GetTutorOpeningPage())
+	tutorPanel.move_to_front()
+	tutorBubble.move_to_front()
+
+# Keeps Settings above floating Tutor controls when opened from the Lobby.
+func OpenSettings() -> void:
+	settingsPanel.move_to_front()
+	settingsPanel.Open()
 
 # Adapts the Level grid to wide, medium, and narrow windows.
 func UpdateResponsiveLayout() -> void:

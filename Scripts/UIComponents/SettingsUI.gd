@@ -72,7 +72,6 @@ func Open() -> void:
 	)
 	UpdateVolumeLabels()
 	visible = true
-	closeButton.grab_focus()
 
 # Closes either Settings view without changing gameplay state.
 func Close() -> void:
@@ -139,13 +138,11 @@ func _on_language_button_item_selected(_index: int) -> void:
 func _on_reset_progress_button_pressed() -> void:
 	settingsContent.visible = false
 	resetContent.visible = true
-	cancelResetButton.grab_focus()
 
 # Returns from confirmation without modifying Local Save data.
 func _on_cancel_reset_button_pressed() -> void:
 	resetContent.visible = false
 	settingsContent.visible = true
-	resetProgressButton.grab_focus()
 
 # Clears player learning data only after explicit confirmation.
 func _on_confirm_reset_button_pressed() -> void:

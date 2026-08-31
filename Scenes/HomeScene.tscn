@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://ce12xygy43tk4" path="res://Assets/Icons/progress.svg" id="9_progress"]
 [ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="10_settings_panel"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/lock.svg" id="11_teacher"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/TutorPanel.tscn" id="12_tutor_panel"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/TutorBubble.tscn" id="13_tutor_bubble"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_play"]
 content_margin_left = 34.0
@@ -456,6 +458,10 @@ theme_override_font_sizes/font_size = 17
 text = "Exit"
 icon = ExtResource("6_exit")
 
+[node name="TutorButton" parent="." instance=ExtResource("13_tutor_bubble")]
+unique_name_in_owner = true
+layout_mode = 1
+
 [node name="CreditsOverlay" type="PanelContainer" parent="." unique_id=2131756867]
 visible = false
 layout_mode = 1
@@ -560,4 +566,7 @@ text = "Close"
 icon = ExtResource("6_exit")
 
 [node name="SettingsPanel" parent="." unique_id=359425527 instance=ExtResource("10_settings_panel")]
+layout_mode = 1
+
+[node name="TutorPanel" parent="." instance=ExtResource("12_tutor_panel")]
 layout_mode = 1

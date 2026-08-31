@@ -1,4 +1,105 @@
 keys,en,zh_CN
+MATHSMITH TUTOR,MATHSMITH TUTOR,MathSmith 导师
+GUIDED TUTOR,GUIDED TUTOR,引导式导师
+How can I help?,How can I help?,我能如何帮助你？
+What is MathSmith?,What is MathSmith?,什么是 MathSmith？
+How do the game modes work?,How do the game modes work?,游戏模式如何运作？
+What should I do first?,What should I do first?,我应该先做什么？
+Show my progress,Show my progress,查看我的进度
+About MathSmith,About MathSmith,关于 MathSmith
+Game Modes,Game Modes,游戏模式
+Getting Started,Getting Started,开始使用
+Course Progress,Course Progress,课程进度
+Course Guidance,Course Guidance,课程指导
+What should I practice?,What should I practice?,我应该练习什么？
+What are my weak Skills?,What are my weak Skills?,我的薄弱技能是什么？
+Show Skill Mastery,Show Skill Mastery,查看技能熟练度
+Show relevant Levels,Show relevant Levels,查看相关关卡
+How does Tutor use my data?,How does Tutor use my data?,导师如何使用我的数据？
+Show recent History,Show recent History,查看最近记录
+Explain my recent solve pattern,Explain my recent solve pattern,解释我最近的解题模式
+Explore practice modes,Explore practice modes,浏览练习模式
+Open Mistake Book,Open Mistake Book,打开错题本
+Start Adaptive Practice,Start Adaptive Practice,开始自适应练习
+Gameplay Help,Gameplay Help,游戏帮助
+Explain this game mode,Explain this game mode,解释当前游戏模式
+Explain the Rule,Explain the Rule,解释规则
+Show the Correct Process,Show the Correct Process,查看正确过程
+How do Hints and error feedback work?,How do Hints and error feedback work?,提示和错误反馈如何运作？
+Open the gameplay Tutorial,Open the gameplay Tutorial,打开游戏教程
+Why did I lose points?,Why did I lose points?,为什么我被扣分？
+Session Complete,Session Complete,本次游戏已完成
+How did I do?,How did I do?,我表现如何？
+What should I practice next?,What should I practice next?,接下来我应该练习什么？
+Show recent Question History,Show recent Question History,查看最近题目记录
+Choose another practice mode,Choose another practice mode,选择其他练习模式
+Why did I get this Star rating?,Why did I get this Star rating?,为什么我获得这个星级？
+Review my mistakes,Review my mistakes,复习我的错题
+Explain this Question's rule,Explain this Question's rule,解释当前题目规则
+Show the generated process,Show the generated process,查看生成的解题过程
+Weak Skill Recommendations,Weak Skill Recommendations,薄弱技能推荐
+Not Enough Data Yet,Not Enough Data Yet,暂无足够数据
+No Weak Skill Identified,No Weak Skill Identified,未识别到薄弱技能
+Relevant Levels,Relevant Levels,相关关卡
+Recent Question History,Recent Question History,最近题目记录
+Recent Solve Pattern,Recent Solve Pattern,最近解题模式
+Practice Modes,Practice Modes,练习模式
+Start Mistake Practice,Start Mistake Practice,开始错题练习
+Mistake Book Guidance,Mistake Book Guidance,错题本指导
+Ask Tutor,Ask Tutor,询问导师
+Why was this Question saved?,Why was this Question saved?,为什么这道题被保存？
+Correct Process,Correct Process,正确过程
+Why This Score?,Why This Score?,为什么是这个分数？
+Performance Summary,Performance Summary,表现总结
+Open Skill Mastery,Open Skill Mastery,打开技能熟练度
+Start,Start,开始
+Open,Open,打开
+Not Now,Not Now,暂不
+Action Cancelled,Action Cancelled,操作已取消
+Choose a Course,Choose a Course,选择课程
+Open Settings,Open Settings,打开设置
+Return to Lobby,Return to Lobby,返回大厅
+Return,Return,返回
+Previous,Previous,上一条
+CHOOSE AN OPTION,CHOOSE AN OPTION,选择一个选项
+Start Adaptive Practice?,Start Adaptive Practice?,开始自适应练习？
+Start Mistake Practice?,Start Mistake Practice?,开始错题练习？
+Start Zen Mode?,Start Zen Mode?,开始禅模式？
+Start Survival Mode?,Start Survival Mode?,开始生存模式？
+Open Mistake Book?,Open Mistake Book?,打开错题本？
+Return to Lobby?,Return to Lobby?,返回大厅？
+This Question started with %d points.,This Question started with %d points.,本题初始分数为 %d 分。
+- %d Hint use(s): -%d,- %d Hint use(s): -%d,- 使用 %d 次提示：-%d
+- The first incorrect attempt: no Score penalty,- The first incorrect attempt: no Score penalty,- 第一次答错：不扣分
+- Repeated incorrect attempts: -%d,- Repeated incorrect attempts: -%d,- 重复答错：-%d
+- No points have been deducted from this Question.,- No points have been deducted from this Question.,- 本题尚未被扣分。
+Current Question Score: %d,Current Question Score: %d,当前题目分数：%d
+Level Score: %d / %d,Level Score: %d / %d,关卡分数：%d / %d
+Final percentage: %d%%,Final percentage: %d%%,最终百分比：%d%%
+Star rating: %d / 3,Star rating: %d / 3,星级：%d / 3
+Questions solved: %d,Questions solved: %d,已解题数：%d
+Accuracy: %d%%,Accuracy: %d%%,正确率：%d%%
+Best solved count: %d,Best solved count: %d,最佳解题数：%d
+Incorrect attempts: %d,Incorrect attempts: %d,错误次数：%d
+Questions completed: %d / %d,Questions completed: %d / %d,已完成题目：%d / %d
+Score: %d / %d,Score: %d / %d,分数：%d / %d
+Hints used: %d,Hints used: %d,已使用提示：%d
+Stars: %d / 3,Stars: %d / 3,星级：%d / 3
+New best result,New best result,新的最佳纪录
+"I can explain MathSmith's learning tools and provide Course-specific guidance after you enter a Course.","I can explain MathSmith's learning tools and provide Course-specific guidance after you enter a Course.",我可以解释 MathSmith 的学习工具，并在你进入课程后提供对应课程的指导。
+"MathSmith is a step-based math learning game. It focuses on rebuilding and understanding the reasoning process behind each calculation.","MathSmith is a step-based math learning game. It focuses on rebuilding and understanding the reasoning process behind each calculation.",MathSmith 是一款分步骤数学学习游戏，重点是重建并理解每次计算背后的推理过程。
+"Step Ordering asks you to arrange a complete process. Multiple-Choice Ordering asks you to choose each next Step. Fill in the Process asks you to complete missing values.","Step Ordering asks you to arrange a complete process. Multiple-Choice Ordering asks you to choose each next Step. Fill in the Process asks you to complete missing values.",步骤排序要求你排列完整过程；多项选择排序要求你选择下一步骤；过程填空要求你补全缺失数值。
+"Select Play, choose a Course, then begin with a Level in the first gameplay mode. Tutor will use that Course's data only after you enter it.","Select Play, choose a Course, then begin with a Level in the first gameplay mode. Tutor will use that Course's data only after you enter it.",选择开始游戏和课程，然后从第一个玩法的关卡开始。进入课程后，导师才会使用该课程的数据。
+"Progress is stored separately for each Course. Enter a Course and open Tutor there to review its learning data without mixing Course Sources.","Progress is stored separately for each Course. Enter a Course and open Tutor there to review its learning data without mixing Course Sources.",每门课程的进度分别保存。进入课程后打开导师，即可查看该课程的数据而不会混合其他课程来源。
+"Choose what you want to understand. Tutor will explain the existing rules without revealing the current answer.","Choose what you want to understand. Tutor will explain the existing rules without revealing the current answer.",选择你想了解的内容。导师会解释现有规则，但不会泄露当前答案。
+"Your completed result is ready. Choose what you want to review next.","Your completed result is ready. Choose what you want to review next.",本次结果已经生成。请选择接下来想复习的内容。
+"Preview guidance reads this authored Course and does not write Player History, Mastery, Mistake Book, adaptive data, or analytics.","Preview guidance reads this authored Course and does not write Player History, Mastery, Mistake Book, adaptive data, or analytics.",预览指导会读取当前创作课程，但不会写入玩家记录、熟练度、错题本、自适应数据或分析数据。
+"Complete a few more Questions in this Course so MathSmith can identify stronger and weaker Skills.","Complete a few more Questions in this Course so MathSmith can identify stronger and weaker Skills.",请在本课程中再完成几道题，让 MathSmith 能够识别较强和较弱的技能。
+"The current M5 analysis does not identify a weak Skill in this Course. Continue playing so the evidence can stay current.","The current M5 analysis does not identify a weak Skill in this Course. Continue playing so the evidence can stay current.",当前 M5 分析没有在本课程中识别出薄弱技能。继续游玩可让证据保持更新。
+"Choose a replay mode. Options appear only when their required Course data exists.","Choose a replay mode. Options appear only when their required Course data exists.",请选择重复游玩模式。只有具备所需课程数据时，对应选项才会出现。
+"Hints are limited, player-requested help and may reduce your Score. Progressive Error Feedback appears automatically after repeated incorrect attempts: first generic feedback, then directional guidance, then a contextual rule explanation. It does not spend a Hint.","Hints are limited, player-requested help and may reduce your Score. Progressive Error Feedback appears automatically after repeated incorrect attempts: first generic feedback, then directional guidance, then a contextual rule explanation. It does not spend a Hint.",提示是数量有限的主动帮助，可能降低分数。连续答错后会自动出现渐进式错误反馈：先是通用反馈，然后是方向性指导，最后是结合情境的规则解释，并且不会消耗提示。
+"Nothing was changed. You can choose another Tutor option.","Nothing was changed. You can choose another Tutor option.",没有进行任何更改。你可以选择其他导师选项。
+"Choose how you want to review this saved Question.","Choose how you want to review this saved Question.",请选择如何复习这道已保存的题目。
 LEARN THE PROCESS,LEARN THE PROCESS,学习解题过程
 "Build stronger math skills, one step at a time.","Build stronger math skills, one step at a time.",一步一步建立更扎实的数学能力。
 Learn how calculations work by rebuilding the reasoning behind them.,Learn how calculations work by rebuilding the reasoning behind them.,通过重建推理过程理解计算原理。

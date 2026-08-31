@@ -34,6 +34,7 @@ const HINT_SCORE_PENALTY: int = 15
 const EARLY_LEVEL_HINT_BUDGET: int = 3
 const MIDDLE_LEVEL_HINT_BUDGET: int = 4
 const ADVANCED_LEVEL_HINT_BUDGET: int = 5
+const ENABLE_TUTOR_CONTEXT_VALIDATION_OUTPUT: bool = false
 
 #endregion
 
@@ -52,6 +53,9 @@ var zenModeManager := preload("res://Scripts/Gameplay/ZenModeManager.gd").new()
 var survivalModeManager := preload("res://Scripts/Gameplay/SurvivalModeManager.gd").new()
 var learningManager := preload("res://Scripts/Learning/LearningManager.gd").new()
 var practiceSessionManager := preload("res://Scripts/Gameplay/PracticeSessionManager.gd").new()
+var tutorContextProvider := preload("res://Scripts/Learning/TutorContextProvider.gd").new()
+var tutorManager := preload("res://Scripts/Learning/TutorManager.gd").new()
+var tutorNavigationAdapter := preload("res://Scripts/Learning/TutorNavigationAdapter.gd").new()
 
 #endregion
 
@@ -73,6 +77,8 @@ var unavailableChoiceOptions: Array[String] = []
 var fillBlankAnswers: Dictionary = {}
 var revealedFillBlankIds: Array[String] = []
 var currentQuestionScore: int = MAX_QUESTION_SCORE
+var currentQuestionHintPenaltyTotal: int = 0
+var currentQuestionIncorrectPenaltyTotal: int = 0
 var currentLevelScore: int = 0
 var incorrectAttempts: int = 0
 var hintsUsed: int = 0
@@ -87,6 +93,8 @@ var sceneChangePending: bool = false
 var teacherPreviewReturnScenePath: String = TEACHER_DASHBOARD_SCENE_PATH
 var teacherPreviewReturnLevelId: String = ""
 var teacherPreviewReturnQuestionId: String = ""
+var teacherPreviewCourseSourceId: String = ""
+var lastSessionSummary: Dictionary = {}
 
 #endregion
 
@@ -110,6 +118,8 @@ func _ready() -> void:
 
 	# Rebuild derived learning state from persistent Question history.
 	learningManager.Initialize()
+	if ENABLE_TUTOR_CONTEXT_VALIDATION_OUTPUT:
+		PrintTutorContextForValidation.call_deferred()
 
 # Updates the active Zen timer independently of Question interaction state.
 func _process(delta: float) -> void:
@@ -641,6 +651,195 @@ func GetWeakSkillRecommendations() -> Array[Dictionary]:
 
 #endregion
 
+#region ========== Tutor Context ==========
+
+# Returns one deterministic, course-scoped snapshot for all future Tutor UI.
+func GetTutorContext() -> Dictionary:
+	var currentQuestion := GetTutorCurrentQuestion()
+	var screenContext := GetTutorScreenContext()
+	var hasActiveGameplayContext: bool = screenContext.get("id", "") == "game_scene"
+	var hasCourseScopedContext: bool = screenContext.get("id", "") in [
+		"lobby_scene",
+		"game_scene",
+		"mistake_book_scene"
+	]
+	var courseSourceId: String = (
+		teacherPreviewCourseSourceId
+		if activeSessionType == TEACHER_PREVIEW_SESSION_TYPE
+		else courseManager.GetCurrentCourseSourceId()
+	)
+
+	var sourceSummary: Dictionary = (
+		GetTutorCourseSourceSummary(courseSourceId)
+		if hasCourseScopedContext
+		else {}
+	)
+	var isTeacherPreview: bool = activeSessionType == TEACHER_PREVIEW_SESSION_TYPE
+	var suppressLearningData: bool = isTeacherPreview or not hasCourseScopedContext
+	var playerHistory: Array = [] if suppressLearningData else learningManager.GetPlayerHistory()
+	var skillProgress: Dictionary = {} if suppressLearningData else learningManager.GetSkillProgress()
+	var weakSkills: Array[String] = []
+	if not suppressLearningData:
+		weakSkills.assign(learningManager.GetWeakSkills())
+	var recommendations: Array = (
+		[] if suppressLearningData else learningManager.GetWeakSkillRecommendations(levels)
+	)
+
+	return tutorContextProvider.BuildContext(
+		{
+			"screen": screenContext,
+			"session": {
+				"type": activeSessionType if hasActiveGameplayContext else "none",
+				"teacherPreview": activeSessionType == TEACHER_PREVIEW_SESSION_TYPE,
+				"canWritePlayerData": CanWritePlayerLearningData(),
+				"summary": lastSessionSummary.duplicate(true)
+			},
+			"level": {
+				"id": currentLevel.get("id", ""),
+				"title": currentLevel.get("title", ""),
+				"typeId": selectedLevelTypeId,
+				"skills": currentLevel.get("skills", []).duplicate(),
+				"questionIndex": currentQuestionIndex,
+				"questionCount": currentLevel.get("questions", []).size(),
+				"score": currentLevelScore,
+				"incorrectAttempts": currentLevelIncorrectAttempts,
+				"hintsUsed": currentLevelHintsUsed
+			} if hasActiveGameplayContext else {},
+			"question": {
+				"id": currentQuestion.get("id", ""),
+				"expression": currentQuestion.get("expression", currentExpression),
+				"skills": currentQuestion.get(
+					"sourceSkills",
+					currentLevel.get("skills", [])
+				).duplicate(),
+				"completed": questionCompleted,
+				"ruleCategory": mistakeBookManager.GetMistakeCategory(currentExpression),
+				"ruleExplanation": mistakeBookManager.GetMistakeExplanation(currentExpression),
+				"correctProcess": correctSteps.duplicate()
+			} if hasActiveGameplayContext else {},
+			"gameplay": {
+				"modeId": selectedLevelTypeId,
+				"questionScore": currentQuestionScore,
+				"startingQuestionScore": MAX_QUESTION_SCORE,
+				"hintPenalty": HINT_SCORE_PENALTY,
+				"incorrectAttemptPenalty": INCORRECT_ATTEMPT_PENALTY,
+				"actualHintPenalty": currentQuestionHintPenaltyTotal,
+				"actualIncorrectPenalty": currentQuestionIncorrectPenaltyTotal,
+				"tutorial": GetTutorialData(selectedLevelTypeId),
+				"remainingHints": remainingHints,
+				"hintBudget": levelHintBudget,
+				"questionHintsUsed": hintsUsed,
+				"questionIncorrectAttempts": incorrectAttempts,
+				"consecutiveIncorrectAttempts": consecutiveIncorrectAttempts,
+				"progressiveFeedbackLevel": mini(consecutiveIncorrectAttempts, 3)
+			} if hasActiveGameplayContext else {}
+		},
+		{
+			"playerHistory": playerHistory,
+			"skillProgress": skillProgress,
+			"weakSkills": weakSkills,
+			"recommendations": recommendations,
+			"mistakeEntries": [] if suppressLearningData else mistakeBookManager.GetEntries(),
+			"activeTelemetry": {} if suppressLearningData else learningManager.GetActiveQuestionTelemetry(),
+			"adaptive": {"weakSkills": weakSkills.duplicate()}
+		},
+		{
+			"sourceId": courseSourceId if hasCourseScopedContext else "",
+			"displayName": sourceSummary.get("displayName", ""),
+			"levelCount": levels.size() if hasCourseScopedContext else 0,
+			"available": sourceSummary.get("available", false),
+			"isTeacherPreview": activeSessionType == TEACHER_PREVIEW_SESSION_TYPE
+		}
+	)
+
+# Returns the first deterministic page for the reusable Tutor Panel.
+func GetTutorOpeningPage() -> Dictionary:
+	return tutorManager.BuildOpeningPage(GetTutorContext())
+
+# Returns deterministic guidance for one explicitly selected Mistake Book entry.
+func GetTutorMistakePage(mistakeEntry: Dictionary) -> Dictionary:
+	return tutorManager.BuildSavedMistakePage(mistakeEntry)
+
+# Routes confirmed Tutor actions through existing navigation and session APIs.
+func HandleTutorAction(actionId: String) -> void:
+	var navigationCommand: Dictionary = tutorNavigationAdapter.ParseAction(actionId)
+	var command: String = navigationCommand.get("command", "")
+	var target: String = navigationCommand.get("target", "")
+	match command:
+		"open_home":
+			OpenHome()
+		"open_course_selection":
+			OpenCourseSelection()
+		"open_lobby":
+			OpenLobby()
+		"open_mistake_book":
+			OpenMistakeBook()
+		"open_skill_mastery":
+			lobbyCategoryId = OTHER_LOBBY_CATEGORY_ID
+			OpenLobby()
+		"start_level":
+			if SelectLevel(target):
+				OpenGame()
+		"start_adaptive_practice":
+			StartAdaptivePractice()
+		"start_mistake_practice":
+			StartMistakePractice()
+		"start_zen":
+			StartZenMode()
+		"start_survival":
+			StartSurvivalMode()
+		"open_tutorial":
+			ShowCurrentTutorial()
+		"open_settings":
+			var currentScene := get_tree().current_scene
+			if is_instance_valid(currentScene):
+				var settingsPanel := currentScene.find_child("SettingsPanel", true, false)
+				if is_instance_valid(settingsPanel) and settingsPanel.has_method("Open"):
+					settingsPanel.move_to_front()
+					settingsPanel.Open()
+
+# Returns the active Question without exposing mutable Level storage.
+func GetTutorCurrentQuestion() -> Dictionary:
+	var questions: Array = currentLevel.get("questions", [])
+	if currentQuestionIndex < 0 or currentQuestionIndex >= questions.size():
+		return {}
+	return questions[currentQuestionIndex].duplicate(true)
+
+# Resolves the current scene into a stable Tutor screen identifier.
+func GetTutorScreenContext() -> Dictionary:
+	var scenePath := ""
+	if get_tree() != null and get_tree().current_scene != null:
+		scenePath = get_tree().current_scene.scene_file_path
+	return {
+		"id": scenePath.get_file().get_basename().to_snake_case(),
+		"scenePath": scenePath
+	}
+
+# Finds metadata for only the currently selected Course Source.
+func GetTutorCourseSourceSummary(courseSourceId: String) -> Dictionary:
+	for sourceSummary in GetCourseSourceSummaries():
+		if sourceSummary.get("id", "") == courseSourceId:
+			return sourceSummary.duplicate(true)
+	return {}
+
+# Prints a compact one-time snapshot for the owner's manual M7 field review.
+func PrintTutorContextForValidation() -> void:
+	var tutorContext := GetTutorContext()
+	print("[M7 Tutor Context] ", JSON.stringify({
+		"screen": tutorContext.get("screen", {}),
+		"course": tutorContext.get("course", {}),
+		"session": tutorContext.get("session", {}),
+		"level": tutorContext.get("level", {}),
+		"question": tutorContext.get("question", {}),
+		"gameplay": tutorContext.get("gameplay", {}),
+		"mistakeBookEntryCount": tutorContext.get("mistakeBook", {}).get("entryCount", 0),
+		"skillCount": tutorContext.get("learning", {}).get("skillProgress", {}).size(),
+		"weakSkills": tutorContext.get("learning", {}).get("weakSkills", []),
+		"historyRecordCount": tutorContext.get("learning", {}).get("historyRecordCount", 0)
+	}, "  "))
+
+#endregion
+
 #region ========== Teacher Preview ==========
 
 # Starts one Imported Level through the real Game Scene without selecting it for players.
@@ -667,7 +866,8 @@ func StartImportedCoursePreview(levelId: String) -> bool:
 		importedLevels,
 		TEACHER_DASHBOARD_SCENE_PATH,
 		"",
-		""
+		"",
+		IMPORTED_COURSE_SOURCE_ID
 	)
 
 # Starts the selected saved Studio Question through the real Game Scene.
@@ -702,7 +902,8 @@ func StartStudioQuestionPreview(levelId: String, questionId: String) -> bool:
 		[previewLevel],
 		STUDIO_EDITOR_SCENE_PATH,
 		levelId,
-		questionId
+		questionId,
+		STUDIO_COURSE_SOURCE_ID
 	)
 
 # Starts the complete selected Studio Level from its first authored Question.
@@ -728,7 +929,8 @@ func StartStudioLevelPreview(levelId: String, questionId: String = "") -> bool:
 		[previewLevel],
 		STUDIO_EDITOR_SCENE_PATH,
 		levelId,
-		questionId
+		questionId,
+		STUDIO_COURSE_SOURCE_ID
 	)
 
 # Configures one isolated real-gameplay preview with a contextual return target.
@@ -738,7 +940,8 @@ func StartTeacherPreviewSession(
 	previewLevels: Array,
 	returnScenePath: String,
 	returnLevelId: String,
-	returnQuestionId: String
+	returnQuestionId: String,
+	previewCourseSourceId: String
 ) -> bool:
 	set_process(false)
 	activeSessionType = TEACHER_PREVIEW_SESSION_TYPE
@@ -746,6 +949,7 @@ func StartTeacherPreviewSession(
 	teacherPreviewReturnScenePath = returnScenePath
 	teacherPreviewReturnLevelId = returnLevelId
 	teacherPreviewReturnQuestionId = returnQuestionId
+	teacherPreviewCourseSourceId = previewCourseSourceId
 	levelTypes = previewLevelTypes.duplicate(true)
 	levels = previewLevels.duplicate(true)
 	selectedLevelTypeId = previewLevel.get("levelTypeId", "")
@@ -786,6 +990,7 @@ func ReturnFromTeacherPreview() -> void:
 	set_process(false)
 	SaveManager.SetCoursePlayerDataWritesBlocked(false)
 	activeSessionType = STANDARD_SESSION_TYPE
+	teacherPreviewCourseSourceId = ""
 	ApplyCurrentCourseContent()
 	ResetLevelScoring()
 	ChangeScene(teacherPreviewReturnScenePath)
@@ -897,7 +1102,7 @@ func EndZenMode() -> void:
 	var summaryData := zenModeManager.Finish(currentLevelIncorrectAttempts)
 
 	if is_instance_valid(gameUI) and not summaryData.is_empty():
-		gameUI.ShowEndMenu(summaryData)
+		ShowSessionSummary(summaryData)
 
 # Selects a random Question and interaction mode for Survival play.
 func SelectNextSurvivalQuestion() -> void:
@@ -926,7 +1131,7 @@ func EndSurvivalMode() -> void:
 	var summaryData := survivalModeManager.Finish(currentLevelIncorrectAttempts)
 
 	if is_instance_valid(gameUI) and not summaryData.is_empty():
-		gameUI.ShowEndMenu(summaryData)
+		ShowSessionSummary(summaryData)
 
 #endregion
 
@@ -1326,7 +1531,9 @@ func RegisterIncorrectAttempt() -> String:
 
 	# The first mistake is penalty-free; repeated guessing has a stronger cost.
 	if incorrectAttempts >= 2:
+		var scoreBeforePenalty: int = currentQuestionScore
 		currentQuestionScore = maxi(0, currentQuestionScore - INCORRECT_ATTEMPT_PENALTY)
+		currentQuestionIncorrectPenaltyTotal += scoreBeforePenalty - currentQuestionScore
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
 
@@ -1489,7 +1696,7 @@ func GoToNextQuestion() -> void:
 
 		# Teacher Preview shows a local summary without writing any player result.
 		if IsTeacherPreviewActive():
-			gameUI.ShowEndMenu({
+			ShowSessionSummary({
 				"isTeacherPreview": true,
 				"levelTitle": currentLevel.get("title", "Teacher Preview"),
 				"levelTypeTitle": GetLevelTypeById(selectedLevelTypeId).get("title", "Unknown Mode"),
@@ -1509,7 +1716,7 @@ func GoToNextQuestion() -> void:
 
 		# Practice sessions use shared scoring without changing normal Level progress.
 		if activeSessionType in [MISTAKE_PRACTICE_SESSION_TYPE, ADAPTIVE_PRACTICE_SESSION_TYPE]:
-			gameUI.ShowEndMenu({
+			ShowSessionSummary({
 				"isPracticeSession": true,
 				"levelTitle": currentLevel.get("title", "Practice"),
 				"levelTypeTitle": "Mixed Modes",
@@ -1529,7 +1736,7 @@ func GoToNextQuestion() -> void:
 
 		var resultData := RecordLevelResult(starCount)
 		var currentLevelIndex := GetLevelIndexById(currentLevel.get("id", ""))
-		gameUI.ShowEndMenu({
+		ShowSessionSummary({
 			"levelTitle": currentLevel.get("title", "Untitled Level"),
 			"levelTypeTitle": GetLevelTypeById(selectedLevelTypeId).get("title", "Unknown Mode"),
 			"score": currentLevelScore,
@@ -1552,6 +1759,12 @@ func GoToNextQuestion() -> void:
 
 #region ========== Scoring and Hints ==========
 
+# Stores the exact result shown by Game UI for Tutor and later summary guidance.
+func ShowSessionSummary(summaryData: Dictionary) -> void:
+	lastSessionSummary = summaryData.duplicate(true)
+	if is_instance_valid(gameUI):
+		gameUI.ShowEndMenu(summaryData)
+
 # Resets all score counters owned by one newly started Level session.
 func ResetLevelScoring() -> void:
 	currentLevelScore = 0
@@ -1559,11 +1772,14 @@ func ResetLevelScoring() -> void:
 	currentLevelHintsUsed = 0
 	levelHintBudget = GetLevelHintBudget()
 	remainingHints = levelHintBudget
+	lastSessionSummary.clear()
 	ResetQuestionScoring()
 
 # Gives a newly loaded Question its full score and fresh action counters.
 func ResetQuestionScoring() -> void:
 	currentQuestionScore = MAX_QUESTION_SCORE
+	currentQuestionHintPenaltyTotal = 0
+	currentQuestionIncorrectPenaltyTotal = 0
 	incorrectAttempts = 0
 	hintsUsed = 0
 	questionScoreCommitted = false
@@ -1573,7 +1789,9 @@ func RegisterHintUsed() -> void:
 	hintsUsed += 1
 	currentLevelHintsUsed += 1
 	remainingHints = maxi(0, remainingHints - 1)
+	var scoreBeforePenalty: int = currentQuestionScore
 	currentQuestionScore = maxi(0, currentQuestionScore - HINT_SCORE_PENALTY)
+	currentQuestionHintPenaltyTotal += scoreBeforePenalty - currentQuestionScore
 	if CanWritePlayerLearningData():
 		learningManager.RecordHintUse()
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)

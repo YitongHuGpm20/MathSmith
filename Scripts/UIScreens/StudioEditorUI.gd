@@ -82,7 +82,6 @@ func _ready() -> void:
 	expressionEdit.focus_exited.connect(FormatExpressionInput)
 	ConfigureDialogPresentation()
 	LoadStudioCourse()
-	dashboardButton.grab_focus()
 
 #endregion
 

@@ -17,6 +17,7 @@ signal exitRequested
 @onready var creditsButton: Button = %CreditsButton
 @onready var settingsButton: Button = $MainMargin/PageLayout/ContentCenter/LandingContent/SecondaryActions/SettingsButton
 @onready var teacherToolsButton: Button = %TeacherToolsButton
+@onready var tutorButton: Button = %TutorButton
 @onready var exitButton: Button = %ExitButton
 @onready var creditsOverlay: PanelContainer = $CreditsOverlay
 @onready var closeCreditsButton: Button = %CloseButton
@@ -26,6 +27,7 @@ signal exitRequested
 @onready var titleLabel: Label = %TitleLabel
 @onready var taglineLabel: Label = %TaglineLabel
 @onready var settingsPanel = $SettingsPanel
+@onready var tutorPanel = $TutorPanel
 
 #endregion
 
@@ -37,13 +39,15 @@ func _ready() -> void:
 	creditsButton.pressed.connect(_on_credits_button_pressed)
 	settingsButton.pressed.connect(settingsPanel.Open)
 	teacherToolsButton.pressed.connect(GameManager.OpenTeacherTools)
+	tutorButton.pressed.connect(ToggleTutor)
+	tutorPanel.optionSelected.connect(GameManager.HandleTutorAction)
+	tutorPanel.closed.connect(RestoreTutorBubbleLayer)
 	closeCreditsButton.pressed.connect(_on_close_credits_button_pressed)
 	exitButton.pressed.connect(_on_exit_button_pressed)
 	playRequested.connect(GameManager.OpenCourseSelection)
 	exitRequested.connect(GameManager.QuitGame)
 	get_viewport().size_changed.connect(UpdateResponsiveLayout)
 	UpdateResponsiveLayout()
-	playButton.grab_focus()
 
 #endregion
 
@@ -66,6 +70,20 @@ func UpdateResponsiveLayout() -> void:
 	else:
 		landingContent.custom_minimum_size.x = minf(viewportWidth * 0.72, 1320.0)
 
+# Toggles the speech panel while keeping its active bubble above the backdrop.
+func ToggleTutor() -> void:
+	if tutorPanel.visible:
+		tutorPanel.Close()
+		return
+	tutorPanel.Open(GameManager.GetTutorOpeningPage())
+	tutorButton.move_to_front()
+
+# Returns modal overlays above the bubble after the Tutor conversation closes.
+func RestoreTutorBubbleLayer() -> void:
+	creditsOverlay.move_to_front()
+	settingsPanel.move_to_front()
+	tutorPanel.move_to_front()
+
 #endregion
 
 #region ========== Signal Callbacks ==========
@@ -76,13 +94,12 @@ func _on_play_button_pressed() -> void:
 
 # Opens the local Credits overlay without involving gameplay state.
 func _on_credits_button_pressed() -> void:
+	creditsOverlay.move_to_front()
 	creditsOverlay.visible = true
-	closeCreditsButton.grab_focus()
 
-# Closes the Credits overlay and restores focus to its Home action.
+# Closes the Credits overlay without pre-highlighting another Home action.
 func _on_close_credits_button_pressed() -> void:
 	creditsOverlay.visible = false
-	creditsButton.grab_focus()
 
 # Emits the application exit request through the shared manager.
 func _on_exit_button_pressed() -> void:

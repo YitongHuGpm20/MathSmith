@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UIScreens/MistakeBookUI.gd" id="1_script"]
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="2_theme"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/back.svg" id="3_back"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/TutorPanel.tscn" id="4_tutor_panel"]
+[ext_resource type="PackedScene" path="res://Scenes/Menus/TutorBubble.tscn" id="5_tutor_bubble"]
 
 [node name="MistakeBookScene" type="Control"]
 layout_mode = 3
@@ -96,3 +98,10 @@ autowrap_mode = 2
 [node name="EntryContainer" type="VBoxContainer" parent="MainMargin/MainLayout/MistakeScroll/Content"]
 layout_mode = 2
 theme_override_constants/separation = 18
+
+[node name="TutorPanel" parent="." instance=ExtResource("4_tutor_panel")]
+layout_mode = 1
+
+[node name="TutorBubble" parent="." instance=ExtResource("5_tutor_bubble")]
+unique_name_in_owner = true
+layout_mode = 1
