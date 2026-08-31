@@ -21,6 +21,10 @@ MathSmith is a bilingual Godot portfolio project designed and developed by **Yit
 
 ## Demo & Portfolio | 演示与作品集
 
+### Play Online | 在线试玩
+
+[Play MathSmith on itch.io / 在 itch.io 试玩《数锻》](https://bugondesk.itch.io/mathsmith)
+
 ### M1–M7 Development Video | M1–M7 里程碑开发合辑
 
 - [Watch on YouTube / 在 YouTube 观看](https://youtu.be/JnWfYu5qoms)
@@ -253,13 +257,13 @@ Tutor 呈现已有结构化系统提供的引导，不替代数学验证、自�
 
 ~~~text
 Authored Expression
-        ↓
+		↓
 ExpressionParser
-        ↓
+		↓
 StepGenerator
-        ↓
+		↓
 Human-Readable Solution Process
-        ↓
+		↓
 Step Ordering | Multiple-Choice Ordering | Fill in the Process
 ~~~
 
@@ -392,6 +396,23 @@ git clone https://github.com/YitongHuGpm20/MathSmith.git
 
 ## License | 许可
 
-This repository is presented as a personal portfolio project. Third-party assets remain subject to their respective licenses.
+MathSmith's software source code, Scenes, Themes, and project configuration are
+open source under the [MIT License](LICENSE).
 
-本仓库作为个人作品集项目展示；第三方资源仍遵循各自的许可协议。
+《数锻》的程序源代码、Scenes、Themes 与项目配置以
+[MIT License](LICENSE) 正式开源。
+
+Authored curriculum content, localization content, portfolio documents,
+recordings, the MathSmith / 数锻 identity, and Yitong Hu's personal Logo are
+excluded from the MIT License and remain Copyright (c) 2026 Yitong Hu. All
+rights reserved.
+
+原创课程内容、本地化内容、作品集文档、录屏、MathSmith / 数锻品牌及
+Yitong Hu 的个人 Logo 不属于 MIT 授权范围，版权归 Yitong Hu 所有。
+
+Lucide icons, Kenney audio, Godot Engine components, and other third-party
+materials remain subject to their original licenses. See
+[Third-Party Notices](THIRD_PARTY_NOTICES.md) for details.
+
+Lucide 图标、Kenney 音效、Godot Engine 组件及其他第三方资源继续遵循其
+原始许可证，详情见[第三方声明](THIRD_PARTY_NOTICES.md)。
