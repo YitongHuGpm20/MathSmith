@@ -371,13 +371,15 @@ func CreateValidationIssueCard(issue: Dictionary) -> PanelContainer:
 	contextLabel.text = BuildIssueContext(issue)
 	contextLabel.add_theme_color_override("font_color", GetSeverityColor(severity))
 	contextLabel.add_theme_font_size_override("font_size", 15)
-	messageLabel.text = "%s: %s" % [tr(severity), issue.get("message", "")]
+	messageLabel.text = "%s: %s" % [tr(severity), tr(String(issue.get("message", "")))]
 	messageLabel.add_theme_font_size_override("font_size", 17)
 	messageLabel.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	expressionLabel.text = BuildExpressionContext(rowNumber)
 	expressionLabel.visible = not expressionLabel.text.is_empty()
 	expressionLabel.add_theme_color_override("font_color", Color(0.62, 0.72, 0.84, 1.0))
-	actionLabel.text = tr("Suggested Action: %s") % issue.get("suggestedAction", "")
+	actionLabel.text = tr("Suggested Action: %s") % tr(
+		String(issue.get("suggestedAction", ""))
+	)
 	actionLabel.add_theme_color_override("font_color", Color(0.52, 0.62, 0.74, 1.0))
 	actionLabel.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	issueCard.add_child(issueMargin)
@@ -395,7 +397,7 @@ func BuildIssueContext(issue: Dictionary) -> String:
 	if rowNumber > 0:
 		contextParts.append(tr("Row %d") % rowNumber)
 	if not String(issue.get("recordType", "")).is_empty():
-		contextParts.append(String(issue.get("recordType", "")))
+		contextParts.append(tr(String(issue.get("recordType", ""))))
 	if not String(issue.get("levelId", "")).is_empty():
 		contextParts.append(tr("Level: %s") % issue.get("levelId", ""))
 	if not String(issue.get("questionId", "")).is_empty():

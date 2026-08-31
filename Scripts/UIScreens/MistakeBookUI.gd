@@ -147,7 +147,7 @@ func CreateReasonLabel(entry: Dictionary) -> Label:
 # Creates a compact cyan section heading.
 func CreateSectionLabel(sectionText: String) -> Label:
 	var sectionLabel := Label.new()
-	sectionLabel.text = sectionText.to_upper()
+	sectionLabel.text = tr(sectionText).to_upper()
 	sectionLabel.add_theme_font_size_override("font_size", 13)
 	sectionLabel.add_theme_color_override("font_color", Color(0.35, 0.8, 1, 1))
 	return sectionLabel
@@ -155,7 +155,7 @@ func CreateSectionLabel(sectionText: String) -> Label:
 # Creates wrapped explanatory copy for one saved rule.
 func CreateBodyLabel(bodyText: String) -> Label:
 	var bodyLabel := Label.new()
-	bodyLabel.text = bodyText
+	bodyLabel.text = tr(bodyText)
 	bodyLabel.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bodyLabel.add_theme_color_override("font_color", Color(0.76, 0.81, 0.89, 1))
 	return bodyLabel

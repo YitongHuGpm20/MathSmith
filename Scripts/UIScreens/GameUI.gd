@@ -430,7 +430,7 @@ func ShowChoiceStage(stageIndex: int, stageCount: int, choices: Array[String]) -
 # Clears the final candidate set after the complete process has been resolved.
 func ShowMultipleChoiceComplete() -> void:
 	ClearChoiceButtons()
-	stageLabel.text = "Solution complete"
+	stageLabel.text = tr("Solution complete")
 	choiceSeparator.visible = false
 	ShowCorrectAnswer(false)
 
@@ -709,7 +709,7 @@ func UpdateHintCount(remainingHintCount: int) -> void:
 
 # Displays a safe visual error state when gameplay data cannot be used.
 func ShowDataError(message: String) -> void:
-	feedbackLabel.text = message
+	feedbackLabel.text = tr(message)
 	hintButton.disabled = true
 	checkButton.disabled = true
 

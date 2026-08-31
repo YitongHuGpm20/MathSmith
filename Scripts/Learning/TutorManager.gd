@@ -145,7 +145,7 @@ func BuildLobbyOpeningPage(tutorContext: Dictionary) -> Dictionary:
 			"nextPage": responseBuilder.BuildActionConfirmationPage(
 				courseName.to_upper(),
 				"Open Mistake Book?",
-				"Review %d saved mistake entries from this Course." % int(mistakeContext.get("entryCount", 0)),
+				T("Review %d saved mistake entries from this Course.") % int(mistakeContext.get("entryCount", 0)),
 				"Open",
 				"open_mistake_book"
 			)
@@ -165,7 +165,7 @@ func BuildLobbyOpeningPage(tutorContext: Dictionary) -> Dictionary:
 	return {
 		"contextLabel": courseName.to_upper(),
 		"title": "Course Guidance",
-		"response": "Tutor is using only %s learning data." % courseName,
+		"response": T("Tutor is using only %s learning data.") % T(courseName),
 		"options": options
 	}
 
@@ -295,7 +295,7 @@ func BuildSessionSummaryOpeningPage(tutorContext: Dictionary) -> Dictionary:
 			"nextPage": responseBuilder.BuildActionConfirmationPage(
 				courseName.to_upper(),
 				"Open Mistake Book?",
-				"Review %d saved mistake entries from this Course." % int(mistakeContext.get("entryCount", 0)),
+				T("Review %d saved mistake entries from this Course.") % int(mistakeContext.get("entryCount", 0)),
 				"Open",
 				"open_mistake_book"
 			)
@@ -335,12 +335,12 @@ func BuildTeacherPreviewOpeningPage(tutorContext: Dictionary) -> Dictionary:
 
 # Lists existing weak-Skill classifications without recalculating Mastery.
 func BuildWeakSkillOverviewPage(courseName: String, weakSkills: Array) -> Dictionary:
-	var responseText: String = "No weak Skills are currently identified for this Course."
+	var responseText: String = T("No weak Skills are currently identified for this Course.")
 	if not weakSkills.is_empty():
 		var skillNames := PackedStringArray()
 		for skillValue in weakSkills:
-			skillNames.append(String(skillValue).replace("_", " ").capitalize())
-		responseText = "Current weak Skills:\n- " + "\n- ".join(skillNames)
+			skillNames.append(T(String(skillValue).replace("_", " ").capitalize()))
+		responseText = T("TUTOR_WEAK_SKILLS_FORMAT") % "\n- ".join(skillNames)
 	return {
 		"contextLabel": courseName.to_upper(),
 		"title": "Weak Skills",
@@ -375,7 +375,7 @@ func BuildMistakeBookOpeningPage(tutorContext: Dictionary) -> Dictionary:
 	return {
 		"contextLabel": courseName.to_upper(),
 		"title": "Mistake Book Guidance",
-		"response": "This Course has %d saved mistake entries. Select Ask Tutor on a Question card to inspect why it was saved, explain its existing rule, or reveal its stored correct process." % entryCount,
+		"response": T("This Course has %d saved mistake entries. Select Ask Tutor on a Question card to inspect why it was saved, explain its existing rule, or reveal its stored correct process.") % entryCount,
 		"options": options
 	}
 
@@ -395,7 +395,7 @@ func BuildCourseDataPage(
 		"contextLabel": courseName.to_upper(),
 		"title": "Current Course Data",
 		"response": (
-			"Completed Question records: %d\nSkills with evidence: %d\nCurrent weak Skills: %d\nMistake Book entries: %d"
+			T("TUTOR_COURSE_DATA_FORMAT")
 			% [
 				int(learningContext.get("historyRecordCount", 0)),
 				skillProgress.size(),
@@ -417,10 +417,14 @@ func BuildCourseIsolationPage(courseName: String) -> Dictionary:
 		"contextLabel": courseName.to_upper(),
 		"title": "Course-Scoped Guidance",
 		"response": (
-			"Tutor uses only %s data while this Course is active. Other Course progress, mistakes, history, and Skill values are not included."
-			% courseName
+			T("Tutor uses only %s data while this Course is active. Other Course progress, mistakes, history, and Skill values are not included.")
+			% T(courseName)
 		),
 		"options": []
 	}
+
+# Translates one stable Tutor fragment through the shared catalog.
+func T(sourceText: String) -> String:
+	return String(TranslationServer.translate(sourceText))
 
 #endregion

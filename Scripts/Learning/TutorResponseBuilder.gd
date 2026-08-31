@@ -110,8 +110,8 @@ func BuildStarRatingPage(tutorContext: Dictionary) -> Dictionary:
 	var summary: Dictionary = tutorContext.get("session", {}).get("summary", {})
 	return {
 		"contextLabel": "STAR RESULT",
-		"title": "%d of 3 Stars" % int(summary.get("stars", 0)),
-		"response": "Your Level finished at %d%% with a Score of %d / %d. MathSmith used that final percentage to produce the displayed %d-Star result." % [
+		"title": T("%d of 3 Stars") % int(summary.get("stars", 0)),
+		"response": T("Your Level finished at %d%% with a Score of %d / %d. MathSmith used that final percentage to produce the displayed %d-Star result.") % [
 			int(summary.get("percentage", 0)),
 			int(summary.get("score", 0)),
 			int(summary.get("maxScore", 0)),
@@ -152,26 +152,23 @@ func BuildWeakSkillRecommendationPage(tutorContext: Dictionary) -> Dictionary:
 		)
 		if not recommendationLines.is_empty():
 			recommendationLines.append("")
-		recommendationLines.append("%d. %s - %d%% Mastery" % [
+		recommendationLines.append(T("%d. %s - %d%% Mastery") % [
 			weakSkillIndex + 1,
 			FormatSkillName(skillId),
 			int(skillSummary.get("masteryScore", 0))
 		])
-		recommendationLines.append("Why:")
-		recommendationLines.append("- Identified by the existing M5 weak-Skill analysis")
-		recommendationLines.append("- %d completed Question%s, %d Hint%s, %d incorrect attempt%s" % [
+		recommendationLines.append(T("Why:"))
+		recommendationLines.append(T("- Identified by the existing M5 weak-Skill analysis"))
+		recommendationLines.append(T("- %d completed Questions, %d Hints, %d incorrect attempts") % [
 			int(skillSummary.get("completedCount", 0)),
-			"" if int(skillSummary.get("completedCount", 0)) == 1 else "s",
 			int(skillSummary.get("totalHintsUsed", 0)),
-			"" if int(skillSummary.get("totalHintsUsed", 0)) == 1 else "s",
-			int(skillSummary.get("totalIncorrectAttempts", 0)),
-			"" if int(skillSummary.get("totalIncorrectAttempts", 0)) == 1 else "s"
+			int(skillSummary.get("totalIncorrectAttempts", 0))
 		])
-		recommendationLines.append("Suggested:")
+		recommendationLines.append(T("Suggested:"))
 		if relevantLevelName.is_empty():
-			recommendationLines.append("- Practice content tagged with this Skill")
+			recommendationLines.append(T("- Practice content tagged with this Skill"))
 		else:
-			recommendationLines.append("- %s" % relevantLevelName)
+			recommendationLines.append("- %s" % T(relevantLevelName))
 			AppendLevelPracticeOption(
 				recommendationOptions,
 				skillId,
@@ -225,11 +222,11 @@ func AppendLevelPracticeOption(
 				return
 		options.append({
 			"actionId": "confirm_level:" + levelId,
-			"label": "Practice %s" % levelTitle,
+			"label": T("Practice %s") % T(levelTitle),
 			"nextPage": BuildActionConfirmationPage(
 				"RECOMMENDED LEVEL",
-				"Start %s?" % levelTitle,
-				"This Level is already ranked by M5 for overlap with %s." % FormatSkillName(skillId),
+				T("Start %s?") % T(levelTitle),
+				T("This Level is already ranked by M5 for overlap with %s.") % FormatSkillName(skillId),
 				"Start",
 				"start_level:" + levelId
 			)
@@ -283,13 +280,13 @@ func BuildRelevantLevelPage(tutorContext: Dictionary) -> Dictionary:
 		var matchedSkills := PackedStringArray()
 		for skillValue in recommendation.get("weakSkills", []):
 			matchedSkills.append(FormatSkillName(String(skillValue)))
-		levelLines.append("%s - %s" % [levelTitle, ", ".join(matchedSkills)])
+		levelLines.append("%s - %s" % [T(levelTitle), ", ".join(matchedSkills)])
 		options.append({
 			"actionId": "confirm_level:" + levelId,
-			"label": "Practice %s" % levelTitle,
+			"label": T("Practice %s") % T(levelTitle),
 			"nextPage": BuildActionConfirmationPage(
 				"RECOMMENDED LEVEL",
-				"Start %s?" % levelTitle,
+				T("Start %s?") % T(levelTitle),
 				"This uses the existing M5 Level recommendation for the active Course.",
 				"Start",
 				"start_level:" + levelId
@@ -313,10 +310,10 @@ func BuildPlayerHistoryPage(tutorContext: Dictionary) -> Dictionary:
 	for historyIndex in range(firstIndex, recentHistory.size()):
 		var historyRecord: Dictionary = recentHistory[historyIndex]
 		var outcome: Dictionary = historyRecord.get("outcome", {})
-		historyLines.append("%s - %d points - %s" % [
+		historyLines.append(T("%s - %d points - %s") % [
 			historyRecord.get("expression", "Question"),
 			int(outcome.get("questionScore", 0)),
-			"Completed" if outcome.get("completed", false) else "Incomplete"
+			T("Completed") if outcome.get("completed", false) else T("Incomplete")
 		])
 	return {
 		"contextLabel": courseName.to_upper(),
@@ -337,12 +334,12 @@ func BuildBehaviorPatternPage(tutorContext: Dictionary) -> Dictionary:
 		return BuildNotEnoughDataPage(courseName)
 	var sharedMetrics: Dictionary = latestRecord.get("sharedMetrics", {})
 	var evidenceLines := PackedStringArray()
-	evidenceLines.append("Observed Pattern: %s" % FormatSkillName(patternName))
-	evidenceLines.append("Evidence from this completed Question:")
-	evidenceLines.append("- First action time: %d ms" % int(latestRecord.get("firstActionTimeMs", -1)))
-	evidenceLines.append("- Total actions: %d" % int(sharedMetrics.get("totalActions", 0)))
-	evidenceLines.append("- Incorrect attempts: %d" % int(sharedMetrics.get("incorrectAttempts", 0)))
-	evidenceLines.append("- Hints used: %d" % int(sharedMetrics.get("hintUses", 0)))
+	evidenceLines.append(T("Observed Pattern: %s") % FormatSkillName(patternName))
+	evidenceLines.append(T("Evidence from this completed Question:"))
+	evidenceLines.append(T("- First action time: %d ms") % int(latestRecord.get("firstActionTimeMs", -1)))
+	evidenceLines.append(T("- Total actions: %d") % int(sharedMetrics.get("totalActions", 0)))
+	evidenceLines.append(T("- Incorrect attempts: %d") % int(sharedMetrics.get("incorrectAttempts", 0)))
+	evidenceLines.append(T("- Hints used: %d") % int(sharedMetrics.get("hintUses", 0)))
 	return {
 		"contextLabel": courseName.to_upper(),
 		"title": "Recent Solve Pattern",
@@ -440,9 +437,9 @@ func BuildCorrectProcessPage(tutorContext: Dictionary) -> Dictionary:
 	var formattedSteps := PackedStringArray()
 	for stepValue in correctProcess:
 		formattedSteps.append(String(stepValue))
-	var responseText: String = "No generated process is available for this Question."
+	var responseText: String = T("No generated process is available for this Question.")
 	if not formattedSteps.is_empty():
-		responseText = "Correct process:\n" + "\n".join(formattedSteps)
+		responseText = T("TUTOR_CORRECT_PROCESS_FORMAT") % "\n".join(formattedSteps)
 	return {
 		"contextLabel": "QUESTION PROCESS",
 		"title": question.get("expression", "Correct Process"),
@@ -469,12 +466,12 @@ func BuildSavedMistakePage(mistakeEntry: Dictionary) -> Dictionary:
 	var savedReasons := PackedStringArray()
 	var incorrectAttempts: int = mistakeEntry.get("incorrectAttempts", 0)
 	if incorrectAttempts >= 2:
-		savedReasons.append("%d incorrect attempts" % incorrectAttempts)
+		savedReasons.append(T("%d incorrect attempts") % incorrectAttempts)
 	if mistakeEntry.get("hintUsed", false):
-		savedReasons.append("a Hint was used")
-	var reasonText: String = "This Question was saved for later review."
+		savedReasons.append(T("a Hint was used"))
+	var reasonText: String = T("This Question was saved for later review.")
 	if not savedReasons.is_empty():
-		reasonText = "This Question was saved after " + " and ".join(savedReasons) + "."
+		reasonText = T("This Question was saved after %s.") % T(" and ").join(savedReasons)
 	return {
 		"contextLabel": "MISTAKE REVIEW",
 		"title": mistakeEntry.get("expression", "Saved Question"),

@@ -122,7 +122,7 @@ func ValidatePhysicalRows(parseResult: Dictionary, report: Dictionary) -> void:
 			parsedRow,
 			"row",
 			ERROR_SEVERITY,
-			"Row contains %d columns instead of %d."
+			T("Row contains %d columns instead of %d.")
 			% [int(parsedRow.get("columnCount", 0)), EXPECTED_COLUMN_COUNT],
 			"Check commas and CSV quotation marks on this row."
 		)
@@ -140,7 +140,7 @@ func ValidateRecordStructure(parseResult: Dictionary, report: Dictionary) -> voi
 				parsedRow,
 				"record_type",
 				ERROR_SEVERITY,
-				"Unknown Record Type '%s'." % recordType,
+				T("Unknown Record Type '%s'.") % recordType,
 				"Use COURSE, LEVEL, or QUESTION exactly as written."
 			)
 			continue
@@ -152,8 +152,8 @@ func ValidateRecordStructure(parseResult: Dictionary, report: Dictionary) -> voi
 					parsedRow,
 					requiredField,
 					ERROR_SEVERITY,
-					"Required field '%s' is empty." % requiredField,
-					"Enter a value in the '%s' column." % requiredField
+					T("Required field '%s' is empty.") % requiredField,
+					T("Enter a value in the '%s' column.") % requiredField
 				)
 
 		# Reject misplaced data so separated Course, Level, and Question sections stay clear.
@@ -167,7 +167,7 @@ func ValidateRecordStructure(parseResult: Dictionary, report: Dictionary) -> voi
 					parsedRow,
 					fieldName,
 					ERROR_SEVERITY,
-					"Field '%s' does not belong on a %s record." % [fieldName, recordType],
+					T("Field '%s' does not belong on a %s record.") % [fieldName, recordType],
 					"Move this value to the appropriate record section or clear the cell."
 				)
 
@@ -247,7 +247,7 @@ func ValidateLevelRecords(parseResult: Dictionary, report: Dictionary) -> void:
 				levelRecord,
 				"level_id",
 				ERROR_SEVERITY,
-				"Duplicate Level ID '%s'." % levelId,
+				T("Duplicate Level ID '%s'.") % levelId,
 				"Give every Level a unique stable ID."
 			)
 		else:
@@ -270,7 +270,7 @@ func ValidateLevelRecords(parseResult: Dictionary, report: Dictionary) -> void:
 				levelRecord,
 				"level_type",
 				ERROR_SEVERITY,
-				"Invalid Level Type '%s'." % levelType,
+				T("Invalid Level Type '%s'.") % levelType,
 				"Use step_ordering, multiple_choice_ordering, or fill_in_process."
 			)
 
@@ -299,7 +299,7 @@ func ValidateQuestionRecords(parseResult: Dictionary, report: Dictionary) -> voi
 				questionRecord,
 				"level_id",
 				ERROR_SEVERITY,
-				"Question references undefined Level '%s'." % levelId,
+				T("Question references undefined Level '%s'.") % levelId,
 				"Create the Level first or correct this level_id."
 			)
 		elif int(levelRowsById[levelId]) > int(questionRecord.get("rowNumber", 0)):
@@ -318,7 +318,7 @@ func ValidateQuestionRecords(parseResult: Dictionary, report: Dictionary) -> voi
 				questionRecord,
 				"question_id",
 				ERROR_SEVERITY,
-				"Duplicate Question ID '%s'." % questionId,
+				T("Duplicate Question ID '%s'.") % questionId,
 				"Give every Question a unique stable ID."
 			)
 		else:
@@ -350,7 +350,7 @@ func ValidateSkillTags(levelRecord: Dictionary, report: Dictionary) -> void:
 				levelRecord,
 				"skill_tags",
 				ERROR_SEVERITY,
-				"Skill Tag '%s' must use lowercase snake_case." % skillTag,
+				T("Skill Tag '%s' must use lowercase snake_case.") % skillTag,
 				"Use semicolon-separated lowercase Skill IDs."
 			)
 		if seenSkills.has(skillTag):
@@ -359,7 +359,7 @@ func ValidateSkillTags(levelRecord: Dictionary, report: Dictionary) -> void:
 				levelRecord,
 				"skill_tags",
 				ERROR_SEVERITY,
-				"Skill Tag '%s' is duplicated." % skillTag,
+				T("Skill Tag '%s' is duplicated.") % skillTag,
 				"List each Skill once per Level."
 			)
 		seenSkills[skillTag] = true
@@ -441,14 +441,14 @@ func ValidateExpressionForAuthoring(expression: String) -> Dictionary:
 		return CreateExpressionValidationResult(
 			true,
 			WARNING_SEVERITY,
-			"Generated solution is unusually long (%d steps)." % generatedSteps.size(),
+			T("Generated solution is unusually long (%d steps).") % generatedSteps.size(),
 			"Preview the Question and review its readability.",
 			generatedSteps
 		)
 	return CreateExpressionValidationResult(
 		true,
 		VALID_SEVERITY,
-		"Expression is valid and generates %d solution steps." % generatedSteps.size(),
+		T("Expression is valid and generates %d solution steps.") % generatedSteps.size(),
 		"",
 		generatedSteps
 	)
@@ -542,7 +542,7 @@ func ValidateCourseComposition(parseResult: Dictionary, report: Dictionary) -> v
 			"",
 			"question_id",
 			WARNING_SEVERITY,
-			"Course contains an unusually high Question count (%d)." % questionRecords.size(),
+			T("Course contains an unusually high Question count (%d).") % questionRecords.size(),
 			"Review Course size and authoring performance before import."
 		)
 
@@ -592,6 +592,10 @@ func AddIssue(
 		"message": message,
 		"suggestedAction": suggestedAction
 	})
+
+# Translates stable authoring feedback before inserting runtime values.
+func T(sourceText: String) -> String:
+	return String(TranslationServer.translate(sourceText))
 
 # Adds an issue using identifying context already parsed from one physical row.
 func AddRowIssue(

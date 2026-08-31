@@ -1,12 +1,12 @@
 keys,en,zh_CN
-MATHSMITH TUTOR,MATHSMITH TUTOR,MathSmith 导师
+MATHSMITH TUTOR,MATHSMITH TUTOR,数锻导师
 GUIDED TUTOR,GUIDED TUTOR,引导式导师
 How can I help?,How can I help?,我能如何帮助你？
-What is MathSmith?,What is MathSmith?,什么是 MathSmith？
+What is MathSmith?,What is MathSmith?,什么是数锻？
 How do the game modes work?,How do the game modes work?,游戏模式如何运作？
 What should I do first?,What should I do first?,我应该先做什么？
 Show my progress,Show my progress,查看我的进度
-About MathSmith,About MathSmith,关于 MathSmith
+About MathSmith,About MathSmith,关于数锻
 Game Modes,Game Modes,游戏模式
 Getting Started,Getting Started,开始使用
 Course Progress,Course Progress,课程进度
@@ -86,15 +86,15 @@ Score: %d / %d,Score: %d / %d,分数：%d / %d
 Hints used: %d,Hints used: %d,已使用提示：%d
 Stars: %d / 3,Stars: %d / 3,星级：%d / 3
 New best result,New best result,新的最佳纪录
-"I can explain MathSmith's learning tools and provide Course-specific guidance after you enter a Course.","I can explain MathSmith's learning tools and provide Course-specific guidance after you enter a Course.",我可以解释 MathSmith 的学习工具，并在你进入课程后提供对应课程的指导。
-"MathSmith is a step-based math learning game. It focuses on rebuilding and understanding the reasoning process behind each calculation.","MathSmith is a step-based math learning game. It focuses on rebuilding and understanding the reasoning process behind each calculation.",MathSmith 是一款分步骤数学学习游戏，重点是重建并理解每次计算背后的推理过程。
+"I can explain MathSmith's learning tools and provide Course-specific guidance after you enter a Course.","I can explain MathSmith's learning tools and provide Course-specific guidance after you enter a Course.",我可以解释数锻的学习工具，并在你进入课程后提供对应课程的指导。
+"MathSmith is a step-based math learning game. It focuses on rebuilding and understanding the reasoning process behind each calculation.","MathSmith is a step-based math learning game. It focuses on rebuilding and understanding the reasoning process behind each calculation.",数锻是一款分步骤数学学习游戏，重点是重建并理解每次计算背后的推理过程。
 "Step Ordering asks you to arrange a complete process. Multiple-Choice Ordering asks you to choose each next Step. Fill in the Process asks you to complete missing values.","Step Ordering asks you to arrange a complete process. Multiple-Choice Ordering asks you to choose each next Step. Fill in the Process asks you to complete missing values.",步骤排序要求你排列完整过程；多项选择排序要求你选择下一步骤；过程填空要求你补全缺失数值。
 "Select Play, choose a Course, then begin with a Level in the first gameplay mode. Tutor will use that Course's data only after you enter it.","Select Play, choose a Course, then begin with a Level in the first gameplay mode. Tutor will use that Course's data only after you enter it.",选择开始游戏和课程，然后从第一个玩法的关卡开始。进入课程后，导师才会使用该课程的数据。
 "Progress is stored separately for each Course. Enter a Course and open Tutor there to review its learning data without mixing Course Sources.","Progress is stored separately for each Course. Enter a Course and open Tutor there to review its learning data without mixing Course Sources.",每门课程的进度分别保存。进入课程后打开导师，即可查看该课程的数据而不会混合其他课程来源。
 "Choose what you want to understand. Tutor will explain the existing rules without revealing the current answer.","Choose what you want to understand. Tutor will explain the existing rules without revealing the current answer.",选择你想了解的内容。导师会解释现有规则，但不会泄露当前答案。
 "Your completed result is ready. Choose what you want to review next.","Your completed result is ready. Choose what you want to review next.",本次结果已经生成。请选择接下来想复习的内容。
 "Preview guidance reads this authored Course and does not write Player History, Mastery, Mistake Book, adaptive data, or analytics.","Preview guidance reads this authored Course and does not write Player History, Mastery, Mistake Book, adaptive data, or analytics.",预览指导会读取当前创作课程，但不会写入玩家记录、熟练度、错题本、自适应数据或分析数据。
-"Complete a few more Questions in this Course so MathSmith can identify stronger and weaker Skills.","Complete a few more Questions in this Course so MathSmith can identify stronger and weaker Skills.",请在本课程中再完成几道题，让 MathSmith 能够识别较强和较弱的技能。
+"Complete a few more Questions in this Course so MathSmith can identify stronger and weaker Skills.","Complete a few more Questions in this Course so MathSmith can identify stronger and weaker Skills.",请在本课程中再完成几道题，让数锻能够识别较强和较弱的技能。
 "The current M5 analysis does not identify a weak Skill in this Course. Continue playing so the evidence can stay current.","The current M5 analysis does not identify a weak Skill in this Course. Continue playing so the evidence can stay current.",当前 M5 分析没有在本课程中识别出薄弱技能。继续游玩可让证据保持更新。
 "Choose a replay mode. Options appear only when their required Course data exists.","Choose a replay mode. Options appear only when their required Course data exists.",请选择重复游玩模式。只有具备所需课程数据时，对应选项才会出现。
 "Hints are limited, player-requested help and may reduce your Score. Progressive Error Feedback appears automatically after repeated incorrect attempts: first generic feedback, then directional guidance, then a contextual rule explanation. It does not spend a Hint.","Hints are limited, player-requested help and may reduce your Score. Progressive Error Feedback appears automatically after repeated incorrect attempts: first generic feedback, then directional guidance, then a contextual rule explanation. It does not spend a Hint.",提示是数量有限的主动帮助，可能降低分数。连续答错后会自动出现渐进式错误反馈：先是通用反馈，然后是方向性指导，最后是结合情境的规则解释，并且不会消耗提示。
@@ -117,7 +117,7 @@ Close,Close,关闭
 GAME DESIGN • TECHNICAL DESIGN • DEVELOPMENT,GAME DESIGN • TECHNICAL DESIGN • DEVELOPMENT,游戏设计 • 技术设计 • 开发
 SOUND EFFECTS,SOUND EFFECTS,音效
 ICONS,ICONS,图标
-MathSmith Lobby,MathSmith Lobby,MathSmith 关卡大厅
+MathSmith Lobby,MathSmith Lobby,数锻关卡大厅
 Choose what to practice and how to solve it.,Choose what to practice and how to solve it.,选择练习内容和解题方式。
 Home,Home,主页
 Step Ordering,Step Ordering,步骤排序
@@ -249,7 +249,7 @@ Mixed Operations,Mixed Operations,混合运算
 Parentheses,Parentheses,括号运算
 Complex Parentheses,Complex Parentheses,复杂括号
 Advanced Expressions,Advanced Expressions,进阶表达式
-MathSmith Challenge,MathSmith Challenge,MathSmith 挑战
+MathSmith Challenge,MathSmith Challenge,数锻挑战
 Addition,Addition,加法
 Subtraction,Subtraction,减法
 Multiplication,Multiplication,乘法
@@ -273,18 +273,18 @@ CHOOSE COURSE,CHOOSE COURSE,选择课程
 Select Your Learning Path,Select Your Learning Path,选择你的学习路径
 "Each Course keeps its own progress, Mastery, and learning history.","Each Course keeps its own progress, Mastery, and learning history.",每门课程都独立保存进度、掌握度和学习记录。
 Core Curriculum,Core Curriculum,核心课程
-Built-in MathSmith learning path,Built-in MathSmith learning path,MathSmith 内置学习路径
+Built-in MathSmith learning path,Built-in MathSmith learning path,数锻内置学习路径
 Imported Course,Imported Course,导入课程
 Teacher-authored CSV content,Teacher-authored CSV content,教师通过 CSV 编写的课程内容
 Studio Course,Studio Course,工作室课程
-Content created in MathSmith Studio,Content created in MathSmith Studio,在 MathSmith Studio 中创建的内容
+Content created in MathSmith Studio,Content created in MathSmith Studio,在数锻工作室中创建的内容
 %d Levels  •  %d Questions,%d Levels  •  %d Questions,%d 个关卡  •  %d 道题
 AVAILABLE,AVAILABLE,可用
 UNAVAILABLE,UNAVAILABLE,不可用
 Course authoring is available separately through Teacher Tools.,Course authoring is available separately through Teacher Tools.,课程创作功能将在独立的教师工具中提供。
 Teacher Tools,Teacher Tools,教师工具
 TEACHER ACCESS,TEACHER ACCESS,教师入口
-MathSmith Teacher Tools,MathSmith Teacher Tools,MathSmith 教师工具
+MathSmith Teacher Tools,MathSmith Teacher Tools,数锻教师工具
 Enter the local prototype password.,Enter the local prototype password.,请输入本地原型密码。
 Demo access: the password is teacher.,Demo access: the password is teacher.,演示入口：密码是 teacher。
 "[center]Demo access: the password is [code][font_size=19][color=#52d5ff]teacher[/color][/font_size][/code][/center]","[center]Demo access: the password is [code][font_size=19][color=#52d5ff]teacher[/color][/font_size][/code][/center]","[center]演示入口：密码是 [code][font_size=19][color=#52d5ff]teacher[/color][/font_size][/code][/center]"
@@ -294,7 +294,7 @@ Incorrect password.,Incorrect password.,密码错误。
 Local prototype access — not production authentication.,Local prototype access — not production authentication.,本地原型入口——并非生产级身份验证。
 TEACHER DASHBOARD,TEACHER DASHBOARD,教师控制台
 Teacher Dashboard,Teacher Dashboard,教师控制台
-Manage imported content and build editable courses in MathSmith Studio.,Manage imported content and build editable courses in MathSmith Studio.,管理导入内容并在 MathSmith Studio 中创建可编辑课程。
+Manage imported content and build editable courses in MathSmith Studio.,Manage imported content and build editable courses in MathSmith Studio.,管理导入内容并在数锻工作室中创建可编辑课程。
 IMPORTED COURSE,IMPORTED COURSE,导入课程
 CSV Course Workspace,CSV Course Workspace,CSV 课程工作区
 Validate and manage one read-only teacher-authored CSV Course.,Validate and manage one read-only teacher-authored CSV Course.,验证并管理一门教师编写的只读 CSV 课程。
@@ -311,7 +311,7 @@ Import to Studio,Import to Studio,导入到工作室
 Export,Export,导出
 Remove Imported Course,Remove Imported Course,移除导入课程
 STUDIO COURSE,STUDIO COURSE,工作室课程
-MathSmith Studio,MathSmith Studio,MathSmith Studio
+MathSmith Studio,MathSmith Studio,数锻工作室
 Create and edit an independent visual-authoring Course.,Create and edit an independent visual-authoring Course.,创建并编辑独立的可视化创作课程。
 Open Visual Course Editor,Open Visual Course Editor,打开可视化课程编辑器
 Create New Studio Course,Create New Studio Course,新建工作室课程
@@ -329,7 +329,7 @@ Level: %s,Level: %s,关卡：%s
 Question: %s,Question: %s,题目：%s
 Field: %s,Field: %s,字段：%s
 Expression: %s,Expression: %s,表达式：%s
-Select MathSmith Course CSV,Select MathSmith Course CSV,选择 MathSmith 课程 CSV
+Select MathSmith Course CSV,Select MathSmith Course CSV,选择数锻课程 CSV
 Validate,Validate,验证
 File: %s,File: %s,文件：%s
 Last Updated: %s,Last Updated: %s,最后更新：%s
@@ -360,7 +360,7 @@ Replace Studio Course,Replace Studio Course,替换 Studio 课程
 Studio Course already contains content. Replace it with an independent copy of Imported Course?,Studio Course already contains content. Replace it with an independent copy of Imported Course?,Studio 课程已包含内容。是否用导入课程的独立副本替换它？
 Copied to Studio,Copied to Studio,已复制到 Studio
 Imported Course was copied into an independent Studio Course.,Imported Course was copied into an independent Studio Course.,导入课程已复制为独立的 Studio 课程。
-MATHSMITH STUDIO,MATHSMITH STUDIO,MATHSMITH STUDIO
+MATHSMITH STUDIO,MATHSMITH STUDIO,数锻工作室
 Untitled Studio Course,Untitled Studio Course,未命名 Studio 课程
 SAVED,SAVED,已保存
 Back to Dashboard,Back to Dashboard,返回教师控制台
@@ -443,12 +443,173 @@ The requested Course operation could not be completed.,The requested Course oper
 No course imported yet.,No course imported yet.,尚未导入课程。
 Use Teacher Tools to import a CSV Course.,Use Teacher Tools to import a CSV Course.,请通过教师工具导入 CSV 课程。
 This Studio Course has no playable Levels yet.,This Studio Course has no playable Levels yet.,此 Studio 课程还没有可玩的关卡。
-Add valid content in MathSmith Studio.,Add valid content in MathSmith Studio.,请在 MathSmith Studio 中添加有效内容。
+Add valid content in MathSmith Studio.,Add valid content in MathSmith Studio.,请在数锻工作室中添加有效内容。
 No Studio Course created yet.,No Studio Course created yet.,尚未创建 Studio 课程。
 Use Teacher Tools to create a Studio Course.,Use Teacher Tools to create a Studio Course.,请通过教师工具创建 Studio 课程。
 Import a UTF-8 CSV Course to make it available to players.,Import a UTF-8 CSV Course to make it available to players.,导入 UTF-8 CSV 课程后即可供玩家使用。
 Create a new Studio Course or copy the current Imported Course.,Create a new Studio Course or copy the current Imported Course.,创建新的 Studio 课程或复制当前导入课程。
 No Levels yet. Add a Level to begin authoring.,No Levels yet. Add a Level to begin authoring.,暂无关卡。添加一个关卡以开始创作。
-Select and validate a MathSmith Course CSV. Existing content changes only after confirmation.,Select and validate a MathSmith Course CSV. Existing content changes only after confirmation.,选择并验证 MathSmith 课程 CSV。只有确认后才会更改现有内容。
+Select and validate a MathSmith Course CSV. Existing content changes only after confirmation.,Select and validate a MathSmith Course CSV. Existing content changes only after confirmation.,选择并验证数锻课程 CSV。只有确认后才会更改现有内容。
 Edit Levels and Questions in the persistent Studio workspace.,Edit Levels and Questions in the persistent Studio workspace.,在持久保存的 Studio 工作区中编辑关卡和题目。
 Validate and export the current Studio Course as CSV.,Validate and export the current Studio Course as CSV.,验证当前 Studio 课程并将其导出为 CSV。
+MathSmith,MathSmith,数锻
+MathSmith Tutor,MathSmith Tutor,数锻导师
+Back,Back,返回
+HOME,HOME,主页
+Tutor,Tutor,导师
+Mute all audio,Mute all audio,静音所有音频
+Confirm Action,Confirm Action,确认操作
+Confirm this action?,Confirm this action?,确认执行此操作？
+Confirm,Confirm,确认
+Level Title,Level Title,关卡标题
+LEVELS,LEVELS,关卡
+NOT STARTED,NOT STARTED,尚未开始
+5 QUESTIONS,5 QUESTIONS,5 道题
+12 Levels,12 Levels,12 个关卡
+0 Levels,0 Levels,0 个关卡
+0 SAVED,0 SAVED,已保存 0 道
++ Add Level,+ Add Level,+ 添加关卡
++ Add Question,+ Add Question,+ 添加题目
+Choose a topic.,Choose a topic.,选择一个主题。
+M5 ANALYTICS,M5 ANALYTICS,M5 数据分析
+Addition  |  Basic Arithmetic,Addition  |  Basic Arithmetic,加法  |  基础算术
+OK,OK,确定
+Select %s,Select %s,选择%s
+Solution complete,Solution complete,解题过程已完成
+Untitled Level,Untitled Level,未命名关卡
+Three guided modes,Three guided modes,三种引导模式
+"Choose a topic. MathSmith Tutor uses game data and guided options instead of free-form chat.","Choose a topic. MathSmith Tutor uses game data and guided options instead of free-form chat.",请选择一个主题。数锻导师使用游戏数据和引导选项，而不是自由聊天。
+"MathSmith helps you rebuild the reasoning behind arithmetic, one step at a time.","MathSmith helps you rebuild the reasoning behind arithmetic, one step at a time.",数锻帮助你逐步重建算术背后的推理过程。
+"You can order solution steps, choose each next step, or fill missing values in a process.","You can order solution steps, choose each next step, or fill missing values in a process.",你可以排列解题步骤、选择下一步骤，或填写过程中的缺失数值。
+GAMEPLAY,GAMEPLAY,游戏玩法
+SCORE BREAKDOWN,SCORE BREAKDOWN,分数明细
+PERFORMANCE SUMMARY,PERFORMANCE SUMMARY,表现总结
+STAR RESULT,STAR RESULT,星级结果
+QUESTION RULE,QUESTION RULE,题目规则
+QUESTION PROCESS,QUESTION PROCESS,解题过程
+MISTAKE REVIEW,MISTAKE REVIEW,错题复习
+SESSION SUMMARY,SESSION SUMMARY,本局总结
+NAVIGATION,NAVIGATION,导航
+RECOMMENDED LEVEL,RECOMMENDED LEVEL,推荐关卡
+Hints and Error Feedback,Hints and Error Feedback,提示与错误反馈
+Current Course Data,Current Course Data,当前课程数据
+Course-Scoped Guidance,Course-Scoped Guidance,课程专属指导
+Weak Skills,Weak Skills,薄弱技能
+No weak Skills are currently identified for this Course.,No weak Skills are currently identified for this Course.,当前课程尚未识别出薄弱技能。
+TUTOR_WEAK_SKILLS_FORMAT,"Current weak Skills:\n- %s","当前薄弱技能：\n- %s"
+TUTOR_COURSE_DATA_FORMAT,"Completed Question records: %d\nSkills with evidence: %d\nCurrent weak Skills: %d\nMistake Book entries: %d","已完成题目记录：%d\n已有数据的技能：%d\n当前薄弱技能：%d\n错题本条目：%d"
+TUTOR_CORRECT_PROCESS_FORMAT,"Correct process:\n%s","正确过程：\n%s"
+"This Course has %d saved mistake entries. Select Ask Tutor on a Question card to inspect why it was saved, explain its existing rule, or reveal its stored correct process.","This Course has %d saved mistake entries. Select Ask Tutor on a Question card to inspect why it was saved, explain its existing rule, or reveal its stored correct process.","本课程保存了 %d 道错题。请在题目卡片上选择“询问导师”，查看保存原因、现有规则或已保存的正确过程。"
+Tutor is using only %s learning data.,Tutor is using only %s learning data.,导师当前仅使用%s的学习数据。
+"Tutor uses only %s data while this Course is active. Other Course progress, mistakes, history, and Skill values are not included.","Tutor uses only %s data while this Course is active. Other Course progress, mistakes, history, and Skill values are not included.","当前课程启用时，导师只使用%s的数据，不会包含其他课程的进度、错题、历史记录或技能数值。"
+Review %d saved mistake entries from this Course.,Review %d saved mistake entries from this Course.,复习本课程保存的 %d 道错题。
+%d of 3 Stars,%d of 3 Stars,3 星中获得 %d 星
+"Your Level finished at %d%% with a Score of %d / %d. MathSmith used that final percentage to produce the displayed %d-Star result.","Your Level finished at %d%% with a Score of %d / %d. MathSmith used that final percentage to produce the displayed %d-Star result.","本关最终完成度为 %d%%，分数为 %d / %d。数锻根据该百分比生成当前显示的 %d 星结果。"
+%d. %s - %d%% Mastery,%d. %s - %d%% Mastery,%d. %s——熟练度 %d%%
+Why:,Why:,原因：
+- Identified by the existing M5 weak-Skill analysis,- Identified by the existing M5 weak-Skill analysis,- 由现有 M5 薄弱技能分析识别
+"- %d completed Questions, %d Hints, %d incorrect attempts","- %d completed Questions, %d Hints, %d incorrect attempts","- 已完成 %d 道题，使用 %d 次提示，答错 %d 次"
+Suggested:,Suggested:,建议：
+- Practice content tagged with this Skill,- Practice content tagged with this Skill,- 练习带有此技能标签的内容
+Practice %s,Practice %s,练习%s
+Start %s?,Start %s?,开始%s？
+This Level is already ranked by M5 for overlap with %s.,This Level is already ranked by M5 for overlap with %s.,M5 已根据与%s的重合度推荐此关卡。
+This uses the existing M5 Level recommendation for the active Course.,This uses the existing M5 Level recommendation for the active Course.,这里使用当前课程已有的 M5 关卡推荐结果。
+%s - %d points - %s,%s - %d points - %s,%s——%d 分——%s
+Incomplete,Incomplete,未完成
+Observed Pattern: %s,Observed Pattern: %s,观察到的模式：%s
+Evidence from this completed Question:,Evidence from this completed Question:,本次已完成题目的依据：
+- First action time: %d ms,- First action time: %d ms,- 首次操作时间：%d 毫秒
+- Total actions: %d,- Total actions: %d,- 总操作次数：%d
+- Incorrect attempts: %d,- Incorrect attempts: %d,- 答错次数：%d
+- Hints used: %d,- Hints used: %d,- 使用提示次数：%d
+No generated process is available for this Question.,No generated process is available for this Question.,当前题目没有可用的生成过程。
+%d incorrect attempts,%d incorrect attempts,答错 %d 次
+a Hint was used,a Hint was used,使用了提示
+" and "," and ",和
+How was my result calculated?,How was my result calculated?,我的结果是如何计算的？
+"Add a short player-facing summary if one is available.","Add a short player-facing summary if one is available.","如有需要，请添加面向玩家的简短说明。"
+"Add at least one LEVEL record.","Add at least one LEVEL record.","请至少添加一条 LEVEL 记录。"
+"Add at least one QUESTION record.","Add at least one QUESTION record.","请至少添加一条 QUESTION 记录。"
+"Add at least one QUESTION referencing this level_id.","Add at least one QUESTION referencing this level_id.","请至少添加一道引用此 level_id 的 QUESTION。"
+"Check commas and CSV quotation marks on this row.","Check commas and CSV quotation marks on this row.","请检查此行的逗号和 CSV 引号。"
+"Choose an accessible UTF-8 CSV file and try again.","Choose an accessible UTF-8 CSV file and try again.","请选择可访问的 UTF-8 CSV 文件后重试。"
+"Course contains an unusually high Question count (%d).","Course contains an unusually high Question count (%d).","课程包含异常多的题目（%d 道）。"
+"Course has no Levels.","Course has no Levels.","课程中没有关卡。"
+"Course has no Questions.","Course has no Questions.","课程中没有题目。"
+"Course ID must use lowercase snake_case.","Course ID must use lowercase snake_case.","课程 ID 必须使用小写 snake_case 格式。"
+"COURSE must be the first content record.","COURSE must be the first content record.","COURSE 必须是第一条内容记录。"
+"Create the Level first or correct this level_id.","Create the Level first or correct this level_id.","请先创建对应关卡，或修正此 level_id。"
+"CSV file is empty.","CSV file is empty.","CSV 文件为空。"
+"CSV headers do not match the MathSmith authoring schema.","CSV headers do not match the MathSmith authoring schema.","CSV 表头与数锻创作架构不一致。"
+"CSV must contain exactly one COURSE record.","CSV must contain exactly one COURSE record.","CSV 必须且只能包含一条 COURSE 记录。"
+"Duplicate Level ID '%s'.","Duplicate Level ID '%s'.","关卡 ID“%s”重复。"
+"Duplicate Question ID '%s'.","Duplicate Question ID '%s'.","题目 ID“%s”重复。"
+"Enter a value in the '%s' column.","Enter a value in the '%s' column.","请在“%s”列中输入内容。"
+"Expression cannot be evaluated safely.","Expression cannot be evaluated safely.","无法安全计算此表达式。"
+"Expression cannot be validated.","Expression cannot be validated.","无法验证此表达式。"
+"Expression contains an unsupported operation.","Expression contains an unsupported operation.","表达式包含不受支持的运算。"
+"Field '%s' does not belong on a %s record.","Field '%s' does not belong on a %s record.","字段“%s”不属于 %s 记录。"
+"Give every Level a unique stable ID.","Give every Level a unique stable ID.","请为每个关卡设置唯一且稳定的 ID。"
+"Give every Question a unique stable ID.","Give every Question a unique stable ID.","请为每道题设置唯一且稳定的 ID。"
+"Invalid Level Type '%s'.","Invalid Level Type '%s'.","无效的关卡类型“%s”。"
+"Keep one COURSE row at the beginning of the file.","Keep one COURSE row at the beginning of the file.","请在文件开头保留一行 COURSE。"
+"Level contains no Questions.","Level contains no Questions.","此关卡没有题目。"
+"Level ID must use lowercase snake_case.","Level ID must use lowercase snake_case.","关卡 ID 必须使用小写 snake_case 格式。"
+"LEVEL records must appear before QUESTION records.","LEVEL records must appear before QUESTION records.","LEVEL 记录必须位于 QUESTION 记录之前。"
+"Level uses an unusually large number of Skill Tags.","Level uses an unusually large number of Skill Tags.","此关卡使用了异常多的技能标签。"
+"List each Skill once per Level.","List each Skill once per Level.","每个关卡中的同一技能只需列出一次。"
+"Move all LEVEL records above the QUESTION section.","Move all LEVEL records above the QUESTION section.","请将所有 LEVEL 记录移到 QUESTION 区域上方。"
+"Move the COURSE record directly below the header.","Move the COURSE record directly below the header.","请将 COURSE 记录移到表头正下方。"
+"Move this Level definition into the LEVEL section.","Move this Level definition into the LEVEL section.","请将此关卡定义移到 LEVEL 区域。"
+"Move this value to the appropriate record section or clear the cell.","Move this value to the appropriate record section or clear the cell.","请将此值移到正确的记录区域，或清空该单元格。"
+"Optional Course description is empty.","Optional Course description is empty.","可选的课程说明为空。"
+"Question ID contains unsupported characters.","Question ID contains unsupported characters.","题目 ID 包含不受支持的字符。"
+"Question references a Level defined later in the file.","Question references a Level defined later in the file.","题目引用了文件后方才定义的关卡。"
+"Question references undefined Level '%s'.","Question references undefined Level '%s'.","题目引用了未定义的关卡“%s”。"
+"Required field '%s' is empty.","Required field '%s' is empty.","必填字段“%s”为空。"
+"Restore the exact header row from MathSmith_Course_Template.csv.","Restore the exact header row from MathSmith_Course_Template.csv.","请恢复 MathSmith_Course_Template.csv 中的原始表头。"
+"Review Course size and authoring performance before import.","Review Course size and authoring performance before import.","导入前请检查课程规模和创作工具性能。"
+"Review whether every listed Skill is directly practiced.","Review whether every listed Skill is directly practiced.","请确认列出的每个技能是否都在关卡中得到直接练习。"
+"Revise the mathematical expression.","Revise the mathematical expression.","请修改数学表达式。"
+"Row contains %d columns instead of %d.","Row contains %d columns instead of %d.","此行包含 %d 列，而不是应有的 %d 列。"
+"Skill Tag '%s' is duplicated.","Skill Tag '%s' is duplicated.","技能标签“%s”重复。"
+"Skill Tag '%s' must use lowercase snake_case.","Skill Tag '%s' must use lowercase snake_case.","技能标签“%s”必须使用小写 snake_case 格式。"
+"Unable to open CSV file.","Unable to open CSV file.","无法打开 CSV 文件。"
+"Unable to read CSV file.","Unable to read CSV file.","无法读取 CSV 文件。"
+"Unknown Record Type '%s'.","Unknown Record Type '%s'.","未知的记录类型“%s”。"
+"Use +, -, *, or / only.","Use +, -, *, or / only.","只能使用 +、-、* 或 /。"
+"Use COURSE, LEVEL, or QUESTION exactly as written.","Use COURSE, LEVEL, or QUESTION exactly as written.","请严格使用 COURSE、LEVEL 或 QUESTION。"
+"Use letters, numbers, and single underscores without spaces.","Use letters, numbers, and single underscores without spaces.","请使用字母、数字和单下划线，不要使用空格。"
+"Use lowercase letters, numbers, and single underscores.","Use lowercase letters, numbers, and single underscores.","请使用小写字母、数字和单下划线。"
+"Use semicolon-separated lowercase Skill IDs.","Use semicolon-separated lowercase Skill IDs.","请使用分号分隔的小写技能 ID。"
+"Use step_ordering, multiple_choice_ordering, or fill_in_process.","Use step_ordering, multiple_choice_ordering, or fill_in_process.","请使用 step_ordering、multiple_choice_ordering 或 fill_in_process。"
+"Use whole numbers, spaces, +, -, x, /, and parentheses only.","Use whole numbers, spaces, +, -, x, /, and parentheses only.","只能使用整数、空格、+、-、x、/ 和括号。"
+No valid level data could be loaded.,No valid level data could be loaded.,无法加载有效的关卡数据。
+This question could not be loaded.,This question could not be loaded.,无法加载此题目。
+CORE CURRICULUM,CORE CURRICULUM,核心课程
+First Action Hesitation,First Action Hesitation,首次操作犹豫
+Long Solve Time,Long Solve Time,解题时间较长
+Repeated Incorrect Attempts,Repeated Incorrect Attempts,多次答错
+Repeated Hint Use,Repeated Hint Use,多次使用提示
+Repeated Submissions,Repeated Submissions,多次提交
+Excessive Reordering,Excessive Reordering,频繁调整顺序
+Excessive Fill Revision,Excessive Fill Revision,频繁修改填空
+Learn the process,Learn the process,学习解题过程
+This Question was saved for later review.,This Question was saved for later review.,此题已保存供稍后复习。
+This Question was saved after %s.,This Question was saved after %s.,此题因%s而被保存。
+Practice up to ten saved Questions from this Course.,Practice up to ten saved Questions from this Course.,练习本课程中最多十道已保存的错题。
+Practice up to ten Questions selected from this Course's Mistake Book.,Practice up to ten Questions selected from this Course's Mistake Book.,练习从本课程错题本中选出的最多十道题。
+M5 weighting increases the chance of weaker-Skill Questions while preserving variety.,M5 weighting increases the chance of weaker-Skill Questions while preserving variety.,M5 权重会提高薄弱技能题目的出现概率，同时保留题目多样性。
+Existing M5 weights will increase the chance of weaker-Skill Questions while preserving content variety.,Existing M5 weights will increase the chance of weaker-Skill Questions while preserving content variety.,现有 M5 权重会提高薄弱技能题目的出现概率，同时保留内容多样性。
+Zen Mode is three minutes of mixed practice using the existing adaptive Question selection.,Zen Mode is three minutes of mixed practice using the existing adaptive Question selection.,禅模式提供三分钟混合练习，并使用现有的自适应选题。
+Survival Mode is untimed mixed practice with three lives and accuracy pressure.,Survival Mode is untimed mixed practice with three lives and accuracy pressure.,生存模式是不计时的混合练习，拥有三条生命并强调正确率。
+The current unfinished Level will restart when opened again.,The current unfinished Level will restart when opened again.,当前未完成关卡再次打开时会重新开始。
+Review the Course Lobby and choose another activity.,Review the Course Lobby and choose another activity.,返回课程大厅并选择其他活动。
+Current Course,Current Course,当前课程
+Preview Course,Preview Course,预览课程
+Session Performance,Session Performance,本局表现
+Relevant Rule,Relevant Rule,相关规则
+No rule explanation is available for this Question.,No rule explanation is available for this Question.,当前题目没有可用的规则讲解。
+Correct process:,Correct process:,正确过程：
+Saved Question,Saved Question,已保存题目

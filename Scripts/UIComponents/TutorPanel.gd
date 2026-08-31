@@ -106,7 +106,9 @@ func RenderPage(pageData: Dictionary) -> void:
 		optionButton.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		optionButton.focus_mode = Control.FOCUS_ALL
 		optionButton.text = tr(String(optionData.get("label", "Continue")))
-		optionButton.tooltip_text = optionButton.text
+		if IsNavigationAction(String(optionData.get("actionId", ""))):
+			optionButton.text += "  ↗"
+			optionButton.theme_type_variation = &"ButtonPrimary"
 		optionButton.pressed.connect(SelectOption.bind(optionData))
 		optionList.add_child(optionButton)
 
@@ -125,6 +127,14 @@ func SelectOption(optionData: Dictionary) -> void:
 func ClearOptions() -> void:
 	for optionButton in optionList.get_children():
 		optionButton.queue_free()
+
+# Distinguishes actions that leave Tutor content and open another game destination.
+func IsNavigationAction(actionId: String) -> bool:
+	return (
+		actionId.begins_with("open_")
+		or actionId.begins_with("start_")
+		or actionId.begins_with("confirm_")
+	)
 
 # Keeps the drawer readable without covering the complete viewport.
 func UpdateResponsiveLayout() -> void:

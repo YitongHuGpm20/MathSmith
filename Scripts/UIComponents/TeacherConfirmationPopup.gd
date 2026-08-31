@@ -49,10 +49,10 @@ func SetContent(newTitle: String, newMessage: String, newConfirmText: String) ->
 
 # Applies exported content and the correct action hierarchy.
 func RefreshContent() -> void:
-	titleLabel.text = popupTitle
-	messageLabel.text = message
+	titleLabel.text = tr(popupTitle)
+	messageLabel.text = tr(message)
 	cancelButton.visible = showCancel
-	confirmButton.text = confirmText
+	confirmButton.text = tr(confirmText)
 	confirmButton.theme_type_variation = &"ButtonDanger" if dangerous else &"ButtonPrimary"
 
 # Closes the popup before notifying the owning Teacher workflow.

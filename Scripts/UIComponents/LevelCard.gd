@@ -92,7 +92,7 @@ func UpdateDisplay() -> void:
 		"font_color",
 		Color(0.98, 0.78, 0.28, 1) if bestStars > 0 else Color(0.45, 0.82, 1, 1)
 	)
-	tooltip_text = "Select " + levelTitle
+	tooltip_text = tr("Select %s") % tr(levelTitle)
 
 # Presents a secondary feature using the Level Card's established visual language.
 func UpdateFeatureDisplay() -> void:
