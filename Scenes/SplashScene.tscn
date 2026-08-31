@@ -1,0 +1,71 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UIScreens/SplashUI.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/yitonghu_logo_black.png" id="2_logo"]
+
+[node name="SplashScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BrandGroup" type="VBoxContainer" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(520, 570)
+layout_mode = 2
+theme_override_constants/separation = 26
+alignment = 1
+
+[node name="Logo" type="TextureRect" parent="Center/BrandGroup"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(500, 500)
+layout_mode = 2
+texture = ExtResource("2_logo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Accent" type="ColorRect" parent="Center/BrandGroup"]
+custom_minimum_size = Vector2(86, 2)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+color = Color(0.2, 0.72, 1, 0.82)
+
+[node name="PresentsLabel" type="Label" parent="Center/BrandGroup"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.64, 0.78, 1)
+theme_override_font_sizes/font_size = 14
+text = "YITONG HU PRESENTS"
+horizontal_alignment = 1
+
+[node name="TransitionOverlay" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
