@@ -1,1511 +1,397 @@
-# MathSmith
+# MathSmith | 数锻
 
-**A data-driven educational math game about understanding the process—not just entering the answer.**
+> A data-driven educational math game about understanding the process, not just entering the answer.
+> 一款关注解题过程，而非只判断最终答案的数据驱动数学教育游戏。
 
-MathSmith is a Godot-based portfolio project created by **Yitong Hu** to demonstrate educational game technical design, gameplay design, UI/UX implementation, data-driven content development, rapid prototyping, and milestone-based project planning.
+MathSmith is a bilingual Godot portfolio project designed and developed by **Yitong Hu**. It demonstrates educational game design, technical design, UI/UX implementation, deterministic learning systems, adaptive practice, content-authoring tools, and milestone-based production.
 
-Players rebuild mathematical reasoning through three interaction types, receive progressively more useful feedback, review saved mistakes, and replay the full question pool through focused challenge modes.
+《数锻》是由 **Yitong Hu** 设计并开发的 Godot 双语作品集项目，集中展示教育游戏设计、技术设计、UI/UX 实现、确定性学习系统、自适应练习、内容创作工具与里程碑式项目管理能力。
 
-> **Project Status:** M1–M7 Implemented — Final Manual Validation Pending
-> **Engine:** Godot 4.7.1  
-> **Target Resolution:** 1920 × 1080  
-> **Languages:** English / Simplified Chinese
-
----
-
-# Portfolio Presentation & Milestone Recordings
-
-The portfolio presentation documents the design process, milestone strategy, iteration findings, and final implementation.
-
-- [View MathSmith Portfolio Presentation](Docs/Presentation/MathSmith.pptx)
-- [View MathSmith Portfolio Presentation Online](https://docs.google.com/presentation/d/1pEMtKXkR5GvK5Gaz90E30Xhha7ux3LYvIaGfRUnblSA/edit?usp=sharing)
-- [M1 — Core Foundation Recording](Docs/Recordings/MathSmith_Demo_M1.mp4)
-- [M2 — Content Expansion & UI Foundation Recording](Docs/Recordings/MathSmith_Demo_M2.mp4)
-- [M3 — Gameplay Expansion & Polish Recording](Docs/Recordings/MathSmith_Demo_M3.mp4)
-- [M4 — Learning Loop & Replayability Recording](Docs/Recordings/MathSmith_Demo_M4.mp4)
-
----
-
-# Project Goals
-
-MathSmith was designed around four goals:
-
-- Teach the reasoning between a Question and its answer.
-- Present mathematical transformations through readable, school-appropriate steps.
-- Reuse one content source across multiple gameplay interactions.
-- Build a complete learning loop with feedback, review, progression, and replayability.
-
-The project was also used as a Technical Design exercise in building an extensible educational game system from a small playable prototype.
-
----
-
-# Design Questions & Prototype Goals
-
-Rather than beginning with a large feature list, MathSmith began with three questions covering **Design, Technical Design, and Production**.
-
-## Design Question
-
-**Can players practice mathematical reasoning by rebuilding the solution process instead of only submitting a final answer?**
-
-Many math activities evaluate only the final result:
-
-```text
-Question
-→ Answer
-→ Correct / Incorrect
-```
-
-MathSmith instead explores:
-
-```text
-Question
-→ Reasoning Process
-→ Player Interaction
-→ Feedback
-→ Understanding
-```
-
-The design hypothesis was that intermediate mathematical transformations could become meaningful player actions rather than passive instructional text.
-
----
-
-## Technical Question
-
-**Can mathematical expressions automatically become reusable playable content?**
-
-The technical goal was to minimize manually authored gameplay data.
-
-Instead of storing a separate solution sequence for every Question and every gameplay interaction, MathSmith uses:
-
-```text
-Authored Expression
-→ ExpressionParser
-→ StepGenerator
-→ Human-Readable Solution Process
-→ Gameplay Interaction
-```
-
-The Question defines the mathematical problem.
-
-The runtime systems determine how that problem becomes an interactive learning experience.
-
----
-
-## Production Question
-
-**Can the prototype remain complete and playable while its systems expand?**
-
-Development was structured around vertical milestones.
-
-Each milestone needed to leave behind:
-
-- A complete player flow
-- A stable playable build
-- A build that could be playtested
-- A build that could be demonstrated
-- Clear findings that could guide the next milestone
-
-This prevented the project from becoming a collection of partially completed systems.
-
----
-
-# Pre-Production Framework
-
-Before implementation, I use a lightweight planning process to define the experience, identify risk, understand available resources, and align dependencies.
-
-The goal is not to completely design the final product before prototyping.
-
-The goal is to understand **what needs to be proven first**.
-
----
-
-## 1. Define the Experience
-
-Before building, I establish several core questions:
-
-### Player
-
-- Who is the target player?
-- What prior knowledge can I assume?
-- What level of game familiarity can I assume?
-- In what context will the experience be used?
-
-### Learning Goal
-
-- What should the player understand or practice?
-- What behavior demonstrates that understanding?
-- What information should remain hidden from the player?
-- What assistance should the system provide?
-
-### Interaction
-
-- What are the player's primary verbs?
-- What decisions does the player make?
-- What is the core gameplay loop?
-- What is the feedback loop?
-- What creates meaningful challenge?
-
-### Prototype
-
-- What assumption am I trying to validate?
-- What does the prototype need in order to answer that question?
-- What does it explicitly not need yet?
-- What defines success or failure?
-
-For MathSmith, the initial question was not whether I could build menus, progression, localization, or save data.
-
-The highest-risk assumption was:
-
-> **Can generated mathematical reasoning be understandable and useful enough to become gameplay?**
-
-That became the focus of M1.
-
----
-
-# 2. Scope & Production Planning
-
-Features are divided into three categories:
-
-### Must Have
-
-Required to validate the current design hypothesis.
-
-### Should Have
-
-Meaningfully improves the quality or completeness of the current vertical slice.
-
-### Nice to Have
-
-Potentially valuable, but not necessary until the core experience is stable.
-
-I prioritize work based on:
-
-```text
-Risk
-→ Dependency
-→ Player Impact
-→ Development Cost
-```
-
-The most uncertain or foundational systems are tested before lower-risk polish.
-
-This also helps prevent technically interesting features from expanding the scope before the core player experience has been validated.
-
----
-
-# 3. Resources & Constraints
-
-Before implementation, I identify what already exists and what actually needs to be built.
-
-This includes:
-
-### Technology
-
-- Engine
-- Plugins
-- Existing gameplay systems
-- Existing UI systems
-- Available libraries
-- Version control
-- Development tools
-- AI-assisted development tools
-
-### Content
-
-- Existing curriculum or learning content
-- Content format
-- Content ownership
-- Authoring workflow
-- Validation requirements
-- Localization requirements
-
-### Presentation
-
-- Existing UI assets
-- Icons
-- Art
-- Animation
-- Audio
-- Typography
-- Visual guidelines
-
-### Production
-
-- Available development time
-- Team size
-- Team expertise
-- Technical constraints
-- External dependencies
-- Delivery requirements
-
-For MathSmith, I intentionally reused lightweight external resources such as Lucide icons and Kenney sound effects so development time could remain focused on gameplay, educational systems, data architecture, and interaction quality.
-
----
-
-# 4. Cross-Functional Alignment
-
-In a multidisciplinary production environment, Technical Design often sits between several disciplines.
-
-Before implementation, I would align with each discipline on the questions that affect the system.
-
-| Discipline | Key Questions |
+| Project | Details |
 | --- | --- |
-| **Game Design** | What player behavior and experience are we targeting? |
-| **Pedagogy / Content** | What should the player learn, and what constitutes an appropriate learning process? |
-| **Engineering** | What should be systemic, reusable, data-driven, or engine-level? |
-| **UX / UI** | How should interaction states, hierarchy, feedback, and accessibility be communicated? |
-| **Art / Animation** | What visual feedback supports the instructional and gameplay intent? |
-| **Product** | What user outcome and product requirement does the experience serve? |
-| **Production** | What is the scope, dependency order, risk, schedule, and Definition of Done? |
-
-The goal is to establish a shared understanding of:
-
-```text
-What are we building?
-Why are we building it?
-What needs to be systemic?
-What needs to be authored?
-Who owns each dependency?
-What does "done" mean?
-```
-
-This reduces implementation ambiguity and helps Technical Design translate intent between disciplines.
+| **Status / 状态** | M1–M7 implemented / M1–M7 已完成 |
+| **Engine / 引擎** | Godot 4.7.1 |
+| **Resolution / 分辨率** | 1920 × 1080, responsive canvas |
+| **Languages / 语言** | English / 简体中文 |
+| **Content / 内容** | 12 Levels, 90 authored Questions / 12 个关卡、90 道题 |
+| **Development / 开发周期** | 10 active development days across three weeks / 三周跨度、10 个实际开发日 |
+| **Role / 职责** | Educational Game Technical Designer, Game Designer, Developer, Project Planner |
 
 ---
 
-# My Role
+## Demo & Portfolio | 演示与作品集
 
-**Educational Game Technical Designer / Game Designer / Project Planner**
+### M1–M7 Development Video | M1–M7 里程碑开发合辑
 
-I designed and implemented:
+- [Watch on YouTube / 在 YouTube 观看](https://youtu.be/JnWfYu5qoms)
+- [Download the video / 下载视频文件](Docs/Recordings/MathSmith_Demo_Milestone1-7.mp4)
 
-- Core gameplay rules and interaction flows
-- Data-driven Level and Question architecture
-- Mathematical expression parsing
-- Procedural Step generation
-- Educational feedback and Hint systems
-- Scoring and progression
-- Mistake review and practice systems
-- Home, Lobby, gameplay, Settings, and review UI/UX
-- Local Save
-- Localization
-- Replay modes
-- Milestone scope
-- Development order
-- Testing priorities
-- Iteration plans
-- Technical architecture and refactoring decisions
+The video shows how MathSmith evolved from a Step Ordering prototype into a bilingual learning product with three core interactions, progression, replay modes, analytics, teacher tools, and a guided Tutor.
+
+视频展示《数锻》如何从步骤排序原型，逐步发展为包含三种核心玩法、成长循环、重复游玩、学习分析、教师工具与引导式 Tutor 的双语教育游戏。
+
+### Portfolio Presentation | 项目演示文稿
+
+- [Download PowerPoint / 下载 PPT](Docs/Presentation/MathSmith.pptx)
+- [View Online / 在线查看](https://docs.google.com/presentation/d/1pEMtKXkR5GvK5Gaz90E30Xhha7ux3LYvIaGfRUnblSA/edit?usp=sharing)
 
 ---
 
-# Milestone Strategy — Vertical, Not Siloed
+## Project Overview | 项目概览
 
-MathSmith was intentionally developed through **vertical milestones** rather than discipline-specific production phases.
+Most math exercises evaluate only the final answer. MathSmith turns the reasoning between a Question and its answer into the playable experience.
 
-I did not approach development as:
+多数数学练习只评价最终结果。《数锻》将题目与答案之间的推理过程转化为可交互的游戏体验。
 
-```text
-Build All Gameplay
-→ Build All Content
-→ Build All UI
-→ Add Progression
-→ Test Everything
-```
+~~~text
+Choose Content → Rebuild the Process → Receive Feedback
+→ Earn Score and Stars → Review Mistakes → Practice Adaptively → Replay
 
-Instead, each milestone expanded multiple parts of the experience while preserving a complete player journey.
+选择内容 → 重建解题过程 → 获得反馈
+→ 获取分数与星级 → 复习错题 → 自适应练习 → 重复挑战
+~~~
 
-| Milestone | Goal | Primary Question |
+### Design Goals | 设计目标
+
+- Make intermediate mathematical reasoning playable. / 让中间推理步骤成为玩家操作。
+- Present readable, school-appropriate solution processes. / 使用清晰、符合课堂习惯的解题过程。
+- Reuse one content source across multiple gameplay modes. / 让同一内容源支持多种玩法。
+- Connect feedback, progression, review, analytics, and replay. / 连接反馈、成长、复习、分析与重复游玩。
+- Keep learning logic deterministic and testable. / 保持学习逻辑确定且可测试。
+
+---
+
+## My Role | 我的职责
+
+- Educational Game Technical Design / 教育游戏技术设计
+- Gameplay and System Design / 玩法与系统设计
+- Mathematical Content Architecture / 数学内容架构
+- UI/UX Design and Implementation / UI/UX 设计与实现
+- Data-Driven Tool Development / 数据驱动工具开发
+- Playtest Planning and Manual Validation / 试玩规划与人工验证
+- Milestone Scope and Production Planning / 里程碑范围与制作规划
+- Code Architecture and Refactoring / 代码架构与重构
+
+AI-assisted development accelerated implementation and iteration. Feature direction, educational rules, milestone scope, manual playtesting, validation, and final design ownership remained human-directed.
+
+项目使用 AI 辅助开发加速实现与迭代；功能方向、教育规则、里程碑范围、人工试玩、验证判断与最终设计决策均由开发者主导。
+
+---
+
+## Core Gameplay | 核心玩法
+
+### 1. Step Ordering | 步骤排序
+
+Drag complete solution steps into the correct order.
+拖动完整解题步骤，将其排列为正确顺序。
+
+### 2. Multiple-Choice Ordering | 选择式排序
+
+Choose the correct next step from deterministic distractors.
+从规则生成的干扰项中选择正确的下一步。
+
+### 3. Fill in the Process | 过程填空
+
+Complete missing values inside a generated solution process.
+填写解题过程中的缺失数值。
+
+All three interactions share expressions, generated steps, Skill Tags, scoring, Hints, and feedback.
+
+三种玩法共用表达式、生成步骤、技能标签、计分、Hint 与反馈框架。
+
+---
+
+## Learning Loop | 学习循环
+
+### Progressive Error Feedback | 渐进式错误反馈
+
+| Attempt | Feedback | 尝试 | 反馈 |
+| --- | --- | --- | --- |
+| First | Generic retry | 第一次 | 通用重试 |
+| Second | Directional feedback | 第二次 | 方向性反馈 |
+| Third+ | Contextual rule explanation | 第三次及以后 | 对应规则解释 |
+
+Players have time to self-correct before receiving explicit support. Player-requested Hints remain separate and limited.
+
+玩家会先获得自主纠错机会，再逐步得到更多信息；主动请求的 Hint 是独立且有限的资源。
+
+### Progression | 成长
+
+- Question and Level scores / 题目与关卡分数
+- One-to-three-star ratings / 一至三星评价
+- Best-star Level Cards / 关卡卡片最高星级
+- Limited Hints / 限量提示
+- Completion and failure states / 完成与失败状态
+- Versioned local save / 版本化本地存档
+
+### Mistake Book | 错题本
+
+Saved mistakes include the answer, explanation, source Level, Skill Tags, and complete correct process.
+
+错题记录包含答案、讲解、来源关卡、技能标签与完整正确过程。
+
+### Replay Modes | 重复游玩
+
+- **Mistake Practice / 错题练习:** randomized saved mistakes
+- **Zen Mode / 禅模式:** three-minute mixed practice
+- **Survival Mode / 生存模式:** three lives, no time limit
+
+---
+
+## M1–M7 Development | M1–M7 开发历程
+
+MathSmith was built through vertical milestones. Every milestone preserved a complete playable flow.
+
+《数锻》采用纵向里程碑开发，每个里程碑都保留完整可玩的玩家流程。
+
+| Milestone | English | 中文 |
 | --- | --- | --- |
-| **M1 — Prove** | Prove the core gameplay | Does rebuilding a solution process work as gameplay? |
-| **M2 — Scale** | Build a complete playable flow | Can the system support larger content and a complete product flow? |
-| **M3 — Extend** | Prove framework extensibility | Can the same content pipeline support different learning interactions? |
-| **M4 — Complete** | Complete the learning loop | Can progression, review, persistence, and replay create a complete experience? |
-
-Each milestone intentionally touched several areas:
-
-```text
-Gameplay
-+
-Systems
-+
-Content
-+
-UI / UX
-+
-Testing
-```
-
-rather than completing one discipline in isolation.
-
-## Milestone Rule
-
-Every milestone should end with:
-
-- A complete player journey
-- A stable playable build
-- Something that can be playtested
-- Something that can be presented
-- A clear set of findings
-- A foundation for the next milestone
-
-This allows design decisions to respond to actual player experience before too much dependent work is built.
+| **M1 — Core Prototype** | JSON content, Step Ordering, drag-and-drop, Check, Hint, Level progression | JSON 内容、步骤排序、拖拽、Check、Hint、关卡流程 |
+| **M2 — Structure & UI** | Home, Lobby, Level Cards, multi-Level flow, unified UI, icons, SFX | Home、Lobby、关卡卡片、多关卡流程、统一 UI、图标与音效 |
+| **M3 — Gameplay Expansion** | Multiple-Choice Ordering, Fill in the Process, Progressive Feedback, search, filters | 选择式排序、过程填空、渐进反馈、搜索与筛选 |
+| **M4 — Learning Loop** | Scores, stars, limited Hints, save, localization, Mistake Book, Zen, Survival | 分数、星级、限量 Hint、存档、本地化、错题本、禅模式与生存模式 |
+| **M5 — Learning Analytics** | Telemetry, History, Skill Mastery, behavior patterns, recommendations, adaptation | 行为遥测、历史、熟练度、行为模式、推荐与自适应 |
+| **M6 — Content Authoring** | Teacher login, CSV import, validation, preview, visual editing, export | 教师登录、CSV 导入、验证、预览、可视化编辑与导出 |
+| **M7 — Smart Tutor & Polish** | Contextual Tutor, Course-aware guidance, localization, UI polish, Splash Screen | 情境 Tutor、课程感知引导、本地化、UI 打磨与启动画面 |
 
 ---
 
-# Core Experience
+## Analytics & Adaptive Learning | 学习分析与自适应
 
-MathSmith uses the following learning loop:
+M5 records structured behavior without runtime generative AI:
 
-```text
-Choose Content
-→ Rebuild the Solution Process
-→ Receive Progressive Feedback
-→ Earn Score and Stars
-→ Save Progress
-→ Review Mistakes
-→ Practice Again
-→ Replay Through Challenge Modes
-```
+M5 在不使用运行时生成式 AI 的情况下记录结构化行为：
 
-The project currently contains:
+- First-action and total solve time / 首次操作与总解题时间
+- Drag, reorder, selection, input, Check, and Hint events / 拖拽、换位、选择、填写、Check 与 Hint 事件
+- Incorrect attempts and completion outcome / 错误次数与完成结果
+- Mode-specific metrics / 各玩法独立指标
+- Player Question History / 玩家题目历史
+- Progressive Skill Mastery / 渐进式技能熟练度
+- Rule-based behavior patterns / 规则驱动行为模式
+- Weak-Skill recommendations / 弱项学习推荐
+- Weighted adaptive selection / 加权自适应选题
+- Developer analytics overlay / 开发者分析面板
 
-- **12 Levels**
-- **90 authored Questions**
-- **3 core gameplay interactions**
-- **Mistake Practice**
-- **Zen Mode**
-- **Survival Mode**
-- **English and Simplified Chinese localization**
-- **Versioned Local Save data**
+Mastery grows progressively instead of giving new players artificially high percentages from small samples.
 
-Because the same authored Question content can be reused across multiple interactions and replay systems, the number of playable Question experiences is significantly larger than the authored Question count.
+熟练度采用渐进成长模型，避免新玩家因样本过少获得虚高数据。
 
 ---
 
-# Core Gameplay Interactions
+## Teacher Content Pipeline | 教师内容创作流程
 
-## 1. Step Ordering
+M6 allows teachers and content designers to create playable content without editing gameplay code.
 
-Players drag complete solution steps into the correct order.
+M6 允许教师与内容设计者在不修改游戏代码的情况下创建可玩内容。
 
-The interaction emphasizes:
+~~~text
+Author → Validate → Preview → Play → Revise → Export
+创作 → 验证 → 预览 → 试玩 → 修改 → 导出
+~~~
 
-- Sequence
-- Mathematical transformation
-- Understanding how one step leads to another
+### CSV Course Workspace | CSV 课程工作区
 
-The player is reconstructing an existing reasoning process.
+- Separate Level and Question rows / 分离关卡与题目数据
+- Blocking Errors and non-blocking Warnings / 阻断错误与非阻断警告
+- Safe import and replacement / 安全导入与替换
+- Imported Course preview / 导入课程预览
 
----
+### MathSmith Studio | 数锻工作室
 
-## 2. Multiple-Choice Ordering
+- Create and edit Courses, Levels, and Questions / 创建与编辑课程、关卡和题目
+- Duplicate, reorder, and delete content / 复制、排序与删除内容
+- Normalize expression formatting / 自动规范表达式
+- Accept x or * for multiplication / 乘法支持 x 或 *
+- Live validation and generated solution preview / 实时验证与解题步骤预览
+- Question and Level preview / 题目与关卡预览
+- Validated CSV export / 导出已验证 CSV
 
-Players select the correct next step from a set of plausible alternatives.
+Core Curriculum, Imported Course, and Studio Course maintain independent content and player records.
 
-Incorrect options are generated deterministically and filtered to avoid equivalent or accidentally correct answers.
+核心课程、导入课程与 Studio 课程拥有相互独立的内容及玩家记录。
 
-This interaction changes the player verb from:
+> The Teacher Tool uses **teacher** as a visible demo password. It is not production authentication.
+>
+> Teacher Tool 使用 **teacher** 作为公开演示密码，不属于正式身份验证系统。
 
-```text
-Reconstruct
-```
-
-to:
-
-```text
-Recognize + Select
-```
-
-while still consuming the same generated mathematical process.
-
----
-
-## 3. Fill in the Process
-
-Players complete missing values inside a generated solution process.
-
-Instead of identifying the entire next step, the player focuses on the arithmetic connecting one transformation to another.
-
-This interaction emphasizes:
-
-```text
-Recall + Apply
-```
+- [Authoring Guide / 创作指南](Authoring/README.md)
+- [CSV Schema / CSV 结构](Authoring/SCHEMA.md)
+- [Course Template / 课程模板](Authoring/MathSmith_Course_Template.csv)
+- [Example Course / 示例课程](Authoring/MathSmith_Course_Example.csv)
 
 ---
 
-# Shared Gameplay Architecture
+## Guided Smart Tutor | 引导式智能导师
 
-All three gameplay interactions reuse:
+M7 connects existing deterministic systems through a floating, option-based Tutor.
 
-- Level data
-- Question expressions
-- `ExpressionParser`
-- `StepGenerator`
-- Correct solution process
-- Skill Tags
-- Scoring framework
-- Hint budgets
-- Progressive feedback framework
+M7 通过悬浮式选项 Tutor，将已有确定性学习系统连接为统一引导体验。
 
-The architecture is therefore:
+- Available across Home, Lobby, gameplay, summaries, Mistake Book, and Courses
+  可在 Home、Lobby、游戏、结算、错题本与不同课程中使用
+- Reads current Course, Level, Question, score, mistakes, History, and Mastery
+  读取当前课程、关卡、题目、分数、错误、历史与熟练度
+- Provides contextual explanations and navigation actions
+  提供情境解释与导航操作
+- Uses Course-scoped Core, Imported, or Studio data
+  根据核心、导入或 Studio 课程使用对应数据
+- Avoids revealing answers before the correct learning state
+  避免在不合适的阶段提前泄露答案
+- Supports English and Simplified Chinese / 支持英文与简体中文
 
-```text
-Question Data
-      ↓
+The Tutor presents guidance from validated structured systems. It does not replace mathematical validation, adaptive weighting, saving, or progression.
+
+Tutor 呈现已有结构化系统提供的引导，不替代数学验证、自适应权重、存档或成长系统。
+
+- [Tutor Architecture / Tutor 架构](Docs/M7_Tutor_Architecture.md)
+- [Manual Validation / 人工验证](Docs/M7_Tutor_Validation.md)
+
+---
+
+## Mathematical Content Pipeline | 数学内容管线
+
+~~~text
+Authored Expression
+        ↓
 ExpressionParser
-      ↓
+        ↓
 StepGenerator
-      ↓
-Correct Mathematical Process
-      ↓
- ┌───────────────┬─────────────────────┬─────────────────────┐
- ↓               ↓                     ↓
-Step Ordering    Multi-Choice          Fill in the Process
-```
+        ↓
+Human-Readable Solution Process
+        ↓
+Step Ordering | Multiple-Choice Ordering | Fill in the Process
+~~~
 
-A change to the mathematical content or Step generation can therefore improve multiple gameplay interactions without maintaining separate Question libraries.
+The generator supports make-ten strategies, place-value decomposition, regrouping, partial products, division decomposition, parentheses, precedence, and multi-step reduction.
 
----
+生成器支持凑十、数位分解、重新组合、部分积、除法拆分、括号、运算顺序与多步化简。
 
-# Learning & Feedback Design
+Rules avoid unnecessary + 0, single-value parentheses, filler steps, large reasoning jumps, and excessive mental calculation.
 
-## Progressive Error Feedback
-
-MathSmith intentionally avoids immediately explaining the solution after the player's first mistake.
-
-Automatic feedback becomes progressively more informative across repeated incorrect attempts.
-
-### First Incorrect Attempt
-
-Generic retry feedback.
-
-The player knows the answer is incorrect but retains the opportunity to solve the problem independently.
-
-### Second Incorrect Attempt
-
-Directional feedback.
-
-The system identifies the mathematical area the player should reconsider.
-
-### Third and Later Incorrect Attempts
-
-Contextual rule explanation.
-
-The system explains the relevant mathematical principle without simply giving the complete solution.
-
-The progression is:
-
-```text
-Try Again
-→ Direction
-→ Explanation
-```
-
-This creates room for productive struggle while still preventing the player from becoming permanently stuck.
+规则会避免不必要的 + 0、单个数字括号、填充步骤、过大的推理跳跃与单步中过量口算。
 
 ---
 
-## Hints vs. Error Feedback
+## Technical Architecture | 技术架构
 
-Automatic error feedback and player-requested Hints are intentionally separate systems.
-
-**Error Feedback** responds to player behavior.
-
-**Hints** represent an explicit request for assistance.
-
-This distinction allows Hint usage to become meaningful gameplay and progression data rather than simply another form of automatic correction.
-
-Hint availability is limited per Level and becomes more generous as Level complexity increases.
-
----
-
-# Mistake Book
-
-A Question is saved when the player:
-
-- Makes repeated incorrect attempts
-- Uses a Hint
-
-Each Mistake Book entry stores:
-
-- Original expression
-- Source Level
-- Gameplay interaction
-- Skill Tags
-- Reason the Question was saved
-- Deterministic mathematical explanation
-- Complete correct solution process
-
-The Mistake Book turns failure into future practice content.
-
----
-
-# Mistake Practice
-
-Mistake Practice creates a randomized session using up to 10 unique Mistake Book entries.
-
-Each Question retains the gameplay interaction in which it was originally recorded.
-
-The loop becomes:
-
-```text
-Make Mistake
-→ Save Mistake
-→ Review Explanation
-→ Practice Again
-```
-
-This allows mistakes to become part of the long-term learning loop rather than temporary feedback.
-
----
-
-# Replay Modes
-
-## Zen Mode
-
-A three-minute mixed-mode session using the complete Question pool.
-
-The mode:
-
-- Randomizes Questions
-- Randomizes gameplay interactions
-- Prevents immediate Question repetition
-- Tracks solved Questions
-- Tracks accuracy
-- Saves the player's best solved count
-
-Zen Mode creates a lightweight replay loop focused on speed and continued practice.
-
----
-
-## Survival Mode
-
-An untimed mixed-mode session with three shared lives.
-
-Every incorrect submission or incorrect option removes one life.
-
-The mode continues until all lives are lost.
-
-It records the player's highest solved Question count.
-
-Survival Mode creates a different pressure profile from Zen Mode:
-
-```text
-Zen
-→ Time Pressure
-
-Survival
-→ Accuracy Pressure
-```
-
----
-
-# Milestone Development
-
-# M1 — PROVE
-
-**Goal: Prove the core gameplay**
-
-## Core Systems
-
-- Established the Godot project structure
-- Built the Home → Lobby → Game flow
-- Implemented JSON content loading and validation
-- Implemented `ExpressionParser`
-- Implemented `StepGenerator`
-- Built the initial `GameManager` gameplay loop
-
-## Gameplay
-
-- Step Ordering
-- Drag-and-drop Step Cards
-- Check
-- Hint
-- Next Question
-- Correct and incorrect feedback
-- Question progression
-
-## UI / UX
-
-- Initial Home Scene
-- Initial Lobby Scene
-- Initial Game Scene
-- Reusable Level Card
-- Reusable Step Card
-- Basic navigation
-
-## Result
-
-M1 proved the core pipeline:
-
-```text
-Expression
-→ Generated Solution Steps
-→ Interactive Step Ordering
-→ Validation
-→ Feedback
-```
-
-The core learning mechanic was viable enough to continue development.
-
----
-
-# M2 — SCALE
-
-**Goal: Build a complete playable flow**
-
-## Content & Systems
-
-- Expanded content to 12 Levels and 90 Questions
-- Expanded Question difficulty across Levels
-- Improved generated solution steps
-- Added flexible three-to-five-step and longer solution processes
-- Improved classroom-style reasoning strategies
-
-## Product Flow
-
-- Data-driven Level selection
-- Home
-- Lobby
-- Game
-- End Menu
-- Settings entry point
-- Credits
-- Exit flow
-
-## UI / UX
-
-- Established the 1920 × 1080 presentation
-- Created the dark educational-technology visual language
-- Standardized cards
-- Standardized buttons
-- Standardized spacing
-- Standardized typography
-- Added responsive behavior
-- Added local Lucide icons
-- Added local UI SFX
-
-## Content Improvements
-
-- Removed trivial two-single-digit Questions
-- Removed unnecessary `+ 0`
-- Removed unnecessary single-number parentheses
-- Improved make-ten strategies
-- Improved decomposition
-- Improved regrouping
-- Improved order-of-operations presentation
-- Reduced excessive mental calculation inside individual steps
-
-## Result
-
-M2 demonstrated that the prototype could scale from a gameplay test into a data-driven product flow without abandoning the original content architecture.
-
----
-
-# M3 — EXTEND
-
-**Goal: Prove the gameplay framework is extensible**
-
-## New Gameplay Interactions
-
-- Multiple-Choice Ordering
-- Fill in the Process
-
-## Shared Systems
-
-All three interactions reuse:
-
-- Question content
-- Expression parsing
-- Step generation
-- Skill Tags
-- Feedback
-- Hint framework
-
-## New Features
-
-- Progressive Error Feedback
-- Lobby search
-- Level filtering
-- Skill filtering
-- Question and expression search
-
-## Interaction Improvements
-
-- Whole-card dragging
-- Dynamic Step Card reordering
-- Larger draggable areas
-- Unified expression alignment
-- Improved spacing
-- Improved Fill input presentation
-- Up to five visible Step Cards
-
-## Stability Improvements
-
-- Fixed rapid-Hint card overlap
-- Fixed repeated-Check validation
-- Fixed option lifecycle issues
-- Locked options after correct answers
-- Separated completion records by gameplay interaction
-
-## Result
-
-M3 demonstrated that the mathematical content system was not tied to one interaction.
-
-The same generated reasoning could support multiple player verbs without duplicating the Question library.
-
----
-
-# M4 — COMPLETE
-
-**Goal: Complete the learning loop and improve replayability**
-
-## Progression
-
-- Question Score
-- Level Score
-- Star ratings
-- Limited Hints
-- Level Complete
-- Needs Practice
-- Session Summary
-
-## Player Support
-
-- First-time tutorials
-- Reusable Settings
-- English / Simplified Chinese localization
-- Versioned Local Save
-
-## Review
-
-- Mistake Book
-- Mistake explanations
-- Complete correct solution display
-- Mistake Practice
-
-## Replay
-
-- Zen Mode
-- Survival Mode
-- Persistent personal bests
-
-## UI / UX
-
-- Level progress bar
-- Best-star display
-- Score feedback animation
-- Remaining Hint display
-- Zen timer
-- Final-ten-second warning
-- Survival life display
-- Mistake Book screen
-- Secondary feature cards
-- Improved Settings
-- Improved Credits
-
-## Architecture
-
-- Split UI into `Screens` and `Components`
-- Extracted `ProgressManager`
-- Extracted `MistakeBookManager`
-- Extracted `ZenModeManager`
-- Extracted `SurvivalModeManager`
-- Extracted `ChoiceGenerator`
-- Reorganized `GameManager` by responsibility
-
-## Result
-
-M4 transformed the prototype from:
-
-```text
-Play
-→ Finish
-```
-
-into:
-
-```text
-Play
-→ Feedback
-→ Score
-→ Progress
-→ Review
-→ Practice
-→ Replay
-```
-
-This completed the first full learning loop.
-
----
-
-# Playtest → Learn → Iterate
-
-One of the most important findings during development was:
-
-> **Mathematically correct does not necessarily mean pedagogically useful.**
-
-This became a major design and Technical Design lesson from the project.
-
----
-
-## Initial Problem
-
-Early versions of `StepGenerator` could produce mathematically valid transformations that did not resemble how a student or teacher would naturally reason through the problem.
-
-Playtesting exposed several categories of problems:
-
-- Unnatural decomposition
-- Redundant transformations
-- Unnecessary parentheses
-- Artificial intermediate steps
-- Large reasoning jumps
-- Too much mental arithmetic inside one step
-- Division processes that were mathematically valid but pedagogically unclear
-
-These were not traditional calculation bugs.
-
-The final answer could still be correct.
-
-The problem was the **quality of the reasoning presented to the player**.
-
----
-
-## Initial Generation Goal
-
-The early system placed too much emphasis on producing enough intermediate steps.
-
-Conceptually:
-
-```text
-Expression
-→ Generate Valid Transformations
-→ Reach Desired Step Count
-→ Final Answer
-```
-
-This occasionally created transformations whose primary purpose was satisfying the generator rather than helping the learner.
-
----
-
-## Revised Generation Goal
-
-The goal was changed to:
-
-> **Generate the minimum number of meaningful, human-readable reasoning steps required to explain the transformation.**
-
-This changed the priority from:
-
-```text
-Step Quantity
-```
-
-to:
-
-```text
-Reasoning Quality
-```
-
----
-
-# Iteration Loop
-
-The development loop became:
-
-```text
-Build
-↓
-Playtest
-↓
-Observe Unexpected Reasoning
-↓
-Classify the Problem
-↓
-Adjust Generation Rules
-↓
-Adjust Example Content When Necessary
-↓
-Replay Across Question Types
-↓
-Stabilize
-```
-
-Playtesting was intentionally performed after implementing each new gameplay interaction.
-
-The reason was that the same generated mathematical content could expose different problems depending on how the player interacted with it.
-
-A Step sequence that looked acceptable when read passively might become confusing when:
-
-- Dragged into order
-- Selected one step at a time
-- Used as the structure for Fill in the Process
-
----
-
-# Resulting StepGenerator Rules
-
-Iteration produced several generation principles:
-
-- Avoid meaningless `+ 0`
-- Avoid unnecessary parentheses around single values
-- Prefer recognizable make-ten strategies
-- Prefer meaningful decomposition
-- Prefer meaningful regrouping
-- Respect operation precedence
-- Avoid excessive mental arithmetic within one step
-- Avoid transformations that exist only to increase step count
-- Avoid unnecessarily large reasoning jumps
-- Prefer readable intermediate states
-- Allow different Questions to naturally require different numbers of steps
-
-The generator therefore evolved from:
-
-> A system that produces mathematically valid transformations
-
-toward:
-
-> A system that attempts to produce readable instructional reasoning.
-
----
-
-# Educational Design Approach
-
-MathSmith does not simply reduce every expression directly to its final value.
-
-`StepGenerator` creates intermediate transformations intended to resemble recognizable classroom strategies.
-
-These include:
-
-- Making ten
-- Decomposing by place value
-- Regrouping addends
-- Partial products
-- Division decomposition
-- Parentheses
-- Operation precedence
-- Multi-step expression reduction
-
-For example:
-
-```text
-8 + 5 + 7
-
-= 8 + (2 + 3) + 7
-= (8 + 2) + (3 + 7)
-= 10 + 10
-= 20
-```
-
-The educational design goal is not to maximize the number of visible steps.
-
-It is to expose enough reasoning for the learner to understand **why the expression changes from one state to the next**.
-
----
-
-# Key Design Decisions & Tradeoffs
-
-## 1. Shared Content Instead of Mode-Specific Question Libraries
-
-### Decision
-
-All three core gameplay interactions consume the same Question content and generated solution process.
-
-### Why
-
-Maintaining separate Question libraries would create duplicated content and increase the cost of:
-
-- Content editing
-- QA
-- Localization
-- Mathematical corrections
-- Future gameplay expansion
-
-### Tradeoff
-
-Gameplay interactions must adapt to a shared mathematical representation instead of defining completely independent Question formats.
-
-### Result
-
-```text
-One Question
-→ One Correct Process
-→ Multiple Gameplay Interactions
-```
-
----
-
-# 2. Procedural Steps Instead of Manually Authored Solutions
-
-### Decision
-
-Store mathematical expressions in content data and generate solution processes at runtime.
-
-### Why
-
-Manually authoring every solution process would increase content cost and make large-scale iteration difficult.
-
-### Tradeoff
-
-`StepGenerator` becomes a critical system that requires substantial testing because mathematically valid output may still be pedagogically poor.
-
-### Result
-
-Content remains lightweight while generation rules remain centralized and reusable.
-
----
-
-# 3. Progressive Feedback Instead of Immediate Explanation
-
-### Decision
-
-Do not reveal the relevant mathematical rule after the player's first mistake.
-
-### Why
-
-Immediate explanation can remove the opportunity for productive struggle.
-
-### Feedback Escalation
-
-```text
-Incorrect Attempt 1
-→ Retry
-
-Incorrect Attempt 2
-→ Direction
-
-Incorrect Attempt 3+
-→ Rule Explanation
-```
-
-### Tradeoff
-
-Players may require multiple attempts before receiving detailed support.
-
-The separate Hint system provides an explicit escape route when the player wants assistance sooner.
-
----
-
-# 4. Hints as a Limited Resource
-
-### Decision
-
-Hints are limited per Level rather than unlimited.
-
-### Why
-
-Hints should support learning without becoming the default solution strategy.
-
-The budget increases as Levels become more complex.
-
-### Tradeoff
-
-Hint limits must remain generous enough that the system does not punish players for requesting help.
-
-The design therefore favors relatively forgiving limits.
-
----
-
-# 5. Deterministic Feedback Instead of Runtime LLM Responses
-
-### Decision
-
-Error explanations, Hints, distractors, and mathematical transformations are deterministic and rule-based.
-
-### Why
-
-Mathematical learning feedback should remain:
-
-- Predictable
-- Testable
-- Fast
-- Reproducible
-- Pedagogically controllable
-
-### Tradeoff
-
-Feedback is less conversational than a generative tutor.
-
-However, every output can be validated against known rules.
-
-No LLM is currently used at runtime.
-
----
-
-# 6. Versioned Save Data
-
-### Decision
-
-Persistent data uses an explicit schema version.
-
-### Why
-
-The project accumulated multiple persistent systems during M4:
-
-- Settings
-- Progress
-- Stars
-- Scores
-- Mistake Book
-- Tutorials
-- Replay records
-
-Future milestones may change their structure.
-
-### Result
-
-Older save data can be migrated or repaired instead of automatically becoming invalid.
-
----
-
-# 7. Replay Modes Do Not Modify Standard Level Progress
-
-### Decision
-
-Zen Mode, Survival Mode, and Mistake Practice maintain independent session behavior and records.
-
-### Why
-
-Replay modes serve different learning and motivational purposes from structured Level progression.
-
-Players should be able to experiment in replay modes without accidentally changing their standard Level records.
-
----
-
-# Technical Architecture
-
-```text
+~~~text
 MathSmith/
-├── Assets/
-│   ├── Icons/
-│   └── SFX/
-├── Data/
-│   └── SampleLevels.json
-├── Localization/
-├── Scenes/
-│   └── Menus/
+├── Assets/                 Icons, logo, and SFX
+├── Authoring/              CSV templates, examples, and schema
+├── Data/                   Core curriculum JSON
+├── Docs/                   Presentation, video, and Tutor documents
+├── Localization/           English and Simplified Chinese
+├── Scenes/                 Screens and reusable scenes
 ├── Scripts/
-│   ├── Gameplay/
-│   │   ├── GameManager.gd
-│   │   ├── LevelLoader.gd
-│   │   ├── SaveManager.gd
-│   │   ├── ProgressManager.gd
-│   │   ├── MistakeBookManager.gd
-│   │   ├── PracticeSessionManager.gd
-│   │   ├── ZenModeManager.gd
-│   │   └── SurvivalModeManager.gd
-│   ├── Learning/
-│   │   ├── LearningManager.gd
-│   │   ├── TelemetryManager.gd
-│   │   ├── PlayerHistoryManager.gd
-│   │   ├── SkillMasteryManager.gd
-│   │   ├── BehaviorPatternManager.gd
-│   │   └── AdaptiveLearningManager.gd
-│   ├── Math/
-│   │   ├── ExpressionParser.gd
-│   │   ├── StepGenerator.gd
-│   │   └── ChoiceGenerator.gd
-│   ├── UIComponents/
-│   └── UIScreens/
-└── Themes/
-```
+│   ├── Gameplay/           Sessions, progress, save, and game flow
+│   ├── Learning/           Telemetry, History, Mastery, patterns, adaptation
+│   ├── Math/               Parsing, Step generation, and distractors
+│   ├── UIComponents/       Shared UI behavior
+│   └── UIScreens/          Screen-level presentation
+└── Themes/                 Shared visual styling
+~~~
+
+### Architecture Principles | 架构原则
+
+- Content is the source of truth / 内容是唯一数据源
+- Content and presentation are separated / 内容与表现分离
+- Mathematical logic and UI are separated / 数学逻辑与 UI 分离
+- Shared systems support multiple gameplay modes / 共用系统支持多种玩法
+- Managers have focused responsibilities / Manager 按职责拆分
+- Save data is versioned and migrated / 存档带版本并支持迁移
+- Course data is isolated by source / 课程数据按来源隔离
+- Replay does not overwrite structured progress / 重复游玩不覆盖标准进度
+- Mathematical feedback is deterministic / 数学反馈保持确定性
 
 ---
 
-# Architectural Principles
+## Key Design Finding | 核心设计发现
 
-## Content Is the Source of Truth
+### Mathematically Correct Is Not Always Pedagogically Useful
 
-JSON is the single source of truth for Level and Question content.
+### 数学正确不等于教学有效
 
-```text
-JSON
-→ Runtime Content
-→ Math Systems
-→ Gameplay
-```
+Early solutions could reach the correct answer while containing unnatural decomposition, redundant transformations, excessive mental arithmetic, or reasoning jumps.
 
----
+早期生成结果虽然答案正确，却可能包含不自然的拆分、冗余转换、过量口算或推理跳跃。
 
-## Content Is Separate from Presentation
+The goal changed from producing a target number of steps to producing the minimum number of meaningful, readable steps.
 
-Mathematical content does not define how it must be presented.
+因此，生成目标从“达到指定步骤数量”调整为“生成最少且有意义、可读的解题步骤”。
 
-The same Question can therefore support multiple gameplay interactions.
+~~~text
+Plan → Build → Playtest → Observe → Classify → Fix Systemically → Validate
+规划 → 实现 → 试玩 → 观察 → 分类 → 系统性修复 → 验证
+~~~
 
 ---
 
-## Mathematical Logic Is Separate from UI
+## UI/UX | UI/UX
 
-`ExpressionParser`, `StepGenerator`, and `ChoiceGenerator` operate independently from screen presentation.
-
-This allows mathematical systems to evolve without tightly coupling them to a specific interface.
-
----
-
-## Managers Have Focused Responsibilities
-
-As the project expanded, responsibilities were extracted from `GameManager`.
-
-Examples include:
-
-- `ProgressManager`
-- `LearningManager`
-- `PracticeSessionManager`
-- `MistakeBookManager`
-- `ZenModeManager`
-- `SurvivalModeManager`
-
-This reduces the responsibility of the central gameplay controller as systems become more complex.
+- Unified dark navy visual language / 统一黑蓝视觉风格
+- Local Lucide SVG icons / 本地 Lucide SVG 图标
+- Kenney UI sound effects / Kenney UI 音效
+- Responsive 1920 × 1080 layout / 响应式布局
+- Consistent cards, buttons, popups, and states / 统一卡片、按钮、弹窗与状态
+- Distinct navigation actions / 跳转操作使用独立视觉标记
+- English and Simplified Chinese UI / 英文与简体中文 UI
+- Personal-logo Splash Screen / 个人 Logo 启动画面
 
 ---
 
-## Persistent Systems Are Versioned
+## Save Data | 本地存档
 
-Save data contains an explicit schema version.
+MathSmith stores versioned player data at:
 
-Older data can therefore be migrated or repaired as systems evolve.
+《数锻》将版本化玩家数据保存在：
 
----
-
-## Replay Is Isolated from Structured Progress
-
-Replay modes do not overwrite standard Level progression.
-
----
-
-## Learning Logic Is Deterministic
-
-Error explanations, mathematical transformations, and distractors are rule-based.
-
-No runtime LLM is required for the current learning experience.
-
----
-
-# Save Data
-
-MathSmith stores local progress through Godot's `user://` directory:
-
-```text
+~~~text
 user://mathsmith_save.json
-```
+~~~
 
-The current Save schema stores:
+The Save stores settings, language, Course state, progress, scores, stars, mistakes, replay records, History, Mastery, and authored content.
 
-- Settings
-- Language
-- Mode-specific Level progress
-- Best scores
-- Best stars
-- Mistake Book entries
-- Tutorial state
-- Zen Mode best result
-- Survival Mode best result
-- Reserved Skill Progress data
-- Reserved Player History data
+存档包含设置、语言、课程状态、进度、分数、星级、错题、重复游玩记录、历史、熟练度与创作内容。
 
-Interrupted Levels do not save partial Question progress.
+Interrupted Levels do not save partial progress. Teacher previews do not write player learning records.
 
-Reset Progress removes progression data while preserving user settings.
+中途退出的关卡不会保存部分进度；教师预览不会写入玩家学习记录。
 
 ---
 
-# Future Development
+## Running the Project | 运行项目
 
-The current M1–M4 build establishes the core learning, content, progression, and replay architecture.
+1. Install Godot 4.7.1 or a compatible Godot 4.x version. / 安装兼容的 Godot 4.x。
+2. Clone this repository. / 克隆仓库。
+3. Import **project.godot** in Godot Project Manager. / 导入 **project.godot**。
+4. Run the project. The Splash Screen transitions to Home. / 运行项目，启动画面会进入 Home。
 
-Future milestones would explore systems that build on this foundation rather than expanding the core prototype indefinitely.
+~~~bash
+git clone https://github.com/YitongHuGpm20/MathSmith.git
+~~~
 
----
+### Controls | 操作
 
-## M5 — Analytics & Adaptive Learning
-
-**Goal: Observe player behavior and adapt practice**
-
-Completed systems:
-
-- Behavior tracking
-- Time-to-first-action
-- Total Question time
-- Move / reorder behavior
-- Submission count
-- Hint usage
-- Skill-level performance analysis
-- Error pattern analysis
-- Skill Mastery
-- Weak Skill identification
-- Adaptive Practice recommendations
-- Weighted Question selection
-- Developer / Analytics Overlay
-
-This milestone answers:
-
-> **What can player behavior tell us about where the learner is struggling?**
+- **Mouse / 鼠标:** navigate, select, drag, and enter values
+- **Check:** validate the current answer
+- **Hint:** request limited assistance
+- **Next:** advance after completion
+- **Tutor Bubble / Tutor 泡泡:** open or close contextual guidance
 
 ---
 
-## M6 — Content Authoring Pipeline
+## Credits | 致谢
 
-Teacher Tools currently use a local prototype password gate (`teacher`) for portfolio demonstrations. This is not production authentication and must not be treated as a security boundary.
-
-**Goal: Allow educators and content specialists to create and validate content**
-
-Completed systems:
-
-- Independent Core Curriculum, Imported Course, and Studio Course Sources
-- Course-scoped progress, mistakes, Mastery, history, and analytics
-- Repository CSV template, example, and authoring guide
-- CSV parsing with blocking Errors and non-blocking Warnings
-- Safe Imported Course persistence and replacement
-- MathSmith Studio Level and Question editing
-- Live expression validation and generated solution preview
-- Isolated Question, Level, and Imported Course previews
-- Return-to-Editor selection preservation
-- Validated Studio CSV export
-- Confirmed Course reset, removal, and deletion flows
-
-Content creation no longer requires editing gameplay code or runtime JSON directly.
-
-The implemented workflow is:
-
-```text
-Author
-→ Validate
-→ Preview
-→ Play
-→ Revise
-→ Export / Deliver
-```
+- **Design & Development / 设计与开发:** Yitong Hu
+- **Sound Effects / 音效:** [kenney.nl](https://kenney.nl/)
+- **Icons / 图标:** [lucide.dev](https://lucide.dev/)
+- **Engine / 引擎:** [Godot](https://godotengine.org/)
 
 ---
 
-## M7 — Guided Smart Tutor & Final Polish
+## License | 许可
 
-**Goal: Connect existing systems into a guided learning experience**
+This repository is presented as a personal portfolio project. Third-party assets remain subject to their respective licenses.
 
-Implemented systems:
-
-- Reusable option-based Tutor bubble and speech panel
-- Course-scoped context for Core, Imported, and Studio Courses
-- Context-specific Home, Lobby, Gameplay, Summary, and Mistake Book options
-- Deterministic gameplay, mistake, correct-process, Score, and Star explanations
-- Performance summaries, recent Question History, and behavior-pattern evidence
-- Existing M5 weak-Skill and relevant-Level recommendations
-- Confirmed navigation to Levels, Mistake Book, Skill Mastery, and replay modes
-- Adaptive Practice, Mistake Practice, Zen, and Survival guidance
-- Isolated Teacher Preview guidance with no player-data writes
-- English and Simplified Chinese Tutor terminology
-- Keyboard navigation, scrolling, responsive layout, and shared UI audio
-
-The Tutor is implemented after deterministic learning systems, player history, and content architecture are established.
-
-It operates on structured and validated learning data rather than replacing mathematical correctness, Mastery, adaptive weighting, saving, or progression.
-
-See [M7 Tutor Architecture](Docs/M7_Tutor_Architecture.md) and [M7 Manual Validation](Docs/M7_Tutor_Validation.md).
-
----
-
-# Key Learnings
-
-## Design for Iteration
-
-Build the smallest complete experience first.
-
-Validate it.
-
-Then expand.
-
----
-
-## Separate Content from Presentation
-
-Reusable content architecture made it possible to add new gameplay interactions without creating independent Question libraries.
-
----
-
-## Test Meaning, Not Only Correctness
-
-A system can be technically correct and mathematically correct while still producing a poor learning experience.
-
-Playtesting must evaluate:
-
-```text
-Correctness
-+
-Readability
-+
-Intent
-+
-Player Understanding
-```
-
----
-
-## Keep Every Milestone Playable
-
-A playable milestone creates something that can be:
-
-- Tested
-- Reviewed
-- Demonstrated
-- Evaluated
-- Changed
-
-before too many dependent systems are built.
-
----
-
-## Build Systems Around Real Findings
-
-Several of MathSmith's most important design changes came from actually playing generated content rather than predicting every problem during planning.
-
-The project therefore follows:
-
-```text
-Plan
-→ Build
-→ Play
-→ Observe
-→ Adjust
-→ Stabilize
-→ Expand
-```
-
-rather than treating design documentation as a fixed specification.
-
----
-
-# Running the Project
-
-1. Install Godot 4.7.1 or a compatible Godot 4.x version.
-2. Clone this repository.
-3. Import `project.godot` through the Godot Project Manager.
-4. Run the project from `HomeScene`.
-
-The project is configured for a 1920 × 1080 viewport with responsive `canvas_items` stretching.
-
----
-
-# Controls
-
-- **Mouse:** Navigate UI, choose options, and drag Step Cards
-- **Check:** Validate Step Ordering or Fill in the Process
-- **Hint:** Request limited mode-specific assistance
-- **Next:** Advance after completing a Question
-
----
-
-# Credits
-
-- **Design and Development:** Yitong Hu
-- **Sound Effects:** Kenney
-- **Icons:** Lucide
-- **Engine:** Godot
-
----
-
-# License
-
-This repository is currently presented as a personal portfolio project.
-
-Third-party assets remain subject to their respective licenses.
+本仓库作为个人作品集项目展示；第三方资源仍遵循各自的许可协议。
