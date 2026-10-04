@@ -29,6 +29,10 @@ signal progressReset
 @onready var sfxValueLabel: Label = $Overlay/CenterContainer/Panel/Margin/SettingsContent/SFXRow/SFXValueLabel
 @onready var muteToggle: CheckBox = $Overlay/CenterContainer/Panel/Margin/SettingsContent/MuteRow/MuteToggle
 @onready var languageButton: OptionButton = $Overlay/CenterContainer/Panel/Margin/SettingsContent/LanguageRow/LanguageButton
+@onready var aiTutorToggle: CheckBox = %AITutorToggle
+@onready var tutorVoiceToggle: CheckBox = %TutorVoiceToggle
+@onready var proactiveTutorToggle: CheckBox = %ProactiveTutorToggle
+@onready var clearConversationButton: Button = %ClearConversationButton
 @onready var resetProgressButton: Button = $Overlay/CenterContainer/Panel/Margin/SettingsContent/ResetProgressButton
 @onready var closeButton: Button = $Overlay/CenterContainer/Panel/Margin/SettingsContent/CloseButton
 @onready var cancelResetButton: Button = $Overlay/CenterContainer/Panel/Margin/ResetContent/Actions/CancelButton
@@ -46,6 +50,10 @@ func _ready() -> void:
 	sfxSlider.drag_ended.connect(_on_volume_slider_drag_ended)
 	muteToggle.toggled.connect(_on_mute_toggle_toggled)
 	languageButton.item_selected.connect(_on_language_button_item_selected)
+	aiTutorToggle.toggled.connect(_on_tutor_setting_toggled)
+	tutorVoiceToggle.toggled.connect(_on_tutor_setting_toggled)
+	proactiveTutorToggle.toggled.connect(_on_tutor_setting_toggled)
+	clearConversationButton.pressed.connect(_on_clear_conversation_button_pressed)
 	resetProgressButton.pressed.connect(_on_reset_progress_button_pressed)
 	closeButton.pressed.connect(Close)
 	cancelResetButton.pressed.connect(_on_cancel_reset_button_pressed)
@@ -65,6 +73,9 @@ func Open() -> void:
 	masterSlider.set_value_no_signal(settingsData.get("masterVolume", 1.0) * 100.0)
 	sfxSlider.set_value_no_signal(settingsData.get("sfxVolume", 1.0) * 100.0)
 	muteToggle.set_pressed_no_signal(settingsData.get("mute", false))
+	aiTutorToggle.set_pressed_no_signal(settingsData.get("conversationalTutorEnabled", true))
+	tutorVoiceToggle.set_pressed_no_signal(settingsData.get("tutorVoiceEnabled", true))
+	proactiveTutorToggle.set_pressed_no_signal(settingsData.get("proactiveTutorEnabled", true))
 	languageButton.select(
 		SIMPLIFIED_CHINESE_LANGUAGE_INDEX
 		if settingsData.get("language", "en") == "zh_CN"
@@ -94,12 +105,16 @@ func SaveSettings() -> void:
 		"masterVolume": masterSlider.value / 100.0,
 		"sfxVolume": sfxSlider.value / 100.0,
 		"mute": muteToggle.button_pressed,
+		"conversationalTutorEnabled": aiTutorToggle.button_pressed,
+		"tutorVoiceEnabled": tutorVoiceToggle.button_pressed,
+		"proactiveTutorEnabled": proactiveTutorToggle.button_pressed,
 		"language": (
 			"zh_CN"
 			if languageButton.selected == SIMPLIFIED_CHINESE_LANGUAGE_INDEX
 			else "en"
 		)
 	})
+	GameManager.ApplyTutorSettings(SaveManager.GetSection("settings"))
 
 #endregion
 
@@ -133,6 +148,14 @@ func _on_language_button_item_selected(_index: int) -> void:
 		else "en"
 	)
 	LocalizationManager.SetLanguage(localeCode)
+
+# Persists all optional Tutor switches immediately.
+func _on_tutor_setting_toggled(_enabled: bool) -> void:
+	SaveSettings()
+
+# Clears only the current transient conversation history.
+func _on_clear_conversation_button_pressed() -> void:
+	GameManager.ClearTutorAIConversation()
 
 # Replaces Settings controls with an in-style destructive confirmation.
 func _on_reset_progress_button_pressed() -> void:

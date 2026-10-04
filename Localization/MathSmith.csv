@@ -1,4 +1,22 @@
 keys,en,zh_CN
+Read aloud,Read aloud,朗读
+Stop voice,Stop voice,停止朗读
+Tutor voice is unavailable. The response remains readable.,Tutor voice is unavailable. The response remains readable.,导师语音不可用，回复文字仍可正常阅读。
+Push to talk,Push to talk,点击说话
+Listening... Press the microphone again to stop.,Listening... Press the microphone again to stop.,正在聆听……再次点击麦克风即可停止。
+Processing speech...,Processing speech...,正在处理语音……
+Voice transcription ready. Review it before sending.,Voice transcription ready. Review it before sending.,语音转写已完成，请检查后再发送。
+Microphone permission was denied. You can continue typing.,Microphone permission was denied. You can continue typing.,麦克风权限被拒绝，你仍可继续打字。
+Voice input is unavailable. You can continue typing.,Voice input is unavailable. You can continue typing.,语音输入不可用，你仍可继续打字。
+Need a hand?,Need a hand?,需要帮助吗？
+Guided,Guided,引导问答
+Chat,Chat,打字聊天
+CONVERSATION,CONVERSATION,对话
+Ask about MathSmith...,Ask about MathSmith...,向数锻导师提问……
+Send,Send,发送
+Retry,Retry,重试
+Tutor is thinking...,Tutor is thinking...,导师正在思考……
+Conversational Tutor is unavailable. Guided options still work.,Conversational Tutor is unavailable. Guided options still work.,对话导师暂时不可用，引导选项仍可正常使用。
 MATHSMITH TUTOR,MATHSMITH TUTOR,数锻导师
 GUIDED TUTOR,GUIDED TUTOR,引导式导师
 How can I help?,How can I help?,我能如何帮助你？
@@ -457,6 +475,11 @@ MathSmith Tutor,MathSmith Tutor,数锻导师
 Back,Back,返回
 HOME,HOME,主页
 Tutor,Tutor,导师
+Conversational AI,Conversational AI,对话式 AI
+Tutor Voice,Tutor Voice,导师语音
+Proactive Tutor,Proactive Tutor,主动导师提示
+Clear Current Conversation,Clear Current Conversation,清除当前对话
+Development Mock — no live AI connection.,Development Mock — no live AI connection.,开发用模拟服务——未连接实时 AI。
 Mute all audio,Mute all audio,静音所有音频
 Confirm Action,Confirm Action,确认操作
 Confirm this action?,Confirm this action?,确认执行此操作？

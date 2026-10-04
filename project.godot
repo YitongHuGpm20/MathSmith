@@ -22,6 +22,10 @@ LocalizationManager="*res://Scripts/UIComponents/LocalizationManager.gd"
 GameManager="*res://Scripts/Gameplay/GameManager.gd"
 AudioManager="*res://Scripts/UIComponents/AudioManager.gd"
 
+[audio]
+
+general/text_to_speech=true
+
 [display]
 
 window/size/viewport_width=1920

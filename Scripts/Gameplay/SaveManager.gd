@@ -8,7 +8,7 @@ extends Node
 #region ========== Constants ==========
 
 const SAVE_FILE_PATH: String = "user://mathsmith_save.json"
-const SAVE_SCHEMA_VERSION: int = 7
+const SAVE_SCHEMA_VERSION: int = 8
 const CORE_CURRICULUM_SOURCE_ID: String = "core_curriculum"
 const IMPORTED_COURSE_SOURCE_ID: String = "imported_course"
 const STUDIO_COURSE_SOURCE_ID: String = "studio_course"
@@ -46,7 +46,10 @@ func GetDefaultSaveData() -> Dictionary:
 			"masterVolume": 1.0,
 			"sfxVolume": 1.0,
 			"mute": false,
-			"language": "en"
+			"language": "en",
+			"conversationalTutorEnabled": true,
+			"tutorVoiceEnabled": true,
+			"proactiveTutorEnabled": true
 		},
 		"courseState": {"selectedCourseSource": CORE_CURRICULUM_SOURCE_ID},
 		"courseData": {
@@ -110,8 +113,18 @@ func LoadSaveData() -> void:
 func MergeSavedSections(parsedData: Dictionary) -> void:
 	var defaultData := GetDefaultSaveData()
 
-	# Global preferences and tutorials remain shared across Course Sources.
-	for sectionName in ["settings", "tutorialState", "courseState"]:
+	# Merge Settings by field so older Saves gain every current preference.
+	var savedSettings = parsedData.get("settings", {})
+	if savedSettings is Dictionary:
+		for settingName in defaultData["settings"]:
+			if (
+				savedSettings.has(settingName)
+				and typeof(savedSettings[settingName]) == typeof(defaultData["settings"][settingName])
+			):
+				saveData["settings"][settingName] = savedSettings[settingName]
+
+	# Tutorials and Course selection remain shared across Course Sources.
+	for sectionName in ["tutorialState", "courseState"]:
 		if (
 			parsedData.has(sectionName)
 			and typeof(parsedData[sectionName]) == typeof(defaultData[sectionName])

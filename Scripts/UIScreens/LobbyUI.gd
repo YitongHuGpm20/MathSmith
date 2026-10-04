@@ -83,6 +83,7 @@ func _ready() -> void:
 	settingsButton.pressed.connect(OpenSettings)
 	tutorBubble.pressed.connect(ToggleTutor)
 	tutorPanel.optionSelected.connect(GameManager.HandleTutorAction)
+	tutorPanel.messageSubmitted.connect(HandleTutorMessage)
 	settingsPanel.progressReset.connect(RefreshLevelCards)
 	settingsPanel.progressReset.connect(RefreshSkillMastery)
 	stepOrderingButton.pressed.connect(_on_step_ordering_button_pressed)
@@ -134,6 +135,11 @@ func ToggleTutor() -> void:
 	tutorPanel.Open(GameManager.GetTutorOpeningPage())
 	tutorPanel.move_to_front()
 	tutorBubble.move_to_front()
+
+# Resolves one course-scoped text request after drawing the thinking state.
+func HandleTutorMessage(userMessage: String) -> void:
+	await get_tree().process_frame
+	tutorPanel.ShowConversationResponse(GameManager.RequestTutorAIResponse(userMessage))
 
 # Keeps Settings above floating Tutor controls when opened from the Lobby.
 func OpenSettings() -> void:

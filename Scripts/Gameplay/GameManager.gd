@@ -5,6 +5,13 @@
 ## construction, replay rules, and M5 learning analysis.
 extends Node
 
+#region ========== Signals ==========
+
+signal tutorSettingsChanged(settingsData: Dictionary)
+signal tutorConversationCleared
+
+#endregion
+
 #region ========== Constants ==========
 
 const HOME_SCENE_PATH: String = "res://Scenes/HomeScene.tscn"
@@ -56,6 +63,10 @@ var practiceSessionManager := preload("res://Scripts/Gameplay/PracticeSessionMan
 var tutorContextProvider := preload("res://Scripts/Learning/TutorContextProvider.gd").new()
 var tutorManager := preload("res://Scripts/Learning/TutorManager.gd").new()
 var tutorNavigationAdapter := preload("res://Scripts/Learning/TutorNavigationAdapter.gd").new()
+var tutorAIManager := preload("res://Scripts/Learning/TutorAIManager.gd").new()
+var tutorProactiveManager := preload(
+	"res://Scripts/Learning/TutorProactiveManager.gd"
+).new()
 
 #endregion
 
@@ -95,6 +106,7 @@ var teacherPreviewReturnLevelId: String = ""
 var teacherPreviewReturnQuestionId: String = ""
 var teacherPreviewCourseSourceId: String = ""
 var lastSessionSummary: Dictionary = {}
+var tutorVoiceEnabled: bool = true
 
 #endregion
 
@@ -118,25 +130,40 @@ func _ready() -> void:
 
 	# Rebuild derived learning state from persistent Question history.
 	learningManager.Initialize()
+	ApplyTutorSettings(SaveManager.GetSection("settings"), false)
 	if ENABLE_TUTOR_CONTEXT_VALIDATION_OUTPUT:
 		PrintTutorContextForValidation.call_deferred()
+		PrintTutorAIContextForValidation.call_deferred()
 
-# Updates the active Zen timer independently of Question interaction state.
+# Updates Zen timing and deterministic proactive Tutor timers independently.
 func _process(delta: float) -> void:
-	if activeSessionType != ZEN_SESSION_TYPE:
+	if activeSessionType == ZEN_SESSION_TYPE:
+		var timerExpired := zenModeManager.AdvanceTime(delta)
+		if is_instance_valid(gameUI):
+			gameUI.UpdateZenStatus(
+				zenModeManager.GetRemainingSeconds(),
+				zenModeManager.GetSolvedCount()
+			)
+		if timerExpired:
+			EndZenMode()
+
+	if not is_instance_valid(gameUI):
 		set_process(false)
 		return
-
-	var timerExpired := zenModeManager.AdvanceTime(delta)
-
-	if is_instance_valid(gameUI):
-		gameUI.UpdateZenStatus(
-			zenModeManager.GetRemainingSeconds(),
-			zenModeManager.GetSolvedCount()
+	var proactiveNotice := tutorProactiveManager.Advance(
+		delta,
+		(
+			not questionCompleted
+			and activeSessionType != TEACHER_PREVIEW_SESSION_TYPE
+			and gameUI.CanShowProactiveTutorNotice()
 		)
+	)
+	if not proactiveNotice.is_empty():
+		gameUI.ShowProactiveTutorNotice(proactiveNotice.get("message", "Need a hand?"))
 
-	if timerExpired:
-		EndZenMode()
+# Clears transient AI memory when the application tree shuts down.
+func _exit_tree() -> void:
+	ClearTutorAIConversation(false)
 
 #endregion
 
@@ -183,6 +210,7 @@ func OpenGame() -> void:
 
 # Exits the running application from a shared menu action.
 func QuitGame() -> void:
+	ClearTutorAIConversation(false)
 	get_tree().quit()
 
 # Queues scene navigation until the current input callback has finished.
@@ -221,6 +249,7 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	gameUI.tutorialDismissed.connect(RecordTutorialViewed)
 	gameUI.tutorialRequested.connect(ShowCurrentTutorial)
 	gameUI.reviewMistakesRequested.connect(OpenMistakeBook)
+	gameUI.playerActivity.connect(RecordTutorPlayerActivity)
 
 	# Teacher Preview accepts real interactions without recording learning behavior.
 	if CanWritePlayerLearningData():
@@ -242,7 +271,7 @@ func RegisterGameUI(newGameUI: Node) -> void:
 	if activeSessionType == ZEN_SESSION_TYPE:
 		remainingHints = 0
 		levelHintBudget = 0
-		set_process(true)
+	set_process(true)
 
 	LoadQuestion(0)
 
@@ -256,6 +285,7 @@ func UnregisterGameUI(departingGameUI: Node) -> void:
 
 	DisconnectGameUISignals()
 	gameUI = null
+	set_process(false)
 
 # Disconnects all request signals owned by the active Game Scene UI.
 func DisconnectGameUISignals() -> void:
@@ -303,6 +333,9 @@ func DisconnectGameUISignals() -> void:
 
 	if gameUI.reviewMistakesRequested.is_connected(OpenMistakeBook):
 		gameUI.reviewMistakesRequested.disconnect(OpenMistakeBook)
+
+	if gameUI.playerActivity.is_connected(RecordTutorPlayerActivity):
+		gameUI.playerActivity.disconnect(RecordTutorPlayerActivity)
 
 #endregion
 
@@ -755,6 +788,83 @@ func GetTutorContext() -> Dictionary:
 # Returns the first deterministic page for the reusable Tutor Panel.
 func GetTutorOpeningPage() -> Dictionary:
 	return tutorManager.BuildOpeningPage(GetTutorContext())
+
+# Builds the M8 provider payload from the existing deterministic M7 snapshot.
+func GetTutorAIContext(requestIntent: String = "OTHER") -> Dictionary:
+	var tutorContext := GetTutorContext()
+	var fallbackPage := tutorManager.BuildOpeningPage(tutorContext)
+	return tutorAIManager.BuildAIContext(
+		tutorContext,
+		requestIntent,
+		tutorAIManager.GetAvailableActions(fallbackPage),
+		TranslationServer.get_locale()
+	)
+
+# Returns non-secret M8 provider and transient conversation diagnostics.
+func GetTutorAIStatus() -> Dictionary:
+	return tutorAIManager.GetStatus()
+
+# Routes one future conversational request through M8 while retaining M7 fallback.
+func RequestTutorAIResponse(
+	userMessage: String,
+	requestIntent: String = "OTHER"
+) -> Dictionary:
+	var tutorContext := GetTutorContext()
+	var fallbackPage := tutorManager.BuildOpeningPage(tutorContext)
+	var aiContext := tutorAIManager.BuildAIContext(
+		tutorContext,
+		requestIntent,
+		tutorAIManager.GetAvailableActions(fallbackPage),
+		TranslationServer.get_locale()
+	)
+	return tutorAIManager.RequestResponse(aiContext, userMessage, fallbackPage)
+
+# Clears only the short M8 conversation, never permanent learning records.
+func ClearTutorAIConversation(notifyUI: bool = true) -> void:
+	tutorAIManager.ClearConversation()
+	if notifyUI:
+		tutorConversationCleared.emit()
+
+# Applies optional M8 features while preserving the deterministic M7 fallback.
+func ApplyTutorSettings(settingsData: Dictionary, notifyUI: bool = true) -> void:
+	tutorAIManager.SetEnabled(settingsData.get("conversationalTutorEnabled", true))
+	tutorVoiceEnabled = settingsData.get("tutorVoiceEnabled", true)
+	tutorProactiveManager.SetEnabled(settingsData.get("proactiveTutorEnabled", true))
+	if not settingsData.get("proactiveTutorEnabled", true) and is_instance_valid(gameUI):
+		gameUI.ClearProactiveTutorNotice()
+	if notifyUI:
+		tutorSettingsChanged.emit(settingsData.duplicate(true))
+
+# Reports whether free-form Tutor conversation is currently allowed.
+func IsConversationalTutorEnabled() -> bool:
+	return GetTutorAIStatus().get("aiEnabled", true)
+
+# Reports whether optional Tutor speech output is currently allowed.
+func IsTutorVoiceEnabled() -> bool:
+	return tutorVoiceEnabled
+
+# Resets inactivity after any meaningful interaction and dismisses stale notice UI.
+func RecordTutorPlayerActivity() -> void:
+	tutorProactiveManager.RecordPlayerActivity()
+	if is_instance_valid(gameUI):
+		gameUI.ClearProactiveTutorNotice()
+
+# Records voluntary engagement without opening or changing Tutor content itself.
+func RecordTutorEngagement() -> void:
+	tutorProactiveManager.RecordTutorEngagement()
+	if is_instance_valid(gameUI):
+		gameUI.ClearProactiveTutorNotice()
+
+# Returns centralized trigger state for manual validation and later diagnostics.
+func GetTutorProactiveStatus() -> Dictionary:
+	return tutorProactiveManager.GetStatus()
+
+# Prints the safe M8 contract for the owner's manual architecture validation.
+func PrintTutorAIContextForValidation(requestIntent: String = "OTHER") -> void:
+	print("[M8.1 AI Context] ", JSON.stringify({
+		"context": GetTutorAIContext(requestIntent),
+		"status": GetTutorAIStatus()
+	}, "  "))
 
 # Returns deterministic guidance for one explicitly selected Mistake Book entry.
 func GetTutorMistakePage(mistakeEntry: Dictionary) -> Dictionary:
@@ -1209,6 +1319,12 @@ func LoadQuestion(questionIndex: int) -> void:
 	ResetQuestionScoring()
 
 	var currentQuestion: Dictionary = questions[currentQuestionIndex]
+	tutorProactiveManager.BeginQuestion("%s:%s:%s" % [
+		courseManager.GetCurrentCourseSourceId(),
+		currentLevel.get("id", ""),
+		currentQuestion.get("id", currentQuestionIndex)
+	])
+	gameUI.ClearProactiveTutorNotice()
 
 	# Mixed finite Practice sessions restore each Question's assigned mode.
 	if activeSessionType in [MISTAKE_PRACTICE_SESSION_TYPE, ADAPTIVE_PRACTICE_SESSION_TYPE]:
@@ -1536,6 +1652,9 @@ func RegisterIncorrectAttempt() -> String:
 		currentQuestionIncorrectPenaltyTotal += scoreBeforePenalty - currentQuestionScore
 
 	gameUI.UpdateScore(currentQuestionScore, currentLevelScore)
+	var proactiveNotice := tutorProactiveManager.RecordIncorrectAttempt(incorrectAttempts)
+	if not proactiveNotice.is_empty():
+		gameUI.ShowProactiveTutorNotice(proactiveNotice.get("message", "Need a hand?"))
 
 	# Repeated mistakes qualify this Question for persistent review.
 	if incorrectAttempts >= 2:

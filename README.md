@@ -142,7 +142,7 @@ Saved mistakes include the answer, explanation, source Level, Skill Tags, and co
 
 ---
 
-## M1–M7 Development | M1–M7 开发历程
+## M1–M8 Development | M1–M8 开发历程
 
 MathSmith was built through vertical milestones. Every milestone preserved a complete playable flow.
 
@@ -157,6 +157,7 @@ MathSmith was built through vertical milestones. Every milestone preserved a com
 | **M5 — Learning Analytics** | Telemetry, History, Skill Mastery, behavior patterns, recommendations, adaptation | 行为遥测、历史、熟练度、行为模式、推荐与自适应 |
 | **M6 — Content Authoring** | Teacher login, CSV import, validation, preview, visual editing, export | 教师登录、CSV 导入、验证、预览、可视化编辑与导出 |
 | **M7 — Smart Tutor & Polish** | Contextual Tutor, Course-aware guidance, localization, UI polish, Splash Screen | 情境 Tutor、课程感知引导、本地化、UI 打磨与启动画面 |
+| **M8 — Conversational AI Tutor** | Grounded conversation architecture, structured actions, proactive guidance, voice input/output, fallback, diagnostics | 有依据的对话架构、结构化操作、主动引导、语音输入输出、回退与诊断 |
 
 ---
 
@@ -250,6 +251,61 @@ Tutor 呈现已有结构化系统提供的引导，不替代数学验证、自�
 
 - [Tutor Architecture / Tutor 架构](Docs/M7_Tutor_Architecture.md)
 - [Manual Validation / 人工验证](Docs/M7_Tutor_Validation.md)
+
+## Conversational AI Tutor | 对话式 AI 导师
+
+M8 extends the deterministic M7 Tutor with an optional conversational,
+voice-capable, and proactive interaction layer.
+
+M8 在确定性的 M7 Tutor 之上增加可选的对话、语音与主动交互层。
+
+- **Grounded AI context / 有依据的 AI 情境:** sends only relevant Course,
+  screen, Level, Question, performance, Skill, and recommendation data
+  仅提供当前相关的课程、页面、关卡、题目、表现、技能与推荐数据
+- **Separate Guided and Chat interfaces / 分离的引导与聊天界面:** preserves
+  the existing option-based Tutor alongside free-form text conversation
+  在自由文字对话之外完整保留原有选项式 Tutor
+- **Short session memory / 短期会话记忆:** supports follow-up questions without
+  creating a permanent AI profile
+  支持连续追问，但不会创建永久 AI 玩家画像
+- **Validated structured actions / 经验证的结构化操作:** AI may suggest an
+  action, but MathSmith validates it before displaying a real navigation button
+  AI 可以建议操作，但必须经过《数锻》验证后才会显示导航按钮
+- **Deterministic proactive guidance / 确定性主动引导:** inactivity and repeated
+  errors can trigger a quiet non-blocking notice with centralized cooldown rules
+  停顿或连续错误可触发带统一冷却规则的非阻断提示
+- **Optional voice interaction / 可选语音交互:** Push-to-Talk speech input and
+  replayable Tutor speech output always preserve editable and visible text
+  按键说话与导师语音朗读始终保留可编辑、可阅读的文字
+- **Settings and graceful fallback / 设置与安全回退:** Conversation, Tutor Voice,
+  and Proactive Tutor can be disabled independently while M7 remains available
+  对话、导师语音和主动提示可分别关闭，M7 Tutor 始终可用
+- **Developer diagnostics / 开发者诊断:** F3 displays provider, context, intent,
+  action, fallback, speech, latency, and proactive state without exposing secrets
+  F3 显示 Provider、情境、意图、操作、回退、语音、延迟与主动提示状态，但不暴露密钥
+- **Course isolation and Teacher Preview safety / 课程隔离与教师预览安全:** Core,
+  Imported, and Studio data never mix, and previews do not write learning records
+  核心、导入与 Studio 课程数据互不混合，预览不会写入学习记录
+- **English and Simplified Chinese / 英文与简体中文:** all M8 controls, states,
+  settings, and Mock responses follow the active game language
+  所有 M8 控件、状态、设置与 Mock 回复均跟随当前游戏语言
+
+MathSmith remains the authority for mathematical truth, validated solution
+processes, scores, stars, Mastery, behavior analysis, adaptation, progression,
+and valid actions. The AI layer may only interpret and communicate approved data.
+
+数学真值、正确解题过程、分数、星级、熟练度、行为分析、自适应、成长进度与有效操作
+仍完全由《数锻》决定；AI 层只能理解并表达经过筛选和验证的数据。
+
+The current project uses an explicitly labeled development Mock provider and
+contains no production API key. A future Web release with live AI must use a
+secure backend/proxy; gameplay and the M7 Tutor remain fully functional offline.
+
+当前项目使用明确标记的开发用 Mock Provider，不包含正式 API Key。未来 Web 版本若接入
+实时 AI，必须通过安全后端或代理；离线状态下游戏与 M7 Tutor 仍可完整运行。
+
+- [M8 Architecture & Security / M8 架构与安全](Docs/M8_AI_Tutor_Architecture.md)
+- [M8 Manual Validation / M8 人工验证](Docs/M8_Tutor_Validation.md)
 
 ---
 

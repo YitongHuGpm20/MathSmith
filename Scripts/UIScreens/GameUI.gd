@@ -20,6 +20,7 @@ signal fillValueChanged(blankId: String)
 signal tutorialDismissed
 signal tutorialRequested
 signal reviewMistakesRequested
+signal playerActivity
 
 #endregion
 
@@ -125,6 +126,7 @@ func _ready() -> void:
 	settingsButton.pressed.connect(OpenSettings)
 	tutorBubble.pressed.connect(ToggleTutor)
 	tutorPanel.optionSelected.connect(GameManager.HandleTutorAction)
+	tutorPanel.messageSubmitted.connect(HandleTutorMessage)
 	closeAnalyticsButton.pressed.connect(ToggleAnalyticsOverlay)
 	analyticsRefreshTimer.timeout.connect(RefreshAnalyticsOverlay)
 	retryButton.pressed.connect(_on_retry_button_pressed)
@@ -145,9 +147,32 @@ func ToggleTutor() -> void:
 	if tutorPanel.visible:
 		tutorPanel.Close()
 		return
+	GameManager.RecordTutorEngagement()
 	tutorPanel.Open(GameManager.GetTutorOpeningPage())
 	tutorPanel.move_to_front()
 	tutorBubble.move_to_front()
+
+# Resolves one gameplay-aware text request after drawing the thinking state.
+func HandleTutorMessage(userMessage: String) -> void:
+	await get_tree().process_frame
+	tutorPanel.ShowConversationResponse(GameManager.RequestTutorAIResponse(userMessage))
+
+# Shows a non-blocking bubble notice without opening Tutor or taking focus.
+func ShowProactiveTutorNotice(messageText: String) -> void:
+	tutorBubble.ShowNotice(tr(messageText))
+
+# Returns the bubble to its quiet IDLE presence state.
+func ClearProactiveTutorNotice() -> void:
+	tutorBubble.ClearNotice()
+
+# Prevents proactive notices while another gameplay overlay is active.
+func CanShowProactiveTutorNotice() -> bool:
+	return (
+		not tutorPanel.visible
+		and not tutorialOverlay.visible
+		and not settingsPanel.visible
+		and not endMenu.visible
+	)
 
 # Keeps Settings above the floating Tutor when explicitly requested.
 func OpenSettings() -> void:
@@ -183,6 +208,10 @@ func RefreshAnalyticsOverlay() -> void:
 	var playerHistory := GameManager.GetPlayerHistory()
 	var skillProgress := GameManager.GetSkillProgress()
 	var weakSkills := GameManager.GetWeakSkills()
+	var tutorAIStatus := GameManager.GetTutorAIStatus()
+	var tutorContext := GameManager.GetTutorAIContext()
+	var proactiveStatus := GameManager.GetTutorProactiveStatus()
+	var tutorUIDiagnostics: Dictionary = tutorPanel.GetTutorDiagnostics()
 	var latestPattern := "None"
 
 	if not playerHistory.is_empty():
@@ -217,14 +246,42 @@ func RefreshAnalyticsOverlay() -> void:
 		+ "[b]ACTIVE QUESTION[/b]\n%s\n\n"
 		+ "[b]PLAYER HISTORY[/b]\nSaved Questions: %d\nLatest pattern: %s\n\n"
 		+ "[b]SKILL MASTERY[/b]\n%s\n\n"
-		+ "[b]WEAK SKILLS[/b]\n%s"
+		+ "[b]WEAK SKILLS[/b]\n%s\n\n"
+		+ "[b]M8 AI TUTOR[/b]\n"
+		+ "Enabled: %s | Provider: %s | Available: %s\n"
+		+ "Request: %s | Intent: %s | Latency: %d ms\n"
+		+ "Course: %s | Screen: %s | Level: %s | Question: %s\n"
+		+ "Turns: %d | Action: %s | Fallback: %s\n"
+		+ "Speech input: %s / supported=%s | Speech output: %s / speaking=%s\n"
+		+ "Proactive: %s | State: %s | Trigger: %s | Cooldown: %.1f s"
 	) % [
 		GameManager.GetCurrentCourseSourceId(),
 		"\n".join(activeLines),
 		playerHistory.size(),
 		latestPattern,
 		FormatSkillProgress(skillProgress),
-		", ".join(weakSkills) if not weakSkills.is_empty() else "None"
+		", ".join(weakSkills) if not weakSkills.is_empty() else "None",
+		str(tutorAIStatus.get("aiEnabled", false)),
+		tutorAIStatus.get("providerId", ""),
+		str(tutorAIStatus.get("providerAvailable", false)),
+		tutorAIStatus.get("requestState", "idle"),
+		tutorAIStatus.get("detectedIntent", "OTHER"),
+		int(tutorAIStatus.get("responseLatencyMs", 0)),
+		tutorContext.get("courseSource", {}).get("sourceId", ""),
+		tutorContext.get("screen", {}).get("id", ""),
+		tutorContext.get("level", {}).get("id", ""),
+		tutorContext.get("question", {}).get("id", ""),
+		int(tutorAIStatus.get("conversationMessageCount", 0)),
+		tutorAIStatus.get("suggestedActionId", ""),
+		str(tutorAIStatus.get("fallbackActive", false)),
+		tutorUIDiagnostics.get("speechInput", {}).get("providerId", ""),
+		str(tutorUIDiagnostics.get("speechInput", {}).get("supported", false)),
+		tutorUIDiagnostics.get("speechOutput", {}).get("providerId", ""),
+		str(tutorUIDiagnostics.get("speechOutput", {}).get("speaking", false)),
+		str(proactiveStatus.get("enabled", false)),
+		proactiveStatus.get("state", "IDLE"),
+		proactiveStatus.get("lastTriggerId", ""),
+		float(proactiveStatus.get("cooldownRemainingSeconds", 0.0))
 	]
 
 # Formats Skill summaries into one compact developer-facing line per Skill.
@@ -889,10 +946,12 @@ func HideTutorial() -> void:
 
 # Forwards the Check button request to GameManager.
 func _on_check_button_pressed() -> void:
+	playerActivity.emit()
 	checkRequested.emit()
 
 # Forwards the Hint button request to GameManager.
 func _on_hint_button_pressed() -> void:
+	playerActivity.emit()
 	hintRequested.emit()
 
 # Forwards the retry request to GameManager.
@@ -913,10 +972,12 @@ func _on_lobby_button_pressed() -> void:
 
 # Forwards visual ordering changes for gameplay-owned Hint availability checks.
 func _on_step_order_changed() -> void:
+	playerActivity.emit()
 	orderChanged.emit()
 
 # Forwards the beginning of one player drag independently of reordering.
 func _on_step_drag_started() -> void:
+	playerActivity.emit()
 	stepDragStarted.emit()
 
 # Forwards each player-driven index change during one active drag.
@@ -929,6 +990,7 @@ func _on_step_drag_completed() -> void:
 
 # Forwards one visual candidate selection to GameManager for validation.
 func _on_choice_button_pressed(choiceText: String) -> void:
+	playerActivity.emit()
 	choiceSelected.emit(choiceText)
 
 # Closes either tutorial action and records that the mode has been viewed.
@@ -943,6 +1005,7 @@ func _on_tutorial_button_pressed() -> void:
 # Restricts Fill-in fields to whole-number input with one optional leading minus.
 func _on_fill_input_text_changed(newText: String, fillInput: LineEdit) -> void:
 	if not suppressFillValueTracking:
+		playerActivity.emit()
 		fillValueChanged.emit(fillInput.get_meta("blankId", ""))
 
 	var filteredText := ""

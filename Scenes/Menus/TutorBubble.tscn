@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UIComponents/TutorBubble.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://Assets/Icons/tutor.svg" id="2_icon"]
@@ -57,6 +57,24 @@ corner_radius_bottom_left = 34
 shadow_color = Color(0.02, 0.42, 0.8, 0.28)
 shadow_size = 10
 
+[sub_resource type="StyleBoxFlat" id="Notice"]
+content_margin_left = 14.0
+content_margin_top = 9.0
+content_margin_right = 14.0
+content_margin_bottom = 9.0
+bg_color = Color(0.025, 0.07, 0.13, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.68, 0.94, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 12
+shadow_color = Color(0.02, 0.45, 0.82, 0.28)
+shadow_size = 10
+
 [node name="TutorBubble" type="Button"]
 custom_minimum_size = Vector2(68, 68)
 layout_mode = 1
@@ -81,3 +99,23 @@ theme_override_styles/focus = SubResource("Hover")
 icon = ExtResource("2_icon")
 icon_max_width = 30
 script = ExtResource("1_script")
+
+[node name="NoticePanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = -154.0
+offset_top = 12.0
+offset_right = -10.0
+offset_bottom = 56.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Notice")
+
+[node name="NoticeLabel" type="Label" parent="NoticePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "Need a hand?"
+horizontal_alignment = 1
+vertical_alignment = 1

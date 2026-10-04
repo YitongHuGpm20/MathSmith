@@ -41,6 +41,7 @@ func _ready() -> void:
 	teacherToolsButton.pressed.connect(GameManager.OpenTeacherTools)
 	tutorButton.pressed.connect(ToggleTutor)
 	tutorPanel.optionSelected.connect(GameManager.HandleTutorAction)
+	tutorPanel.messageSubmitted.connect(HandleTutorMessage)
 	tutorPanel.closed.connect(RestoreTutorBubbleLayer)
 	closeCreditsButton.pressed.connect(_on_close_credits_button_pressed)
 	exitButton.pressed.connect(_on_exit_button_pressed)
@@ -77,6 +78,11 @@ func ToggleTutor() -> void:
 		return
 	tutorPanel.Open(GameManager.GetTutorOpeningPage())
 	tutorButton.move_to_front()
+
+# Resolves one text request through M8 after allowing the thinking state to draw.
+func HandleTutorMessage(userMessage: String) -> void:
+	await get_tree().process_frame
+	tutorPanel.ShowConversationResponse(GameManager.RequestTutorAIResponse(userMessage))
 
 # Returns modal overlays above the bubble after the Tutor conversation closes.
 func RestoreTutorBubbleLayer() -> void:

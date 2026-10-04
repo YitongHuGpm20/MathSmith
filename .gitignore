@@ -2,3 +2,9 @@
 .godot/
 /android/
 /Builds/
+
+# Local AI provider configuration and secrets must never enter Web exports.
+/.env
+/.env.local
+/Secrets/
+*.secret

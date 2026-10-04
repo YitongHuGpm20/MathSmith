@@ -22,6 +22,7 @@ func _ready() -> void:
 	backButton.pressed.connect(_on_back_button_pressed)
 	tutorBubble.pressed.connect(ToggleTutor)
 	tutorPanel.optionSelected.connect(GameManager.HandleTutorAction)
+	tutorPanel.messageSubmitted.connect(HandleTutorMessage)
 	LocalizationManager.languageChanged.connect(_on_language_changed)
 	RefreshEntries()
 
@@ -106,6 +107,11 @@ func ToggleTutor() -> void:
 	tutorPanel.Open(GameManager.GetTutorOpeningPage())
 	tutorPanel.move_to_front()
 	tutorBubble.move_to_front()
+
+# Resolves one Mistake Book text request after drawing the thinking state.
+func HandleTutorMessage(userMessage: String) -> void:
+	await get_tree().process_frame
+	tutorPanel.ShowConversationResponse(GameManager.RequestTutorAIResponse(userMessage))
 
 # Formats the source Level, interaction mode, and translated Skill tags.
 func CreateMetadataLabel(entry: Dictionary) -> Label:
