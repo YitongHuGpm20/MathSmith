@@ -4,6 +4,12 @@
 ## will provide deterministic responses, options, context, and navigation.
 extends Control
 
+#region ========== Constants ==========
+
+const NAVIGATION_ICON: Texture2D = preload("res://Assets/Icons/external-link.svg")
+
+#endregion
+
 #region ========== Signals ==========
 
 signal optionSelected(actionId: String)
@@ -107,7 +113,9 @@ func RenderPage(pageData: Dictionary) -> void:
 		optionButton.focus_mode = Control.FOCUS_ALL
 		optionButton.text = tr(String(optionData.get("label", "Continue")))
 		if IsNavigationAction(String(optionData.get("actionId", ""))):
-			optionButton.text += "  ↗"
+			optionButton.icon = NAVIGATION_ICON
+			optionButton.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			optionButton.icon_max_width = 17
 			optionButton.theme_type_variation = &"ButtonPrimary"
 		optionButton.pressed.connect(SelectOption.bind(optionData))
 		optionList.add_child(optionButton)

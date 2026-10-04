@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://b8tycbj4qxcqq"]
+[gd_scene load_steps=23 format=3 uid="uid://b8tycbj4qxcqq"]
 
 [ext_resource type="Theme" path="res://Themes/MathSmithTheme.tres" id="1_theme"]
 [ext_resource type="Script" path="res://Scripts/UIComponents/StepArea.gd" id="2_step_area"]
@@ -15,6 +15,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/Menus/SettingsPanel.tscn" id="13_settings_panel"]
 [ext_resource type="PackedScene" path="res://Scenes/Menus/TutorPanel.tscn" id="14_tutor_panel"]
 [ext_resource type="PackedScene" path="res://Scenes/Menus/TutorBubble.tscn" id="15_tutor_bubble"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/heart.svg" id="16_heart"]
+[ext_resource type="Texture2D" path="res://Assets/Icons/x.svg" id="17_close"]
 
 [sub_resource type="StyleBoxFlat" id="QuestionPanelStyle"]
 bg_color = Color(0.045, 0.115, 0.19, 0.98)
@@ -164,15 +166,43 @@ vertical_alignment = 1
 visible = false
 custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
+theme_override_constants/separation = 6
 alignment = 1
 
 [node name="SurvivalLivesLabel" type="Label" parent="MainMargin/MainLayout/TopBar/SurvivalLivesGroup"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.45, 0.5, 1)
 theme_override_font_sizes/font_size = 18
-text = "Lives  ♥ ♥ ♥"
+text = "Lives"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="LifeIcon1" type="TextureRect" parent="MainMargin/MainLayout/TopBar/SurvivalLivesGroup"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("16_heart")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.45, 0.5, 1)
+
+[node name="LifeIcon2" type="TextureRect" parent="MainMargin/MainLayout/TopBar/SurvivalLivesGroup"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("16_heart")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.45, 0.5, 1)
+
+[node name="LifeIcon3" type="TextureRect" parent="MainMargin/MainLayout/TopBar/SurvivalLivesGroup"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("16_heart")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.45, 0.5, 1)
 
 [node name="ScoreGroup" type="HBoxContainer" parent="MainMargin/MainLayout/TopBar"]
 custom_minimum_size = Vector2(170, 0)
@@ -381,12 +411,34 @@ expand_mode = 3
 stretch_mode = 5
 modulate = Color(0.35, 0.9, 0.72, 1)
 
-[node name="StarsLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="StarsGroup" type="HBoxContainer" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.98, 0.78, 0.28, 1)
-theme_override_font_sizes/font_size = 34
-text = "★★★"
-horizontal_alignment = 1
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="StarIcon1" type="TextureRect" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsGroup"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+texture = ExtResource("10_score")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.98, 0.78, 0.28, 1)
+
+[node name="StarIcon2" type="TextureRect" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsGroup"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+texture = ExtResource("10_score")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.98, 0.78, 0.28, 1)
+
+[node name="StarIcon3" type="TextureRect" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsGroup"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+texture = ExtResource("10_score")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.98, 0.78, 0.28, 1)
 
 [node name="SessionMetaLabel" type="Label" parent="EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -558,7 +610,8 @@ text = "M5 ANALYTICS"
 [node name="CloseButton" type="Button" parent="AnalyticsOverlay/MarginContainer/Content/Header"]
 custom_minimum_size = Vector2(40, 36)
 layout_mode = 2
-text = "×"
+icon = ExtResource("17_close")
+icon_max_width = 18
 
 [node name="Divider" type="HSeparator" parent="AnalyticsOverlay/MarginContainer/Content"]
 layout_mode = 2

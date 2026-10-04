@@ -17,7 +17,13 @@ signal featureSelected(featureId: String)
 @onready var questionCountLabel: Label = $CardMargin/CardLayout/TopRow/QuestionCountLabel
 @onready var titleLabel: Label = $CardMargin/CardLayout/TitleLabel
 @onready var skillsLabel: Label = $CardMargin/CardLayout/SkillsLabel
-@onready var progressLabel: Label = $CardMargin/CardLayout/ProgressLabel
+@onready var progressRow: HBoxContainer = $CardMargin/CardLayout/ProgressRow
+@onready var progressLabel: Label = $CardMargin/CardLayout/ProgressRow/ProgressLabel
+@onready var bestStarIcons: Array[TextureRect] = [
+	$CardMargin/CardLayout/ProgressRow/StarIcon1,
+	$CardMargin/CardLayout/ProgressRow/StarIcon2,
+	$CardMargin/CardLayout/ProgressRow/StarIcon3
+]
 
 #endregion
 
@@ -88,6 +94,8 @@ func UpdateDisplay() -> void:
 	titleLabel.text = tr(levelTitle)
 	skillsLabel.text = FormatSkills(levelSkills)
 	progressLabel.text = GetProgressText()
+	progressRow.visible = true
+	UpdateBestStarIcons()
 	progressLabel.add_theme_color_override(
 		"font_color",
 		Color(0.98, 0.78, 0.28, 1) if bestStars > 0 else Color(0.45, 0.82, 1, 1)
@@ -101,6 +109,7 @@ func UpdateFeatureDisplay() -> void:
 	titleLabel.text = tr(levelTitle)
 	skillsLabel.text = tr(featureDescription)
 	progressLabel.text = ""
+	progressRow.visible = false
 	tooltip_text = tr(featureDescription)
 
 # Converts snake_case Skill IDs into readable display labels.
@@ -114,19 +123,22 @@ func FormatSkills(skills: Array) -> String:
 
 # Returns a concise current-session progress label for this Level.
 func GetProgressText() -> String:
-	var starText := GetStarText()
-
 	if levelCompleted:
-		return "%s  %s" % [starText, tr("Completed").to_upper()]
+		return tr("Completed").to_upper()
 
 	if levelNeedsPractice:
-		return "%s  %s" % [starText, tr("Needs Practice").to_upper()]
+		return tr("Needs Practice").to_upper()
 
-	return "%s  %s" % [starText, tr("Not Started").to_upper()]
+	return tr("Not Started").to_upper()
 
-# Formats the best historical rating as three stable star characters.
-func GetStarText() -> String:
-	return String.chr(9733).repeat(bestStars) + String.chr(9734).repeat(3 - bestStars)
+# Displays the best historical rating with local SVG icons.
+func UpdateBestStarIcons() -> void:
+	for starIndex in range(bestStarIcons.size()):
+		bestStarIcons[starIndex].modulate = (
+			Color(0.98, 0.78, 0.28, 1)
+			if starIndex < bestStars
+			else Color(0.45, 0.82, 1, 0.2)
+		)
 
 # Updates the card's visual toggle state without changing gameplay state.
 func SetSelectedState(isSelected: bool) -> void:

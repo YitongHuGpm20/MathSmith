@@ -53,6 +53,11 @@ const ZEN_SOLVED_ICON: Texture2D = preload("res://Assets/Icons/correct.svg")
 @onready var zenTimerLabel: Label = $"../MainMargin/MainLayout/TopBar/ZenTimerGroup/ZenTimerLabel"
 @onready var survivalLivesGroup: HBoxContainer = $"../MainMargin/MainLayout/TopBar/SurvivalLivesGroup"
 @onready var survivalLivesLabel: Label = $"../MainMargin/MainLayout/TopBar/SurvivalLivesGroup/SurvivalLivesLabel"
+@onready var survivalLifeIcons: Array[TextureRect] = [
+	$"../MainMargin/MainLayout/TopBar/SurvivalLivesGroup/LifeIcon1",
+	$"../MainMargin/MainLayout/TopBar/SurvivalLivesGroup/LifeIcon2",
+	$"../MainMargin/MainLayout/TopBar/SurvivalLivesGroup/LifeIcon3"
+]
 @onready var teacherPreviewLabel: Label = $"../MainMargin/MainLayout/TopBar/TeacherPreviewLabel"
 @onready var scoreLabel: Label = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreLabel"
 @onready var scoreIcon: TextureRect = $"../MainMargin/MainLayout/TopBar/ScoreGroup/ScoreIcon"
@@ -68,7 +73,12 @@ const ZEN_SOLVED_ICON: Texture2D = preload("res://Assets/Icons/correct.svg")
 @onready var endMenu: PanelContainer = $"../EndMenu"
 @onready var completeLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CompleteLabel"
 @onready var completeIcon: TextureRect = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/CompleteIcon"
-@onready var starsLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsLabel"
+@onready var starsGroup: HBoxContainer = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsGroup"
+@onready var summaryStarIcons: Array[TextureRect] = [
+	$"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsGroup/StarIcon1",
+	$"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsGroup/StarIcon2",
+	$"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StarsGroup/StarIcon3"
+]
 @onready var resultLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ResultLabel"
 @onready var sessionMetaLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/SessionMetaLabel"
 @onready var statsLabel: Label = $"../EndMenu/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StatsLabel"
@@ -355,9 +365,13 @@ func UpdateZenStatus(remainingSeconds: int, solvedCount: int) -> void:
 
 # Displays remaining lives and solved count during an untimed Survival run.
 func UpdateSurvivalStatus(remainingLives: int, solvedCount: int) -> void:
-	var filledLives := String.chr(9829).repeat(maxi(0, remainingLives))
-	var emptyLives := String.chr(9825).repeat(maxi(0, 3 - remainingLives))
-	survivalLivesLabel.text = "%s  %s%s" % [tr("Lives"), filledLives, emptyLives]
+	survivalLivesLabel.text = tr("Lives")
+	for lifeIndex in range(survivalLifeIcons.size()):
+		survivalLifeIcons[lifeIndex].modulate = (
+			Color(1, 0.45, 0.5, 1)
+			if lifeIndex < remainingLives
+			else Color(1, 0.45, 0.5, 0.22)
+		)
 	progressLabel.text = tr("Random Questions")
 	scoreLabel.text = "%s %d" % [tr("Solved"), solvedCount]
 
@@ -751,8 +765,13 @@ func ShowEndMenu(summaryData: Dictionary) -> void:
 		else Color(1, 0.68, 0.34, 1)
 	)
 	completeIcon.visible = levelCompleted or isPracticeSession
-	starsLabel.visible = not isPracticeSession and not isTeacherPreview
-	starsLabel.text = "★".repeat(starCount) + "☆".repeat(3 - starCount)
+	starsGroup.visible = not isPracticeSession and not isTeacherPreview
+	for starIndex in range(summaryStarIcons.size()):
+		summaryStarIcons[starIndex].modulate = (
+			Color(0.98, 0.78, 0.28, 1)
+			if starIndex < starCount
+			else Color(0.98, 0.78, 0.28, 0.2)
+		)
 	sessionMetaLabel.text = "%s\n%s" % [
 		tr(summaryData.get("levelTitle", "Untitled Level")),
 		tr(summaryData.get("levelTypeTitle", "Unknown Mode"))
@@ -809,7 +828,7 @@ func ShowZenEndMenu(summaryData: Dictionary) -> void:
 	completeLabel.text = tr("TIME'S UP")
 	completeLabel.add_theme_color_override("font_color", Color(0.45, 0.82, 1, 1))
 	completeIcon.visible = false
-	starsLabel.visible = false
+	starsGroup.visible = false
 	sessionMetaLabel.text = tr("Zen Mode")
 	resultLabel.text = "%s  %d" % [tr("Solved"), summaryData.get("solvedCount", 0)]
 	statsLabel.text = "%s  %d%%\n%s  %d" % [
@@ -832,7 +851,7 @@ func ShowSurvivalEndMenu(summaryData: Dictionary) -> void:
 	completeLabel.text = tr("SURVIVAL OVER")
 	completeLabel.add_theme_color_override("font_color", Color(1, 0.58, 0.48, 1))
 	completeIcon.visible = false
-	starsLabel.visible = false
+	starsGroup.visible = false
 	sessionMetaLabel.text = tr("Survival Mode")
 	resultLabel.text = "%s  %d" % [tr("Solved"), summaryData.get("solvedCount", 0)]
 	statsLabel.text = "%s  %d\n%s  %d" % [
